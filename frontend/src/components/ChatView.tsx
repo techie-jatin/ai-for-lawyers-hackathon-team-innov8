@@ -390,6 +390,56 @@ export function ChatView({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
+  const sendAssistantQuery = async (payload: {
+    query: string;
+    mode: string;
+    context_filter: string;
+    gemini_api_key?: string;
+  }): Promise<AssistantResponse> => {
+    const cleanBase = apiBase.replace(/\/+$/, '');
+    const targets = [
+      `${cleanBase}/api/assistant/query`,
+      cleanBase.includes('localhost') 
+        ? `${cleanBase.replace('localhost', '127.0.0.1')}/api/assistant/query` 
+        : null
+    ].filter(Boolean) as string[];
+
+    let lastError: any = null;
+    for (const url of targets) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          return await res.json();
+        }
+        throw new Error(`Server returned HTTP ${res.status}`);
+      } catch (err: any) {
+        lastError = err;
+      }
+    }
+    throw lastError;
+  };
+
+  const formatConnectionError = (err: any): string => {
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    const isLocal = apiBase.includes('localhost') || apiBase.includes('127.0.0.1');
+
+    if (isHttps && isLocal) {
+      return (
+        "🌐 **Vercel Mixed Content Notice: Backend Connection Required**\n\n" +
+        "You are accessing this frontend over **HTTPS on Vercel**, but the backend API is pointing to local `http://localhost:8000`. Web browsers strictly block HTTPS web applications from making unencrypted requests to local machines.\n\n" +
+        "### How to Test:\n" +
+        "1. **Local Evaluation (Full Integration)**: Open the frontend locally at [http://localhost:5173](http://localhost:5173). In your terminal, ensure `.\\run_backend.ps1` is running.\n" +
+        "2. **Vercel Live Production**: Deploy your FastAPI backend to a cloud host (e.g. Render, Railway, or Koyeb), then configure `VITE_API_BASE=https://your-backend-url` in **Vercel Project Settings ➔ Environment Variables**."
+      );
+    }
+
+    return `Unable to retrieve statutory intelligence from backend: ${err.message || 'Network error'}. Please verify connection to the FastAPI server (${apiBase}). Ensure .\\run_backend.ps1 is running.`;
+  };
+
   const executeDirectQuery = async (
     queryText: string,
     targetThreadId: string,
@@ -400,20 +450,13 @@ export function ChatView({
   ) => {
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}/api/assistant/query`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: queryText,
-          mode: mode,
-          context_filter: categoryName,
-          gemini_api_key: geminiApiKey || undefined
-        })
+      const data = await sendAssistantQuery({
+        query: queryText,
+        mode: mode,
+        context_filter: categoryName,
+        gemini_api_key: geminiApiKey || undefined
       });
 
-      if (!res.ok) throw new Error(`Server returned HTTP ${res.status}`);
-
-      const data: AssistantResponse = await res.json();
       const asstMsgId = `msg-a-${Date.now()}`;
       const asstMsg: ChatMessage = {
         id: asstMsgId,
@@ -443,7 +486,7 @@ export function ChatView({
       const errorMsg: ChatMessage = {
         id: `msg-a-${Date.now()}`,
         role: 'assistant',
-        text: `Unable to retrieve statutory intelligence from backend: ${err.message || 'Network error'}. Please verify connection to the FastAPI server.`,
+        text: formatConnectionError(err),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       const finalMessages = [userMsg, errorMsg];
@@ -778,22 +821,13 @@ export function ChatView({
     saveThreadsToStorage(updatedThreads);
 
     try {
-      const res = await fetch(`${apiBase}/api/assistant/query`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: textToSend,
-          mode: mode,
-          context_filter: contextFilter,
-          gemini_api_key: geminiApiKey || undefined
-        })
+      const data = await sendAssistantQuery({
+        query: textToSend,
+        mode: mode,
+        context_filter: contextFilter,
+        gemini_api_key: geminiApiKey || undefined
       });
 
-      if (!res.ok) {
-        throw new Error(`Server returned HTTP ${res.status}`);
-      }
-
-      const data: AssistantResponse = await res.json();
       const asstMsgId = `msg-${Date.now() + 1}`;
       const asstMsg: ChatMessage = {
         id: asstMsgId,
@@ -822,7 +856,7 @@ export function ChatView({
       const errorMsg: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         role: 'assistant',
-        text: `Unable to retrieve statutory intelligence from backend: ${err.message || 'Network error'}. Please verify connection to the FastAPI server.`,
+        text: formatConnectionError(err),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       const finalMessages = [...newMessages, errorMsg];

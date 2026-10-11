@@ -165,32 +165,32 @@ function CourtReadyParchmentDeed({
       className={
         isPrintOnly
           ? "hidden print:block bg-white text-black font-serif text-[11pt] leading-[1.8] text-justify"
-          : "bg-white text-[#111827] font-serif p-6 sm:p-10 rounded-sm shadow-xl border border-slate-300 max-h-[580px] overflow-y-auto select-text text-[12.5px] sm:text-[13px] leading-[1.8] text-justify space-y-6"
+          : "bg-white text-[#111827] font-serif p-3.5 sm:p-6 md:p-10 rounded-sm shadow-xl border border-slate-300 max-h-[580px] overflow-y-auto select-text text-[11.5px] sm:text-[13px] leading-[1.8] text-justify space-y-4 sm:space-y-6"
       }
       style={{
         fontFamily: "'Times New Roman', Times, Georgia, serif"
       }}
     >
       {/* 1. OFFICIAL NON-JUDICIAL E-STAMP CERTIFICATE HEADER */}
-      <div className="border-2 border-black p-3 bg-white text-black font-sans text-[10px] sm:text-[10.5px] leading-tight space-y-2 avoid-page-break">
-        <div className="text-center font-bold uppercase tracking-wider text-[11px] sm:text-[12px] border-b border-black pb-1.5 flex items-center justify-between">
-          <div className="w-8 h-8 rounded border border-black flex items-center justify-center font-serif text-[11px] font-bold">
+      <div className="border-2 border-black p-2.5 sm:p-3 bg-white text-black font-sans text-[9.5px] sm:text-[10.5px] leading-tight space-y-2 avoid-page-break">
+        <div className="text-center font-bold uppercase tracking-wider text-[10px] sm:text-[12px] border-b border-black pb-1.5 flex items-center justify-between gap-1.5">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded border border-black flex items-center justify-center font-serif text-[10px] sm:text-[11px] font-bold shrink-0">
             सत्य
           </div>
-          <div>
-            <div>GOVERNMENT OF NATIONAL CAPITAL TERRITORY OF DELHI / STATE OF {governingState.toUpperCase()}</div>
-            <div className="text-[9.5px] font-semibold tracking-normal text-slate-800">
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[9px] sm:text-[11px]">GOVERNMENT OF NCT OF DELHI / STATE OF {governingState.toUpperCase()}</div>
+            <div className="text-[8px] sm:text-[9.5px] font-semibold tracking-normal text-slate-800 truncate">
               e-Stamp Certificate • Non-Judicial Commercial Stamp (Ref: SHCIL/IND-STAMP-2026)
             </div>
           </div>
-          <div className="w-8 h-8 border border-black flex flex-col items-center justify-center text-[7px] font-mono">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 border border-black flex flex-col items-center justify-center text-[6px] sm:text-[7px] font-mono shrink-0">
             <span>QR</span>
             <span>SEC</span>
           </div>
         </div>
 
         {/* 2-Column Official Metadata Grid */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 py-1 font-mono text-[9px] sm:text-[9.5px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-x-4 gap-y-1 py-1 font-mono text-[8.5px] sm:text-[9.5px] break-all">
           <div><strong>Certificate No:</strong> {certNumber}</div>
           <div><strong>Issued Date:</strong> 12-Oct-2026 11:30 AM IST</div>
           <div><strong>Account Reference:</strong> NONACC (FI) / dl2026 / {governingState.toUpperCase()} / INDIA</div>
@@ -205,7 +205,7 @@ function CourtReadyParchmentDeed({
           <div><strong>Arbitration Seat:</strong> {arbitrationCity}, State of {governingState}</div>
         </div>
 
-        <div className="border-t border-black pt-1 text-center font-sans italic text-[8.5px] text-slate-700">
+        <div className="border-t border-black pt-1 text-center font-sans italic text-[8px] sm:text-[8.5px] text-slate-700">
           *** Please write or type below this line. Official verification: www.shcilestamp.com / National e-Stamping Portal ***
         </div>
       </div>
@@ -301,57 +301,57 @@ function CourtReadyParchmentDeed({
         </p>
 
         {/* 7. DUAL-COLUMN SIGNATURE BOXES */}
-        <div className="grid grid-cols-2 gap-6 sm:gap-10 pt-2 pb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4 sm:gap-8 pt-2 pb-4">
           {/* Party A */}
-          <div className="border border-black p-4 space-y-3 bg-white">
+          <div className="border border-black p-3 sm:p-4 space-y-2.5 sm:space-y-3 bg-white">
             <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-700">
               For and on behalf of First Party:
             </div>
-            <div className="font-bold text-[12px]">{partyA}</div>
-            <div className="pt-8 border-b border-black" />
+            <div className="font-bold text-[12px] truncate">{partyA}</div>
+            <div className="pt-6 sm:pt-8 border-b border-black" />
             <div className="text-[10px] font-sans space-y-1">
-              <div><strong>By:</strong> ____________________________________</div>
+              <div><strong>By:</strong> <span className="inline-block border-b border-black w-28 sm:w-40 ml-1"></span></div>
               <div><strong>Name:</strong> Authorized Signatory</div>
               <div><strong>Title:</strong> Managing Director / Partner</div>
               <div><strong>Date:</strong> 12 / 10 / 2026</div>
-              <div className="pt-2 text-center text-slate-600 italic">[ Common Seal / Company Stamp ]</div>
+              <div className="pt-2 text-center text-slate-600 italic text-[9px] sm:text-[10px]">[ Common Seal / Company Stamp ]</div>
             </div>
           </div>
 
           {/* Party B */}
-          <div className="border border-black p-4 space-y-3 bg-white">
+          <div className="border border-black p-3 sm:p-4 space-y-2.5 sm:space-y-3 bg-white">
             <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-700">
               For and on behalf of Second Party:
             </div>
-            <div className="font-bold text-[12px]">{partyB}</div>
-            <div className="pt-8 border-b border-black" />
+            <div className="font-bold text-[12px] truncate">{partyB}</div>
+            <div className="pt-6 sm:pt-8 border-b border-black" />
             <div className="text-[10px] font-sans space-y-1">
-              <div><strong>By:</strong> ____________________________________</div>
+              <div><strong>By:</strong> <span className="inline-block border-b border-black w-28 sm:w-40 ml-1"></span></div>
               <div><strong>Name:</strong> Authorized Signatory</div>
               <div><strong>Title:</strong> Director / Authorized Signatory</div>
               <div><strong>Date:</strong> 12 / 10 / 2026</div>
-              <div className="pt-2 text-center text-slate-600 italic">[ Common Seal / Company Stamp ]</div>
+              <div className="pt-2 text-center text-slate-600 italic text-[9px] sm:text-[10px]">[ Common Seal / Company Stamp ]</div>
             </div>
           </div>
         </div>
 
         {/* 8. WITNESS ATTESTATION BOX */}
-        <div className="border border-black p-3.5 mt-4 space-y-2 font-sans text-[10px] avoid-page-break bg-slate-50/50">
-          <div className="font-bold uppercase tracking-wider">
+        <div className="border border-black p-3 sm:p-3.5 mt-3 sm:mt-4 space-y-2 font-sans text-[10px] avoid-page-break bg-slate-50/50">
+          <div className="font-bold uppercase tracking-wider text-[9.5px] sm:text-[10px]">
             IN THE PRESENCE OF INDEPENDENT WITNESSES:
           </div>
-          <div className="grid grid-cols-2 gap-4 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 sm:gap-4 pt-1">
             <div className="space-y-1">
               <div><strong>Witness 1:</strong></div>
-              <div>Signature: ____________________________________</div>
-              <div>Full Name: ____________________________________</div>
-              <div>Address: ______________________________________</div>
+              <div>Signature: <span className="inline-block border-b border-black w-28 sm:w-40 ml-1"></span></div>
+              <div>Full Name: <span className="inline-block border-b border-black w-28 sm:w-40 ml-1"></span></div>
+              <div>Address: <span className="inline-block border-b border-black w-28 sm:w-40 ml-1"></span></div>
             </div>
             <div className="space-y-1">
               <div><strong>Witness 2:</strong></div>
-              <div>Signature: ____________________________________</div>
-              <div>Full Name: ____________________________________</div>
-              <div>Address: ______________________________________</div>
+              <div>Signature: <span className="inline-block border-b border-black w-28 sm:w-40 ml-1"></span></div>
+              <div>Full Name: <span className="inline-block border-b border-black w-28 sm:w-40 ml-1"></span></div>
+              <div>Address: <span className="inline-block border-b border-black w-28 sm:w-40 ml-1"></span></div>
             </div>
           </div>
         </div>
@@ -385,6 +385,7 @@ export const ContractStudioView: React.FC<ContractStudioViewProps> = ({ isDark, 
   const [copiedContract, setCopiedContract] = useState<boolean>(false);
   const [previewFormat, setPreviewFormat] = useState<'parchment' | 'code'>('parchment');
   const [isFullParchmentModalOpen, setIsFullParchmentModalOpen] = useState<boolean>(false);
+  const [mobileGenTab, setMobileGenTab] = useState<'config' | 'preview'>('config');
 
   // Scanner State
   const [scanText, setScanText] = useState<string>('');
@@ -416,6 +417,7 @@ export const ContractStudioView: React.FC<ContractStudioViewProps> = ({ isDark, 
         const data = await res.json();
         setGeneratedText(data.contract_text);
         setEngineUsed(data.engine);
+        setMobileGenTab('preview');
       } else {
         throw new Error('API request failed');
       }
@@ -443,6 +445,7 @@ FOR ${partyA.toUpperCase()}: ______________________
 FOR ${partyB.toUpperCase()}: ______________________`;
       setGeneratedText(fallback);
       setEngineUsed('Bharat Statutory Contract Engine (Deterministic Offline Mode)');
+      setMobileGenTab('preview');
     } finally {
       setIsGenerating(false);
     }
@@ -813,12 +816,12 @@ FOR ${partyB.toUpperCase()}: ______________________`;
         isDark ? 'bg-[#0d0f17] border-[#1f2438]' : 'bg-white border-[#e2e8f0]'
       }`}>
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00288e] to-[#ff7722] flex items-center justify-center text-white shadow-md">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00288e] to-[#ff7722] flex items-center justify-center text-white shadow-md shrink-0">
             <span className="material-symbols-outlined text-[20px]">edit_document</span>
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className={`text-[15px] sm:text-[16px] font-black tracking-tight ${
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <h2 className={`text-[14px] sm:text-[16px] font-black tracking-tight ${
                 isDark ? 'text-white' : 'text-[#00288e]'
               }`}>
                 AI Contract Studio & Redline Guardrail
@@ -834,20 +837,20 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                 {mode === 'professional' ? 'Advocate Counsel Studio' : 'Citizen / Founder Studio'}
               </span>
             </div>
-            <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            <p className={`text-[10.5px] sm:text-[11px] mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
               Draft court-ready agreements & audit third-party contracts for predatory clauses, uncapped liability & DPDP 2023 risks.
             </p>
           </div>
         </div>
 
         {/* MODE SWITCHER PILL */}
-        <div className={`flex items-center p-0.5 rounded-lg border shadow-2xs ${
+        <div className={`w-full sm:w-auto grid grid-cols-2 sm:flex items-center p-0.5 rounded-lg border shadow-2xs ${
           isDark ? 'bg-[#131624] border-[#242b42]' : 'bg-[#f0f4ff] border-[#dce9ff]'
         }`}>
           <button
             type="button"
             onClick={() => setStudioMode('generator')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               studioMode === 'generator'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -860,7 +863,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           <button
             type="button"
             onClick={() => setStudioMode('scanner')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               studioMode === 'scanner'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -877,11 +880,47 @@ FOR ${partyB.toUpperCase()}: ______________________`;
         <div className="max-w-[1240px] mx-auto space-y-5">
           {studioMode === 'generator' ? (
             /* ================= MODE 1: CONTRACT GENERATOR ================= */
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-              {/* LEFT CONFIGURATION PANEL (5 cols) */}
-              <div className={`lg:col-span-5 p-4 rounded-xl border space-y-4 ${
-                isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0] shadow-sm'
+            <div className="space-y-4">
+              {/* MOBILE/TABLET WORKSPACE VIEW SELECTOR (< lg) */}
+              <div className={`lg:hidden grid grid-cols-2 p-1 rounded-xl border text-[12px] font-bold shadow-xs ${
+                isDark ? 'bg-[#121524] border-[#242a42]' : 'bg-slate-100 border-slate-200'
               }`}>
+                <button
+                  type="button"
+                  onClick={() => setMobileGenTab('config')}
+                  className={`py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                    mobileGenTab === 'config'
+                      ? isDark ? 'bg-white text-black shadow-sm font-black' : 'bg-[#00288e] text-white shadow-sm font-black'
+                      : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">tune</span>
+                  <span>1. Configure Terms</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileGenTab('preview')}
+                  className={`py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all relative ${
+                    mobileGenTab === 'preview'
+                      ? isDark ? 'bg-white text-black shadow-sm font-black' : 'bg-[#00288e] text-white shadow-sm font-black'
+                      : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">visibility</span>
+                  <span>2. Preview Deed</span>
+                  {generatedText && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  )}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                {/* LEFT CONFIGURATION PANEL (5 cols) */}
+                <div className={`lg:col-span-5 p-3 sm:p-4 rounded-xl border space-y-4 ${
+                  mobileGenTab === 'preview' ? 'hidden lg:block' : 'block'
+                } ${
+                  isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0] shadow-sm'
+                }`}>
                 <div>
                   <h3 className={`text-[13px] font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 ${
                     isDark ? 'text-amber-400' : 'text-[#00288e]'
@@ -1058,7 +1097,9 @@ FOR ${partyB.toUpperCase()}: ______________________`;
               </div>
 
               {/* RIGHT PREVIEW PANEL (7 cols) */}
-              <div className={`lg:col-span-7 p-4 sm:p-5 rounded-xl border flex flex-col justify-between gap-3 ${
+              <div className={`lg:col-span-7 p-3 sm:p-5 rounded-xl border flex flex-col justify-between gap-3 ${
+                mobileGenTab === 'config' ? 'hidden lg:flex' : 'flex'
+              } ${
                 isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0] shadow-sm'
               }`}>
                 <div>
@@ -1150,19 +1191,19 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-3 border-t border-slate-700/20">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-slate-700/20">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[10px] text-slate-400 font-sans">
                       ⚖️ Formatted with Indian Stamp Act e-Stamping placeholder & Section 63 BSA execution lines.
                     </span>
                     {engineUsed && (
-                      <span className="hidden sm:inline-block text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <span className="inline-block text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                         {engineUsed}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="grid grid-cols-1 sm:flex items-center gap-2 w-full sm:w-auto shrink-0">
                     <button
                       type="button"
                       onClick={() => {
@@ -1170,7 +1211,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                         setCopiedContract(true);
                         setTimeout(() => setCopiedContract(false), 2000);
                       }}
-                      className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border flex items-center gap-1 cursor-pointer transition-all ${
+                      className={`w-full sm:w-auto px-3 py-2 sm:py-1.5 rounded-lg text-[11px] font-bold border flex items-center justify-center gap-1 cursor-pointer transition-all ${
                         copiedContract
                           ? 'bg-emerald-600 text-white border-emerald-500'
                           : isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-white border-[#2b334d]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
@@ -1190,7 +1231,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                         setStudioMode('scanner');
                         handleAuditContract(targetText);
                       }}
-                      className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 cursor-pointer shadow-md transition-all"
+                      className="w-full sm:w-auto px-3 py-2 sm:py-1.5 rounded-lg text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-1 cursor-pointer shadow-md transition-all"
                       title="Test and audit this contract in the Redline Risk Scanner for Section 27, Section 73, and DPDP 2023 compliance"
                     >
                       <span className="material-symbols-outlined text-[15px]">fact_check</span>
@@ -1200,7 +1241,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                     <button
                       type="button"
                       onClick={() => handlePrintDeed()}
-                      className="px-3.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center gap-1.5 cursor-pointer shadow-md"
+                      className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-lg text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
                       title="Prints ONLY the official white sheet agreement with e-Stamp certificate and signatures"
                     >
                       <span className="material-symbols-outlined text-[15px]">print</span>
@@ -1210,7 +1251,8 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                 </div>
               </div>
             </div>
-          ) : (
+          </div>
+        ) : (
             /* ================= MODE 2: REDLINING & RISK SCANNER ================= */
             <div className="space-y-5">
               {/* INPUT SCAN CARD */}
@@ -1219,24 +1261,24 @@ FOR ${partyB.toUpperCase()}: ______________________`;
               }`}>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[20px] text-rose-500">warning</span>
-                    <h3 className={`text-[13.5px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
+                    <span className="material-symbols-outlined text-[20px] text-rose-500 shrink-0">warning</span>
+                    <h3 className={`text-[13px] sm:text-[13.5px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
                       Upload or Paste Contract to Audit for Predatory Clauses & Legal Risks
                     </h3>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="grid grid-cols-1 sm:flex items-center gap-2 w-full sm:w-auto">
                     <button
                       type="button"
                       onClick={() => {
                         setScanText(COMPLIANT_SAMPLE_CONTRACT);
                         handleAuditContract(COMPLIANT_SAMPLE_CONTRACT);
                       }}
-                      className="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-500 border border-emerald-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                      className="w-full sm:w-auto px-2.5 py-1.5 sm:py-1 rounded-lg text-[10.5px] font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-500 border border-emerald-500/30 flex items-center justify-center gap-1 cursor-pointer transition-all"
                       title="Load a 100% compliant Indian agreement generated by our Bharat Legal Contract Studio"
                     >
                       <span className="material-symbols-outlined text-[14px]">verified</span>
-                      <span>Load Our Generated Contract (100% Compliant)</span>
+                      <span>Load Compliant Sample (100%)</span>
                     </button>
 
                     <button
@@ -1245,11 +1287,11 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                         setScanText(PREDATORY_SAMPLE_CONTRACT);
                         handleAuditContract(PREDATORY_SAMPLE_CONTRACT);
                       }}
-                      className="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-500 border border-rose-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                      className="w-full sm:w-auto px-2.5 py-1.5 sm:py-1 rounded-lg text-[10.5px] font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-500 border border-rose-500/30 flex items-center justify-center gap-1 cursor-pointer transition-all"
                       title="Load an unfair third-party vendor contract with 4 critical predatory traps"
                     >
                       <span className="material-symbols-outlined text-[14px]">warning</span>
-                      <span>Load Predatory Sample (20% Health)</span>
+                      <span>Load Predatory Sample (20%)</span>
                     </button>
                   </div>
                 </div>
@@ -1264,7 +1306,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                   }`}
                 />
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <span className="text-[10.5px] text-slate-400">
                     Scans for: Uncapped Indemnity (§73 ICA), Void Non-Competes (§27 ICA), Unilateral Termination, Remote Venues & DPDP 2023.
                   </span>
@@ -1273,7 +1315,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                     type="button"
                     onClick={() => handleAuditContract()}
                     disabled={isAuditing || !scanText.trim()}
-                    className="px-4 py-2 rounded-lg text-[12px] font-bold bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50 transition-all"
+                    className="w-full sm:w-auto px-4 py-2 rounded-lg text-[12px] font-bold bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50 transition-all shrink-0"
                   >
                     <span className="material-symbols-outlined text-[16px]">security</span>
                     <span>{isAuditing ? 'Scanning Clauses...' : 'Audit Contract Health'}</span>
@@ -1285,11 +1327,11 @@ FOR ${partyB.toUpperCase()}: ______________________`;
               {auditResult && (
                 <div className="space-y-4">
                   {/* SCORECARD BANNER */}
-                  <div className={`p-4 sm:p-5 rounded-xl border shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
+                  <div className={`p-4 sm:p-5 rounded-xl border shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
                     isDark ? 'bg-gradient-to-r from-[#170a0e] via-[#121524] to-[#0f111a] border-rose-500/30' : 'bg-gradient-to-r from-rose-50 via-white to-amber-50 border-rose-200'
                   }`}>
                     <div className="flex items-center gap-3.5">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-mono text-[22px] font-black border shadow-inner ${
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-mono text-[22px] font-black border shadow-inner shrink-0 ${
                         auditResult.health_score < 60
                           ? 'bg-rose-600/20 text-rose-500 border-rose-500/40'
                           : auditResult.health_score < 80
@@ -1299,8 +1341,8 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                         {auditResult.health_score}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className={`text-[15px] font-black tracking-tight ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <h4 className={`text-[14px] sm:text-[15px] font-black tracking-tight ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
                             Contract Health Score: {auditResult.health_score} / 100
                           </h4>
                           <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border ${
@@ -1311,13 +1353,13 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                             {auditResult.risk_rating}
                           </span>
                         </div>
-                        <p className={`text-[11.5px] mt-0.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                        <p className={`text-[11px] sm:text-[11.5px] mt-0.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                           Found <strong>{auditResult.critical_count} Critical Traps</strong> and <strong>{auditResult.warning_count} Warnings</strong> under Indian commercial law.
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                       <span className="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/25">
                         🔴 {auditResult.critical_count} Critical
                       </span>
@@ -1347,7 +1389,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                     {auditResult.risk_items.map((item) => (
                       <div
                         key={item.id}
-                        className={`p-4 rounded-xl border transition-all space-y-2.5 ${
+                        className={`p-3.5 sm:p-4 rounded-xl border transition-all space-y-2.5 ${
                           item.severity === 'critical'
                             ? isDark ? 'bg-[#150a0d] border-rose-500/40' : 'bg-rose-50/50 border-rose-200'
                             : item.severity === 'warning'
@@ -1355,9 +1397,9 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                             : isDark ? 'bg-[#0a1510] border-emerald-500/40' : 'bg-emerald-50/50 border-emerald-200'
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                           <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${
                               item.severity === 'critical' ? 'bg-rose-500 animate-pulse' : item.severity === 'warning' ? 'bg-amber-500' : 'bg-emerald-400'
                             }`} />
                             <h5 className={`text-[13px] font-bold ${
@@ -1367,7 +1409,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                             </h5>
                           </div>
                           {item.statutory_violation && (
-                            <span className="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                            <span className="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30 w-fit">
                               ⚖️ {item.statutory_violation}
                             </span>
                           )}
@@ -1392,7 +1434,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                         <div className={`p-3 rounded-lg border space-y-1.5 ${
                           isDark ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-200' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
                         }`}>
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <strong className="text-[10px] uppercase tracking-wider text-emerald-500 flex items-center gap-1 font-bold">
                               <span className="material-symbols-outlined text-[14px]">auto_fix_normal</span>
                               Suggested Counter-Clause (Safe & Enforceable under Indian Law):
@@ -1404,7 +1446,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                                 setCopiedClauseId(item.id);
                                 setTimeout(() => setCopiedClauseId(null), 2000);
                               }}
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all border ${
+                              className={`w-fit px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all border ${
                                 copiedClauseId === item.id
                                   ? 'bg-emerald-600 text-white border-emerald-500'
                                   : isDark ? 'bg-[#181c2d] text-white border-slate-700 hover:border-slate-500' : 'bg-white text-slate-800 border-slate-300'
@@ -1433,12 +1475,12 @@ FOR ${partyB.toUpperCase()}: ______________________`;
       {/* FULL-PAGE PARCHMENT MODAL */}
       {isFullParchmentModalOpen && (
         <div className="fixed inset-0 z-[1000] bg-black/80 flex flex-col items-center justify-between p-2 sm:p-6 backdrop-blur-xs contract-studio-no-print">
-          <div className="w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-t-xl px-4 py-3 flex items-center justify-between text-white shrink-0 shadow-2xl">
+          <div className="w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-t-xl px-3 sm:px-4 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2 text-white shrink-0 shadow-2xl">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-500 text-[20px]">description</span>
-              <h3 className="text-[13px] font-bold">Court-Ready Parchment Viewer (Official Indian Deed)</h3>
+              <span className="material-symbols-outlined text-amber-500 text-[18px] sm:text-[20px] shrink-0">description</span>
+              <h3 className="text-[12px] sm:text-[13px] font-bold">Court-Ready Parchment Viewer (Official Indian Deed)</h3>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -1446,9 +1488,9 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                   setCopiedContract(true);
                   setTimeout(() => setCopiedContract(false), 2000);
                 }}
-                className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 flex items-center gap-1 cursor-pointer transition-all"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10.5px] sm:text-[11px] font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 flex items-center gap-1 cursor-pointer transition-all"
               >
-                <span className="material-symbols-outlined text-[14px]">
+                <span className="material-symbols-outlined text-[13px] sm:text-[14px]">
                   {copiedContract ? 'check' : 'content_copy'}
                 </span>
                 <span>{copiedContract ? 'Copied' : 'Copy Text'}</span>
@@ -1457,16 +1499,16 @@ FOR ${partyB.toUpperCase()}: ______________________`;
               <button
                 type="button"
                 onClick={() => handlePrintDeed()}
-                className="px-3.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center gap-1.5 cursor-pointer shadow-md"
+                className="px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-lg text-[10.5px] sm:text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center gap-1 sm:gap-1.5 cursor-pointer shadow-md"
               >
-                <span className="material-symbols-outlined text-[15px]">print</span>
+                <span className="material-symbols-outlined text-[14px] sm:text-[15px]">print</span>
                 <span>Print Deed</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setIsFullParchmentModalOpen(false)}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer ml-1"
+                className="p-1 sm:p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer ml-0.5 sm:ml-1"
                 title="Close Viewer"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
@@ -1474,7 +1516,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
             </div>
           </div>
 
-          <div className="w-full max-w-4xl flex-1 overflow-y-auto bg-slate-300/90 p-3 sm:p-8 rounded-b-xl border border-slate-700 flex justify-center">
+          <div className="w-full max-w-4xl flex-1 overflow-y-auto bg-slate-300/90 p-2 sm:p-6 md:p-8 rounded-b-xl border border-slate-700 flex justify-center">
             <div className="w-full max-w-[850px] shadow-2xl">
               <CourtReadyParchmentDeed
                 contractText={generatedText}

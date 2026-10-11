@@ -1,0 +1,12 @@
+{
+  "name": "ai-for-lawyers-hackathon-team-innov8",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm --prefix frontend run build",
+    "dev": "npm --prefix frontend run dev"
+  }
+}

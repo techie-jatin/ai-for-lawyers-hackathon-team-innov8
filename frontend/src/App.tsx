@@ -286,28 +286,28 @@ export function App() {
           : 'bg-white/95 border-[#e2e8f0]'
       }`}>
         {/* Main Bar (h-14 / 56px across all viewports to minimize wasted vertical space) */}
-        <div className="h-14 w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
+        <div className="h-14 w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
           {/* ZONE 1: BRAND IDENTITY (Left) */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               <img 
                 src="/logo.png" 
                 alt="भारत Legal Intelligence" 
-                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-contain shadow-xs p-0.5 border ${
+                className={`w-7 h-7 sm:w-8 sm:h-8 2xl:w-9 2xl:h-9 rounded-lg object-contain shadow-xs p-0.5 border ${
                   isDark ? 'bg-[#131726] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
                 }`}
               />
               {/* Brand name text: HIDDEN on small screens (< sm) to free up header space */}
               <div className="hidden sm:flex flex-col">
                 <div className="flex items-center gap-1.5 whitespace-nowrap">
-                  <span className="font-extrabold text-[14px] sm:text-[17px] tracking-tight text-[#ff7722]">भारत</span>
-                  <span className={`font-extrabold text-[14px] sm:text-[17px] tracking-tight ${
+                  <span className="font-extrabold text-[14px] sm:text-[17px] 2xl:text-[19px] tracking-tight text-[#ff7722]">भारत</span>
+                  <span className={`font-extrabold text-[14px] sm:text-[17px] 2xl:text-[19px] tracking-tight ${
                     isDark ? 'text-white' : 'text-[#00288e]'
                   }`}>
                     Legal Intelligence
                   </span>
                 </div>
-                <span className={`text-[9.5px] font-medium leading-tight hidden md:block truncate ${
+                <span className={`text-[9.5px] 2xl:text-[10.5px] font-medium leading-tight hidden md:block truncate ${
                   isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
                 }`}>
                   Constitutional & Statutory Platform
@@ -331,10 +331,10 @@ export function App() {
                 title="Navigate Platform Pages"
               >
                 <span className="material-symbols-outlined text-[16px] text-[#ff7722]">
-                  {activeTab === 'chat' ? 'chat' : activeTab === 'search' ? 'account_balance' : 'fact_check'}
+                  {activeTab === 'chat' ? 'chat' : activeTab === 'contracts' ? 'edit_document' : activeTab === 'search' ? 'account_balance' : 'fact_check'}
                 </span>
                 <span className="font-semibold tracking-tight">
-                  {activeTab === 'chat' ? 'Chat' : activeTab === 'search' ? 'Search' : 'Hub'}
+                  {activeTab === 'chat' ? 'Chat' : activeTab === 'contracts' ? 'Contracts' : activeTab === 'search' ? 'Search' : 'Hub'}
                 </span>
                 <span className={`material-symbols-outlined text-[15px] transition-transform duration-200 ${isPagesMenuOpen ? 'rotate-180' : ''}`}>
                   expand_more
@@ -352,7 +352,7 @@ export function App() {
                     <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
                       Platform Pages
                     </span>
-                    <span className="text-[9px] font-mono text-[#ff7722] font-semibold">3 Modules</span>
+                    <span className="text-[9px] font-mono text-[#ff7722] font-semibold">4 Modules</span>
                   </div>
 
                   <div className="flex flex-col gap-1">
@@ -449,7 +449,7 @@ export function App() {
                       )}
                     </button>
 
-                    {/* Option 3: Knowledge & Validator Hub */}
+                    {/* Option 4: Knowledge & Validator Hub */}
                     <button
                       type="button"
                       onClick={() => { setActiveTab('info'); setIsPagesMenuOpen(false); }}
@@ -485,65 +485,65 @@ export function App() {
             </div>
           </div>
 
-          {/* ZONE 2: PRIMARY NAVIGATION (Center on Large Screens, Compact on Tablets) */}
-          <div className="hidden sm:flex items-center justify-center flex-1 max-w-lg px-1">
-            {/* Desktop Full Navigation Tabs (>= lg / 1024px+): Micro-Compact & Sleek */}
-            <nav className={`hidden lg:flex items-center gap-0.5 p-0.5 rounded-lg border shadow-2xs ${
+          {/* ZONE 2: PRIMARY NAVIGATION (Center, Adapts Responsively across Breakpoints) */}
+          <div className="hidden sm:flex items-center justify-center flex-1 max-w-xl 2xl:max-w-2xl px-1 sm:px-2">
+            {/* Desktop Full Navigation Tabs (>= lg / 1024px+): Micro-Compact on Lg, Roomy & Elegant on 2xl */}
+            <nav className={`hidden lg:flex items-center gap-0.5 2xl:gap-1.5 p-0.5 2xl:p-1 rounded-lg 2xl:rounded-xl border shadow-2xs ${
               isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
             }`}>
               <button
                 type="button"
                 onClick={() => setActiveTab('chat')}
-                className={`px-2 py-0.5 rounded-md text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 2xl:py-1 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === 'chat'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Legal Chat Assistant"
               >
-                <span className="material-symbols-outlined text-[13px]">chat</span>
+                <span className="material-symbols-outlined text-[13px] 2xl:text-[16px]">chat</span>
                 <span className="tracking-tight">Chat Assistant</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('contracts')}
-                className={`px-2 py-0.5 rounded-md text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 2xl:py-1 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === 'contracts'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="AI Contract Studio & Redline Risk Scanner"
               >
-                <span className="material-symbols-outlined text-[13px]">edit_document</span>
+                <span className="material-symbols-outlined text-[13px] 2xl:text-[16px]">edit_document</span>
                 <span className="tracking-tight">AI Contract Studio</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('search')}
-                className={`px-2 py-0.5 rounded-md text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 2xl:py-1 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === 'search'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Statute & Case Search"
               >
-                <span className="material-symbols-outlined text-[13px]">account_balance</span>
+                <span className="material-symbols-outlined text-[13px] 2xl:text-[16px]">account_balance</span>
                 <span className="tracking-tight">Statute Search</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('info')}
-                className={`px-2 py-0.5 rounded-md text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 2xl:py-1 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === 'info'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Knowledge & Validator Hub"
               >
-                <span className="material-symbols-outlined text-[13px]">fact_check</span>
+                <span className="material-symbols-outlined text-[13px] 2xl:text-[16px]">fact_check</span>
                 <span className="tracking-tight">Validator Hub</span>
               </button>
             </nav>
@@ -555,7 +555,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('chat')}
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'chat'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
@@ -569,7 +569,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('contracts')}
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'contracts'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
@@ -583,7 +583,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('search')}
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'search'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
@@ -597,7 +597,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('info')}
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'info'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
@@ -610,10 +610,10 @@ export function App() {
             </nav>
           </div>
 
-          {/* ZONE 3: UTILITY CONTROLS (Right) */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Neon pgvector Telemetry Pill (Large Desktop >= xl) */}
-            <div className={`hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-mono border shadow-2xs ${
+          {/* ZONE 3: UTILITY CONTROLS (Right, Fluid and Flexible) */}
+          <div className="flex items-center gap-2 sm:gap-2.5 2xl:gap-3.5 shrink-0">
+            {/* Neon pgvector Telemetry Pill (Large Desktop >= xl / 1280px+) */}
+            <div className={`hidden xl:flex items-center gap-2 px-2.5 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-mono border shadow-2xs whitespace-nowrap ${
               isDark 
                 ? 'bg-[#0d1f17] border-emerald-900/60 text-emerald-300' 
                 : 'bg-emerald-50 border-emerald-200 text-emerald-800'
@@ -623,13 +623,13 @@ export function App() {
             </div>
 
             {/* Citizen vs Advocate Mode Segmented Control (Desktop >= sm) */}
-            <div className={`hidden sm:flex items-center p-1 rounded-full border shadow-2xs ${
+            <div className={`hidden sm:flex items-center p-0.5 2xl:p-1 rounded-full border shadow-2xs whitespace-nowrap ${
               isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
             }`}>
               <button
                 type="button"
                 onClick={() => setMode('citizen')}
-                className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+                className={`px-2.5 sm:px-3 2xl:px-4 py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-semibold transition-all cursor-pointer ${
                   mode === 'citizen'
                     ? isDark ? 'bg-white text-black shadow-md font-bold' : 'bg-[#00288e] text-white shadow-md font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#565e74] hover:text-[#0b1c30]'
@@ -640,7 +640,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setMode('professional')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 2xl:px-4 py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-semibold transition-all cursor-pointer ${
                   mode === 'professional'
                     ? isDark ? 'bg-white text-black shadow-md font-bold' : 'bg-[#00288e] text-white shadow-md font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#565e74] hover:text-[#0b1c30]'
@@ -667,7 +667,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-full text-[12px] font-semibold transition-all border cursor-pointer shadow-2xs ${
+              className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-2.5 2xl:px-3.5 sm:py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-[12px] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap ${
                 isDark 
                   ? 'bg-[#131624] hover:bg-[#1a1f33] text-amber-300 border-[#23283f] hover:border-amber-400/40' 
                   : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#00288e] border-[#dce9ff] hover:border-[#00288e]/30'
@@ -675,10 +675,10 @@ export function App() {
               title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
               aria-label="Toggle Theme"
             >
-              <span className="material-symbols-outlined text-[17px] sm:text-[18px]">
+              <span className="material-symbols-outlined text-[16px] sm:text-[17px] 2xl:text-[19px]">
                 {isDark ? 'light_mode' : 'dark_mode'}
               </span>
-              <span className="hidden md:inline font-mono text-[11px] ml-1.5 font-bold">
+              <span className="hidden md:inline font-mono text-[10.5px] 2xl:text-[11.5px] ml-1 2xl:ml-1.5 font-bold">
                 {isDark ? 'Light' : 'Dark'}
               </span>
             </button>
@@ -687,16 +687,16 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsDossiersOpen(true)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[12px] font-medium border transition-colors cursor-pointer shadow-xs ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 2xl:px-3.5 sm:py-1.5 2xl:py-2 rounded-xl text-[11px] 2xl:text-[12px] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
                 isDark 
                   ? 'bg-[#131624] text-[#e2e8f0] border-[#23283f] hover:bg-[#1a1f33]' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
               }`}
               title="Open Chamber Dossiers Repository"
             >
-              <span className="material-symbols-outlined text-[18px] text-[#60a5fa]">folder_special</span>
+              <span className="material-symbols-outlined text-[17px] 2xl:text-[19px] text-[#60a5fa]">folder_special</span>
               <span className="hidden sm:inline font-bold">Dossiers</span>
-              <span className={`px-2 py-0.5 rounded-full font-mono text-[10px] font-extrabold shadow-xs ${
+              <span className={`px-2 py-0.5 rounded-full font-mono text-[9.5px] 2xl:text-[10.5px] font-extrabold shadow-xs ${
                 isDark ? 'bg-white text-black' : 'bg-[#00288e] text-white'
               }`}>
                 {dossierCount}
@@ -706,32 +706,34 @@ export function App() {
         </div>
 
         {/* Secondary Statutory Sub-Header (Ticker Bar - h-6.5 sm:h-7 / 26px, hidden on small mobile to maximize screen) */}
-        <div id="statutory-ticker" className={`h-6.5 sm:h-7 w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 hidden sm:flex items-center justify-between text-[10px] font-mono border-t overflow-hidden ${
+        <div id="statutory-ticker" className={`h-6.5 sm:h-7 w-full border-t overflow-hidden transition-colors ${
           isDark 
             ? 'bg-[#06070a] border-[#1a1e2e] text-[#94a3b8]' 
             : 'bg-[#f8f9ff] border-[#e2e8f0] text-[#565e74]'
         }`}>
-          <div className="flex items-center gap-2 truncate">
-            <span className={`px-1.5 py-0.2 rounded font-bold uppercase tracking-wider text-[8.5px] border shrink-0 ${
-              isDark 
-                ? 'bg-white/10 text-white border-white/15' 
-                : 'bg-[#00288e]/10 text-[#00288e] border-[#00288e]/20'
+          <div className="w-full max-w-[1920px] mx-auto h-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 hidden sm:flex items-center justify-between text-[10px] 2xl:text-[11px] font-mono">
+            <div className="flex items-center gap-2 truncate">
+              <span className={`px-1.5 py-0.2 rounded font-bold uppercase tracking-wider text-[8.5px] 2xl:text-[9.5px] border shrink-0 ${
+                isDark 
+                  ? 'bg-white/10 text-white border-white/15' 
+                  : 'bg-[#00288e]/10 text-[#00288e] border-[#00288e]/20'
+              }`}>
+                Statutory Engine
+              </span>
+              <span className={`truncate ${isDark ? 'text-[#cbd5e1]' : 'text-[#334155]'}`}>
+                Institutional Legal Intelligence Engine • Aligned with BNS 2023, BNSS 2023 & Constitution of India
+              </span>
+            </div>
+            <div className={`hidden lg:flex items-center gap-3 shrink-0 ${
+              isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
             }`}>
-              Statutory Engine
-            </span>
-            <span className={`truncate ${isDark ? 'text-[#cbd5e1]' : 'text-[#334155]'}`}>
-              Institutional Legal Intelligence Engine • Aligned with BNS 2023, BNSS 2023 & Constitution of India
-            </span>
-          </div>
-          <div className={`hidden lg:flex items-center gap-3 shrink-0 ${
-            isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
-          }`}>
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              AIR / SCC Benchmarks: Synced
-            </span>
-            <span>•</span>
-            <span>Art. 141 Binding Precedent</span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                AIR / SCC Benchmarks: Synced
+              </span>
+              <span>•</span>
+              <span>Art. 141 Binding Precedent</span>
+            </div>
           </div>
         </div>
       </header>

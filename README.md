@@ -7,7 +7,7 @@
 [![React](https://img.shields.io/badge/Frontend-React_19_%2B_TypeScript-61DAFB?logo=react)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Build-Vite_8-646CFF?logo=vite)](https://vitejs.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Deployment](https://img.shields.io/badge/Frontend-Vercel_Live-black?logo=vercel)](https://vercel.com)
+[![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?logo=render)](https://render.com)
 [![Operating Budget](https://img.shields.io/badge/Operating_Budget-%E2%82%B90_(Serverless_Free_Tier)-green)](#)
 
 ---
@@ -251,13 +251,13 @@ lawyer/
 │   │   ├── App.tsx              # Root Shell, Ultra-Compact Header, Dark/Light Theme Engine
 │   │   ├── index.css            # Tailwind CSS 4 directives & custom theme variables
 │   │   └── main.tsx             # Vite entry point
-│   ├── package.json
-│   └── vercel.json              # Subdirectory SPA routing configuration
+│   └── package.json
 ├── ingestion/
 │   ├── seed_concordance_and_registry.py  # Seeds BNS concordance & 2026 Gazette circulars
 │   └── seed_initial_provisions.py        # Ingests 59 core statutory provisions
 ├── package.json                 # Monorepo root workspace
-├── vercel.json                  # Root zero-config Vercel deployment configuration
+├── render.yaml                  # Render.com backend deployment configuration
+├── docker-compose.yml           # Local PostgreSQL service
 └── README.md
 ```
 
@@ -303,9 +303,8 @@ Building a real-world legal AI platform under tight hackathon timelines revealed
 | **1. AI Hallucination Hazard** | Generic LLMs invent convincing-sounding citations and section numbers that do not exist. | Engineered an **Evidence-First RAG Pipeline** with an active deterministic `CitationValidator`. Answers cannot be returned without verified citations from the statutory database. |
 | **2. IPC ➔ BNS Transition Confusion** | Advocates and police still cite IPC 420 or CrPC 438, causing confusion under the new 2024 Sanhitas. | Developed a **Statutory Concordance Engine** (`ingestion/seed_concordance_and_registry.py`) providing bidirectional mapping with historical continuity notes. |
 | **3. Risk of Criminal Facilitation** | Malicious users could ask the AI how to destroy evidence or execute cyber attacks. | Implemented a **Deterministic Anti-Misuse Guardrail** intercepting illicit queries before LLM synthesis and issuing statutory warnings under BNS §238 & IT Act §66. |
-| **4. Vercel Monorepo Deployment Failure** | Vercel fresh clone builds failed with `sh: line 1: tsc: command not found (exit code 127)`. | Discovered Vercel skipped dependency installation when building from repo root. Configured root `vercel.json` with explicit `"installCommand": "cd frontend && npm install"` and added a root `package.json` with npm workspaces. |
-| **5. Mobile Screen Header Clutter** | Large navigation labels clashed with the context dropdown on mobile viewports. | Redesigned the navigation into an ultra-compact single-row 3-tab segment (`grid-cols-3`, `text-[10px]`, `py-1`), reducing vertical height from ~100px to **26px**. |
-| **6. Chatbox Typing Latency** | Frequent full-tree re-renders caused typing lag on large conversation histories. | Decoupled local input state from the message thread, applied debouncing, and memoized conversation components for sub-millisecond typing responsiveness. |
+| **4. Mobile Screen Header Clutter** | Large navigation labels clashed with the context dropdown on mobile viewports. | Redesigned the navigation into an ultra-compact single-row 3-tab segment (`grid-cols-3`, `text-[10px]`, `py-1`), reducing vertical height from ~100px to **26px**. |
+| **5. Chatbox Typing Latency** | Frequent full-tree re-renders caused typing lag on large conversation histories. | Decoupled local input state from the message thread, applied debouncing, and memoized conversation components for sub-millisecond typing responsiveness. |
 
 ---
 
@@ -337,7 +336,7 @@ Building a real-world legal AI platform under tight hackathon timelines revealed
 
 ### 1. Clone the Repository
 ```powershell
-git clone https://github.com/techie-jatin/ai-for-lawyers-hackathon-team-innov8.git
+git clone https://github.com/HackIndiaXYZ/ai-for-lawyers-hackathon-team-innov8.git
 cd ai-for-lawyers-hackathon-team-innov8
 ```
 
@@ -368,20 +367,6 @@ npm install
 npm run dev
 ```
 > The web interface will open at `http://localhost:5173`.
-
-### 4. Deploying to Vercel
-The repository is pre-configured with zero-config monorepo SPA settings:
-1. Push your changes to GitHub:
-   ```powershell
-   git push origin main
-   ```
-2. In the **[Vercel Dashboard](https://vercel.com)**:
-   - Import `techie-jatin/ai-for-lawyers-hackathon-team-innov8`.
-   - Vercel automatically detects the root [`vercel.json`](vercel.json) and runs:
-     `installCommand: cd frontend && npm install`
-     `buildCommand: cd frontend && npm install && npm run build`
-   - Output Directory: `frontend/dist`.
-3. Click **Deploy** & your platform goes live in under 60 seconds!
 
 ---
 

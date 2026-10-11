@@ -485,63 +485,63 @@ export function App() {
 
           {/* ZONE 2: PRIMARY NAVIGATION (Center, Adapts Responsively across Breakpoints) */}
           <div className="hidden sm:flex items-center justify-center flex-1 min-w-0 px-1 sm:px-2">
-            {/* Desktop Full Navigation Tabs (>= lg / 1024px+): Micro-Compact on Lg, Roomy & Elegant on 2xl */}
-            <nav className={`hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 p-0.5 2xl:p-1 rounded-lg 2xl:rounded-xl border shadow-2xs ${
+            {/* Desktop Full Navigation Tabs (>= lg / 1024px+): Compact & Sleek */}
+            <nav className={`hidden lg:flex items-center gap-0.5 xl:gap-1 p-0.5 rounded-lg border shadow-2xs ${
               isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
             }`}>
               <button
                 type="button"
                 onClick={() => setActiveTab('chat')}
-                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 xl:py-1 2xl:py-1.5 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-[10px] xl:text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'chat'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Legal Chat Assistant"
               >
-                <span className="material-symbols-outlined text-[13px] 2xl:text-[16px]">chat</span>
+                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px]">chat</span>
                 <span className="tracking-tight">Chat Assistant</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('contracts')}
-                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 xl:py-1 2xl:py-1.5 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-[10px] xl:text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'contracts'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="AI Contract Studio & Redline Risk Scanner"
               >
-                <span className="material-symbols-outlined text-[13px] 2xl:text-[16px]">edit_document</span>
+                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px]">edit_document</span>
                 <span className="tracking-tight">AI Contract Studio</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('search')}
-                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 xl:py-1 2xl:py-1.5 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-[10px] xl:text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'search'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Statute & Case Search"
               >
-                <span className="material-symbols-outlined text-[13px] 2xl:text-[16px]">account_balance</span>
+                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px]">account_balance</span>
                 <span className="tracking-tight">Statute Search</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('info')}
-                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 xl:py-1 2xl:py-1.5 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-[10px] xl:text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'info'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Knowledge & Validator Hub"
               >
-                <span className="material-symbols-outlined text-[13px] 2xl:text-[16px]">fact_check</span>
+                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px]">fact_check</span>
                 <span className="tracking-tight">Validator Hub</span>
               </button>
             </nav>
@@ -553,56 +553,56 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('chat')}
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                className={`px-1.5 py-0.5 rounded-md text-[9.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'chat'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Legal Chat Assistant"
               >
-                <span className="material-symbols-outlined text-[13px]">chat</span>
+                <span className="material-symbols-outlined text-[12px]">chat</span>
                 <span>Chat</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('contracts')}
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                className={`px-1.5 py-0.5 rounded-md text-[9.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'contracts'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="AI Contract Studio"
               >
-                <span className="material-symbols-outlined text-[13px]">edit_document</span>
+                <span className="material-symbols-outlined text-[12px]">edit_document</span>
                 <span>Contracts</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('search')}
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                className={`px-1.5 py-0.5 rounded-md text-[9.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'search'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Statute & Case Search"
               >
-                <span className="material-symbols-outlined text-[13px]">account_balance</span>
+                <span className="material-symbols-outlined text-[12px]">account_balance</span>
                 <span>Search</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('info')}
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                className={`px-1.5 py-0.5 rounded-md text-[9.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'info'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Knowledge & Validator Hub"
               >
-                <span className="material-symbols-outlined text-[13px]">fact_check</span>
+                <span className="material-symbols-outlined text-[12px]">fact_check</span>
                 <span>Validator</span>
               </button>
             </nav>

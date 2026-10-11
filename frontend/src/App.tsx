@@ -286,9 +286,9 @@ export function App() {
           : 'bg-white/95 border-[#e2e8f0]'
       }`}>
         {/* Main Bar (h-14 / 56px across all viewports to minimize wasted vertical space) */}
-        <div className="h-14 w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
+        <div className="h-14 w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
           {/* ZONE 1: BRAND IDENTITY (Left) */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 pl-1 sm:pl-2">
             <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               <img 
                 src="/logo.png" 
@@ -711,7 +711,7 @@ export function App() {
             ? 'bg-[#06070a] border-[#1a1e2e] text-[#94a3b8]' 
             : 'bg-[#f8f9ff] border-[#e2e8f0] text-[#565e74]'
         }`}>
-          <div className="w-full max-w-[1920px] mx-auto h-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 hidden sm:flex items-center justify-between text-[10px] 2xl:text-[11px] font-mono">
+          <div className="w-full h-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 hidden sm:flex items-center justify-between text-[10px] 2xl:text-[11px] font-mono">
             <div className="flex items-center gap-2 truncate">
               <span className={`px-1.5 py-0.2 rounded font-bold uppercase tracking-wider text-[8.5px] 2xl:text-[9.5px] border shrink-0 ${
                 isDark 

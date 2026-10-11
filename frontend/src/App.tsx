@@ -286,33 +286,31 @@ export function App() {
           : 'bg-white/95 border-[#e2e8f0]'
       }`}>
         {/* Main Bar (h-14 / 56px across all viewports to minimize wasted vertical space) */}
-        <div className="h-14 w-full px-2.5 sm:px-4 lg:px-6 xl:px-8 flex items-center justify-between gap-2 sm:gap-4 lg:gap-6">
+        <div className="h-14 w-full px-2.5 sm:px-4 lg:px-5 xl:px-6 2xl:px-8 flex items-center justify-between gap-1.5 sm:gap-2.5 lg:gap-3 xl:gap-4 2xl:gap-6">
           {/* ZONE 1: BRAND IDENTITY (Left) */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-              <img 
-                src="/logo.png" 
-                alt="भारत Legal Intelligence" 
-                className={`w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-lg object-contain shadow-xs p-0.5 border ${
-                  isDark ? 'bg-[#131726] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
-                }`}
-              />
-              {/* Brand name text: HIDDEN on small screens (< sm) to free up header space */}
-              <div className="hidden sm:flex flex-col">
-                <div className="flex items-center gap-1.5 whitespace-nowrap">
-                  <span className="font-extrabold text-[13px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
-                  <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight ${
-                    isDark ? 'text-white' : 'text-[#00288e]'
-                  }`}>
-                    Legal Intelligence
-                  </span>
-                </div>
-                <span className={`text-[8.5px] font-medium leading-tight hidden md:block truncate ${
-                  isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
+            <img 
+              src="/logo.png" 
+              alt="भारत Legal Intelligence" 
+              className={`w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-lg object-contain shadow-xs p-0.5 border ${
+                isDark ? 'bg-[#131726] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
+              }`}
+            />
+            {/* Brand name text: HIDDEN on small screens (< sm) to free up header space */}
+            <div className="hidden sm:flex flex-col">
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                <span className="font-extrabold text-[13px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
+                <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight ${
+                  isDark ? 'text-white' : 'text-[#00288e]'
                 }`}>
-                  Constitutional & Statutory Platform
+                  Legal Intelligence
                 </span>
               </div>
+              <span className={`text-[8.5px] font-medium leading-tight hidden md:block truncate ${
+                isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
+              }`}>
+                Constitutional & Statutory Platform
+              </span>
             </div>
 
             {/* Mobile Small Screens (< sm / < 640px) Dedicated Pages Navigation Dropdown */}
@@ -486,15 +484,15 @@ export function App() {
           </div>
 
           {/* ZONE 2: PRIMARY NAVIGATION (Center, Adapts Responsively across Breakpoints) */}
-          <div className="hidden sm:flex items-center justify-center flex-1 max-w-xl 2xl:max-w-2xl px-1 sm:px-2">
+          <div className="hidden sm:flex items-center justify-center flex-1 min-w-0 px-1 sm:px-2">
             {/* Desktop Full Navigation Tabs (>= lg / 1024px+): Micro-Compact on Lg, Roomy & Elegant on 2xl */}
-            <nav className={`hidden lg:flex items-center gap-0.5 2xl:gap-1.5 p-0.5 2xl:p-1 rounded-lg 2xl:rounded-xl border shadow-2xs ${
+            <nav className={`hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 p-0.5 2xl:p-1 rounded-lg 2xl:rounded-xl border shadow-2xs ${
               isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
             }`}>
               <button
                 type="button"
                 onClick={() => setActiveTab('chat')}
-                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 2xl:py-1 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 xl:py-1 2xl:py-1.5 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === 'chat'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
@@ -508,7 +506,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('contracts')}
-                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 2xl:py-1 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 xl:py-1 2xl:py-1.5 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === 'contracts'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
@@ -522,7 +520,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('search')}
-                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 2xl:py-1 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 xl:py-1 2xl:py-1.5 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === 'search'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
@@ -536,7 +534,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('info')}
-                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 2xl:py-1 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 2xl:px-3.5 py-0.5 xl:py-1 2xl:py-1.5 rounded-md 2xl:rounded-lg text-[10.5px] xl:text-[11px] 2xl:text-[12.5px] font-medium transition-all flex items-center gap-1 2xl:gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === 'info'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
@@ -611,15 +609,16 @@ export function App() {
           </div>
 
           {/* ZONE 3: UTILITY CONTROLS (Right, Fluid and Flexible) */}
-          <div className="flex items-center gap-2 sm:gap-2.5 2xl:gap-3.5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 xl:gap-2.5 2xl:gap-3 shrink-0">
             {/* Neon pgvector Telemetry Pill (Large Desktop >= xl / 1280px+) */}
-            <div className={`hidden xl:flex items-center gap-2 px-2.5 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-mono border shadow-2xs whitespace-nowrap ${
+            <div className={`hidden xl:flex items-center gap-1.5 2xl:gap-2 px-2 xl:px-2.5 2xl:px-3 py-0.5 xl:py-1 rounded-full text-[10px] xl:text-[10.5px] 2xl:text-[11.5px] font-mono border shadow-2xs whitespace-nowrap ${
               isDark 
                 ? 'bg-[#0d1f17] border-emerald-900/60 text-emerald-300' 
                 : 'bg-emerald-50 border-emerald-200 text-emerald-800'
             }`}>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="font-semibold">Neon pgvector: Active • {totalProvisions} Provisions</span>
+              <span className="w-1.5 h-1.5 2xl:w-2 2xl:h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+              <span className="font-semibold hidden 2xl:inline">Neon pgvector: Active • {totalProvisions} Provisions</span>
+              <span className="font-semibold inline 2xl:hidden">Neon pgvector: {totalProvisions} Provisions</span>
             </div>
 
             {/* Citizen vs Advocate Mode Segmented Control (Desktop >= sm) */}
@@ -629,7 +628,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setMode('citizen')}
-                className={`px-2.5 sm:px-3 2xl:px-4 py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-semibold transition-all cursor-pointer ${
+                className={`px-2.5 sm:px-3 2xl:px-4 py-0.5 xl:py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-semibold transition-all cursor-pointer ${
                   mode === 'citizen'
                     ? isDark ? 'bg-white text-black shadow-md font-bold' : 'bg-[#00288e] text-white shadow-md font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#565e74] hover:text-[#0b1c30]'
@@ -640,7 +639,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setMode('professional')}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 2xl:px-4 py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 2xl:px-4 py-0.5 xl:py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-semibold transition-all cursor-pointer ${
                   mode === 'professional'
                     ? isDark ? 'bg-white text-black shadow-md font-bold' : 'bg-[#00288e] text-white shadow-md font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#565e74] hover:text-[#0b1c30]'
@@ -667,7 +666,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-2.5 2xl:px-3.5 sm:py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-[12px] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap ${
+              className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-2.5 2xl:px-3.5 sm:py-0.5 xl:py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[12px] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap ${
                 isDark 
                   ? 'bg-[#131624] hover:bg-[#1a1f33] text-amber-300 border-[#23283f] hover:border-amber-400/40' 
                   : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#00288e] border-[#dce9ff] hover:border-[#00288e]/30'
@@ -687,16 +686,16 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsDossiersOpen(true)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 2xl:px-3.5 sm:py-1.5 2xl:py-2 rounded-xl text-[11px] 2xl:text-[12px] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 2xl:px-3.5 sm:py-1 xl:py-1.5 2xl:py-2 rounded-xl text-[10.5px] xl:text-[11px] 2xl:text-[12px] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
                 isDark 
                   ? 'bg-[#131624] text-[#e2e8f0] border-[#23283f] hover:bg-[#1a1f33]' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
               }`}
               title="Open Chamber Dossiers Repository"
             >
-              <span className="material-symbols-outlined text-[17px] 2xl:text-[19px] text-[#60a5fa]">folder_special</span>
+              <span className="material-symbols-outlined text-[16px] 2xl:text-[19px] text-[#60a5fa]">folder_special</span>
               <span className="hidden sm:inline font-bold">Dossiers</span>
-              <span className={`px-2 py-0.5 rounded-full font-mono text-[9.5px] 2xl:text-[10.5px] font-extrabold shadow-xs ${
+              <span className={`px-2 py-0.5 rounded-full font-mono text-[9px] 2xl:text-[10px] font-extrabold shadow-xs ${
                 isDark ? 'bg-white text-black' : 'bg-[#00288e] text-white'
               }`}>
                 {dossierCount}
@@ -711,7 +710,7 @@ export function App() {
             ? 'bg-[#06070a] border-[#1a1e2e] text-[#94a3b8]' 
             : 'bg-[#f8f9ff] border-[#e2e8f0] text-[#565e74]'
         }`}>
-          <div className="w-full h-full px-2.5 sm:px-4 lg:px-6 xl:px-8 hidden sm:flex items-center justify-between text-[10px] 2xl:text-[11px] font-mono">
+          <div className="w-full h-full px-2.5 sm:px-4 lg:px-5 xl:px-6 2xl:px-8 hidden sm:flex items-center justify-between text-[10px] 2xl:text-[11px] font-mono">
             <div className="flex items-center gap-2 truncate">
               <span className={`px-1.5 py-0.2 rounded font-bold uppercase tracking-wider text-[8.5px] 2xl:text-[9.5px] border shrink-0 ${
                 isDark 

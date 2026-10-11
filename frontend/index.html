@@ -18,6 +18,17 @@
     <!-- Flaticon Uicons Regular Rounded CDN -->
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css" />
     <!-- Tailwind CSS with Stitch Design Tokens -->
+    <script>
+      (function() {
+        var _origWarn = console.warn;
+        console.warn = function() {
+          if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].indexOf('cdn.tailwindcss.com') !== -1) {
+            return;
+          }
+          _origWarn.apply(console, arguments);
+        };
+      })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script id="tailwind-config">
       tailwind.config = {

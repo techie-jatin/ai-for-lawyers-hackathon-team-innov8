@@ -64,12 +64,16 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
   useEffect(() => {
     fetch(`${apiBase}/api/search/sources`)
       .then(res => res.json())
-      .then(data => setSources(data))
+      .then(data => {
+        if (Array.isArray(data)) setSources(data);
+      })
       .catch(err => console.error('Error fetching sources:', err));
 
     fetch(`${apiBase}/api/registry/helplines`)
       .then(res => res.json())
-      .then(data => setHelplines(data))
+      .then(data => {
+        if (Array.isArray(data)) setHelplines(data);
+      })
       .catch(err => console.error('Error fetching helplines:', err));
   }, [apiBase]);
 
@@ -693,7 +697,7 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
               <h3 className={`text-[14px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>Emergency Legal & Citizen Helplines (Govt. of India)</h3>
             </div>
             <span className={`font-mono text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>
-              {helplines.length} 24x7 Statutory Hotlines Loaded • Toll-Free
+              {(Array.isArray(helplines) ? helplines.length : 0)} 24x7 Statutory Hotlines Loaded • Toll-Free
             </span>
           </div>
 
@@ -720,7 +724,7 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {helplines
+            {(Array.isArray(helplines) ? helplines : [])
               .filter(h => selectedCategory === 'All' || h.category === selectedCategory)
               .map((item) => (
                 <div 

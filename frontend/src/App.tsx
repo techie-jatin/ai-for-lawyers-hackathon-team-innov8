@@ -108,7 +108,7 @@ export function App() {
     const saved = localStorage.getItem('bharat_theme');
     return (saved === 'light' || saved === 'dark') ? saved : 'dark';
   });
-  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+  const API_BASE = (import.meta.env.VITE_API_BASE || 'http://localhost:8000').replace(/\/+$/, '');
 
   // Splash Screen State
   const [isLoading, setIsLoading] = useState(true);
@@ -763,6 +763,7 @@ export function App() {
             <ContractStudioView 
               isDark={isDark} 
               mode={mode} 
+              apiBase={API_BASE}
             />
           )}
           {activeTab === 'search' && (

@@ -88,17 +88,23 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
   useEffect(() => {
     fetch(`${apiBase}/api/search/sources`)
       .then(res => res.json())
-      .then(data => setSources(data))
+      .then(data => {
+        if (Array.isArray(data)) setSources(data);
+      })
       .catch(err => console.error('Error fetching sources:', err));
 
     fetch(`${apiBase}/api/concordance/all`)
       .then(res => res.json())
-      .then(data => setConcordances(data))
+      .then(data => {
+        if (Array.isArray(data)) setConcordances(data);
+      })
       .catch(err => console.error('Error fetching concordances:', err));
 
     fetch(`${apiBase}/api/registry/gazettes`)
       .then(res => res.json())
-      .then(data => setGazettes(data))
+      .then(data => {
+        if (Array.isArray(data)) setGazettes(data);
+      })
       .catch(err => console.error('Error fetching gazettes:', err));
 
     // Only load generic provisions if NOT inspecting an initial query
@@ -126,7 +132,11 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
         : `${apiBase}/api/search/provisions?limit=50`;
       const res = await fetch(url);
       const data = await res.json();
-      setResults(data);
+      if (Array.isArray(data)) {
+        setResults(data);
+      } else {
+        setResults([]);
+      }
     } catch (err) {
       console.error('Error fetching provisions:', err);
     } finally {
@@ -151,11 +161,19 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
           body: JSON.stringify({ query: q, top_k: 25 })
         });
         const data = await res.json();
-        setResults(data);
+        if (Array.isArray(data)) {
+          setResults(data);
+        } else {
+          setResults([]);
+        }
       } else {
         const res = await fetch(`${apiBase}/api/search/keyword?q=${encodeURIComponent(q)}&limit=25`);
         const data = await res.json();
-        setResults(data);
+        if (Array.isArray(data)) {
+          setResults(data);
+        } else {
+          setResults([]);
+        }
       }
     } catch (err) {
       console.error('Search error:', err);
@@ -176,24 +194,31 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
     if (!val.trim()) {
       fetch(`${apiBase}/api/concordance/all`)
         .then(res => res.json())
-        .then(data => setConcordances(data))
+        .then(data => {
+          if (Array.isArray(data)) setConcordances(data);
+        })
         .catch(err => console.error('Error reset concordances:', err));
       return;
     }
     try {
       const res = await fetch(`${apiBase}/api/concordance/search?q=${encodeURIComponent(val.trim())}`);
       const data = await res.json();
-      setConcordances(data);
+      if (Array.isArray(data)) {
+        setConcordances(data);
+      } else {
+        setConcordances([]);
+      }
     } catch (err) {
       console.error('Concordance search error:', err);
     }
   };
 
+  const safeResults = Array.isArray(results) ? results : [];
   const filteredResults = selectedSourceId === 'all' 
-    ? results 
-    : results.filter(r => r.source_id === Number(selectedSourceId));
+    ? safeResults 
+    : safeResults.filter(r => r.source_id === Number(selectedSourceId));
 
-  const totalProvisionsCount = sources.reduce((acc, s) => acc + s.provision_count, 0) || 59;
+  const totalProvisionsCount = (Array.isArray(sources) ? sources : []).reduce((acc, s) => acc + s.provision_count, 0) || 59;
 
   return (
     <div className={`px-3 sm:px-6 py-4 sm:py-6 flex flex-col gap-4 sm:gap-5 max-w-[1720px] mx-auto w-full transition-colors duration-200 ${
@@ -367,7 +392,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
           All Provisions ({totalProvisionsCount})
         </button>
 
-        {sources.map(src => (
+        {(Array.isArray(sources) ? sources : []).map(src => (
           <button
             key={src.id}
             type="button"
@@ -618,7 +643,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
                 <tbody className={`divide-y ${
                   isDark ? 'divide-[#1f2438] bg-[#0f111a]' : 'divide-[#f1f5f9] bg-white'
                 }`}>
-                  {concordances.length === 0 ? (
+                  {(!Array.isArray(concordances) || concordances.length === 0) ? (
                     <tr>
                       <td colSpan={3} className={`px-3 py-4 text-center text-[11px] ${
                         isDark ? 'text-[#94a3b8]' : 'text-[#757684]'
@@ -627,7 +652,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
                       </td>
                     </tr>
                   ) : (
-                    concordances.map((item) => (
+                    (Array.isArray(concordances) ? concordances : []).map((item) => (
                       <tr 
                         key={item.id} 
                         onClick={() => { setQuery(item.new_section); handleSearch(item.new_section); }}
@@ -718,7 +743,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
             </div>
 
             <div className="space-y-2.5 max-h-[350px] overflow-y-auto pr-1">
-              {gazettes.map((item) => (
+              {(Array.isArray(gazettes) ? gazettes : []).map((item) => (
                 <div key={item.id} className={`p-2.5 rounded-lg border flex flex-col gap-1 transition-colors ${
                   isDark 
                     ? 'bg-[#131624] border-[#23283f] hover:border-[#384266]' 

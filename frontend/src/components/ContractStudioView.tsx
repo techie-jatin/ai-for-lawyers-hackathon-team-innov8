@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 interface ContractStudioViewProps {
   isDark: boolean;
   mode: 'citizen' | 'professional';
+  apiBase?: string;
 }
 
 type StudioMode = 'generator' | 'scanner';
@@ -364,8 +365,9 @@ function CourtReadyParchmentDeed({
   );
 }
 
-export const ContractStudioView: React.FC<ContractStudioViewProps> = ({ isDark, mode }) => {
+export const ContractStudioView: React.FC<ContractStudioViewProps> = ({ isDark, mode, apiBase }) => {
   const [studioMode, setStudioMode] = useState<StudioMode>('generator');
+  const resolvedApiBase = (apiBase || import.meta.env.VITE_API_BASE || (typeof window !== 'undefined' && window.location.origin.includes('localhost') ? 'http://127.0.0.1:8000' : '')).replace(/\/+$/, '');
 
   // Generator State
   const [selectedPreset, setSelectedPreset] = useState<string>('nda');
@@ -393,10 +395,8 @@ export const ContractStudioView: React.FC<ContractStudioViewProps> = ({ isDark, 
   // Generate contract text dynamically
   const handleGenerateContract = async (useAI: boolean = false) => {
     setIsGenerating(true);
-    const apiBase = window.location.origin.includes('localhost') ? 'http://127.0.0.1:8000' : '';
-
     try {
-      const res = await fetch(`${apiBase}/api/contracts/draft`, {
+      const res = await fetch(`${resolvedApiBase}/api/contracts/draft`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -454,10 +454,8 @@ FOR ${partyB.toUpperCase()}: ______________________`;
     if (!text.trim()) return;
 
     setIsAuditing(true);
-    const apiBase = window.location.origin.includes('localhost') ? 'http://127.0.0.1:8000' : '';
-
     try {
-      const res = await fetch(`${apiBase}/api/contracts/audit`, {
+      const res = await fetch(`${resolvedApiBase}/api/contracts/audit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

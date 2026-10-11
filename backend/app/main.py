@@ -9,6 +9,24 @@ app = FastAPI(
     version="0.1.0",
 )
 
+import re
+from starlette.types import ASGIApp, Scope, Receive, Send
+
+class NormalizePathMiddleware:
+    """Collapses consecutive slashes in request paths (e.g. //api/dossiers -> /api/dossiers)."""
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+        if scope["type"] in ("http", "websocket"):
+            path = scope.get("path", "")
+            if "//" in path:
+                scope["path"] = re.sub(r"/+", "/", path)
+        await self.app(scope, receive, send)
+
+# Path normalization middleware (runs before router to handle //api gracefully)
+app.add_middleware(NormalizePathMiddleware)
+
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
@@ -17,6 +35,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
+        "https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app",
         "https://ai-for-lawyers-hackathon-team-innov8.vercel.app",
     ],
     allow_origin_regex=r"^https?://.*",

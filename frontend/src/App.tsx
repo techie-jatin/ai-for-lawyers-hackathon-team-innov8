@@ -286,9 +286,9 @@ export function App() {
           : 'bg-white/95 border-[#e2e8f0]'
       }`}>
         {/* Main Bar (h-14 / 56px across all viewports to minimize wasted vertical space) */}
-        <div className="h-14 w-full px-2.5 sm:px-4 lg:px-5 xl:px-6 2xl:px-8 flex items-center justify-between gap-1.5 sm:gap-2.5 lg:gap-3 xl:gap-4 2xl:gap-6">
-          {/* ZONE 1: BRAND IDENTITY (Left) */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <div className="h-14 w-full px-[clamp(10px,1.8vw,32px)] flex items-center justify-between gap-[clamp(6px,1.2vw,24px)]">
+          {/* ZONE 1: BRAND IDENTITY (Left, Fluid & Compact) */}
+          <div className="flex items-center gap-[clamp(6px,0.8vw,12px)] shrink-0 max-w-[28%]">
             <img 
               src="/logo.png" 
               alt="भारत Legal Intelligence" 
@@ -297,7 +297,7 @@ export function App() {
               }`}
             />
             {/* Brand name text: HIDDEN on small screens (< sm) to free up header space */}
-            <div className="hidden sm:flex flex-col">
+            <div className="hidden sm:flex flex-col min-w-0">
               <div className="flex items-center gap-1.5 whitespace-nowrap">
                 <span className="font-extrabold text-[13px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
                 <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight ${
@@ -483,66 +483,66 @@ export function App() {
             </div>
           </div>
 
-          {/* ZONE 2: PRIMARY NAVIGATION (Center, Adapts Responsively across Breakpoints) */}
+          {/* ZONE 2: PRIMARY NAVIGATION (Center, Fluid 4-Column Proportional Flex Grid) */}
           <div className="hidden sm:flex items-center justify-center flex-1 min-w-0 px-1 sm:px-2">
-            {/* Desktop Full Navigation Tabs (>= lg / 1024px+): Compact & Sleek */}
-            <nav className={`hidden lg:flex items-center gap-0.5 xl:gap-1 p-0.5 rounded-lg border shadow-2xs ${
+            {/* Desktop Full Navigation Tabs (>= lg / 1024px+): Fluid 4-Column Grid, Equal 25% Share Each */}
+            <nav className={`hidden lg:flex items-center w-full max-w-[clamp(440px,46vw,660px)] gap-1 p-0.5 rounded-lg border shadow-2xs ${
               isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
             }`}>
               <button
                 type="button"
                 onClick={() => setActiveTab('chat')}
-                className={`px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-[10px] xl:text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-0 px-1.5 xl:px-2 py-0.5 xl:py-1 rounded-md text-[clamp(9.5px,0.72vw,10.5px)] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'chat'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Legal Chat Assistant"
               >
-                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px]">chat</span>
-                <span className="tracking-tight">Chat Assistant</span>
+                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px] shrink-0">chat</span>
+                <span className="tracking-tight truncate">Chat Assistant</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('contracts')}
-                className={`px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-[10px] xl:text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-0 px-1.5 xl:px-2 py-0.5 xl:py-1 rounded-md text-[clamp(9.5px,0.72vw,10.5px)] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'contracts'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="AI Contract Studio & Redline Risk Scanner"
               >
-                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px]">edit_document</span>
-                <span className="tracking-tight">AI Contract Studio</span>
+                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px] shrink-0">edit_document</span>
+                <span className="tracking-tight truncate">AI Contract Studio</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('search')}
-                className={`px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-[10px] xl:text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-0 px-1.5 xl:px-2 py-0.5 xl:py-1 rounded-md text-[clamp(9.5px,0.72vw,10.5px)] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'search'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Statute & Case Search"
               >
-                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px]">account_balance</span>
-                <span className="tracking-tight">Statute Search</span>
+                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px] shrink-0">account_balance</span>
+                <span className="tracking-tight truncate">Statute Search</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('info')}
-                className={`px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-[10px] xl:text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-0 px-1.5 xl:px-2 py-0.5 xl:py-1 rounded-md text-[clamp(9.5px,0.72vw,10.5px)] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap ${
                   activeTab === 'info'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
                 title="Knowledge & Validator Hub"
               >
-                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px]">fact_check</span>
-                <span className="tracking-tight">Validator Hub</span>
+                <span className="material-symbols-outlined text-[12.5px] xl:text-[13px] shrink-0">fact_check</span>
+                <span className="tracking-tight truncate">Validator Hub</span>
               </button>
             </nav>
 
@@ -608,10 +608,10 @@ export function App() {
             </nav>
           </div>
 
-          {/* ZONE 3: UTILITY CONTROLS (Right, Fluid and Flexible) */}
-          <div className="flex items-center gap-1.5 sm:gap-2 xl:gap-2.5 2xl:gap-3 shrink-0">
+          {/* ZONE 3: UTILITY CONTROLS (Right, Fluid & Flexible) */}
+          <div className="flex items-center justify-end gap-[clamp(6px,0.8vw,14px)] shrink-0">
             {/* Neon pgvector Telemetry Pill (Large Desktop >= xl / 1280px+) */}
-            <div className={`hidden xl:flex items-center gap-1.5 2xl:gap-2 px-2 xl:px-2.5 2xl:px-3 py-0.5 xl:py-1 rounded-full text-[10px] xl:text-[10.5px] 2xl:text-[11.5px] font-mono border shadow-2xs whitespace-nowrap ${
+            <div className={`hidden xl:flex items-center gap-[clamp(4px,0.4vw,8px)] px-[clamp(8px,0.7vw,12px)] py-0.5 xl:py-1 rounded-full text-[clamp(9.5px,0.72vw,11px)] font-mono border shadow-2xs whitespace-nowrap ${
               isDark 
                 ? 'bg-[#0d1f17] border-emerald-900/60 text-emerald-300' 
                 : 'bg-emerald-50 border-emerald-200 text-emerald-800'
@@ -628,7 +628,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setMode('citizen')}
-                className={`px-2.5 sm:px-3 2xl:px-4 py-0.5 xl:py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-semibold transition-all cursor-pointer ${
+                className={`px-[clamp(8px,0.7vw,14px)] py-0.5 xl:py-1 rounded-full text-[clamp(9.5px,0.72vw,11px)] font-semibold transition-all cursor-pointer ${
                   mode === 'citizen'
                     ? isDark ? 'bg-white text-black shadow-md font-bold' : 'bg-[#00288e] text-white shadow-md font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#565e74] hover:text-[#0b1c30]'
@@ -639,13 +639,13 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setMode('professional')}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 2xl:px-4 py-0.5 xl:py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[11.5px] font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-[clamp(8px,0.7vw,14px)] py-0.5 xl:py-1 rounded-full text-[clamp(9.5px,0.72vw,11px)] font-semibold transition-all cursor-pointer ${
                   mode === 'professional'
                     ? isDark ? 'bg-white text-black shadow-md font-bold' : 'bg-[#00288e] text-white shadow-md font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#565e74] hover:text-[#0b1c30]'
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
                 <span>Advocate</span>
               </button>
             </div>
@@ -666,7 +666,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-2.5 2xl:px-3.5 sm:py-0.5 xl:py-1 2xl:py-1.5 rounded-full text-[10.5px] 2xl:text-[12px] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap ${
+              className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto px-[clamp(8px,0.7vw,14px)] sm:py-0.5 xl:py-1 rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap ${
                 isDark 
                   ? 'bg-[#131624] hover:bg-[#1a1f33] text-amber-300 border-[#23283f] hover:border-amber-400/40' 
                   : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#00288e] border-[#dce9ff] hover:border-[#00288e]/30'
@@ -674,10 +674,10 @@ export function App() {
               title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
               aria-label="Toggle Theme"
             >
-              <span className="material-symbols-outlined text-[16px] sm:text-[17px] 2xl:text-[19px]">
+              <span className="material-symbols-outlined text-[15px] sm:text-[16px] 2xl:text-[18px]">
                 {isDark ? 'light_mode' : 'dark_mode'}
               </span>
-              <span className="hidden md:inline font-mono text-[10.5px] 2xl:text-[11.5px] ml-1 2xl:ml-1.5 font-bold">
+              <span className="hidden md:inline font-mono text-[clamp(9.5px,0.72vw,11px)] ml-1 font-bold">
                 {isDark ? 'Light' : 'Dark'}
               </span>
             </button>
@@ -686,14 +686,14 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsDossiersOpen(true)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 sm:px-3 2xl:px-3.5 sm:py-1 xl:py-1.5 2xl:py-2 rounded-xl text-[10.5px] xl:text-[11px] 2xl:text-[12px] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-[clamp(8px,0.8vw,14px)] py-1 xl:py-1.5 rounded-xl text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
                 isDark 
                   ? 'bg-[#131624] text-[#e2e8f0] border-[#23283f] hover:bg-[#1a1f33]' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
               }`}
               title="Open Chamber Dossiers Repository"
             >
-              <span className="material-symbols-outlined text-[16px] 2xl:text-[19px] text-[#60a5fa]">folder_special</span>
+              <span className="material-symbols-outlined text-[15px] 2xl:text-[18px] text-[#60a5fa] shrink-0">folder_special</span>
               <span className="hidden sm:inline font-bold">Dossiers</span>
               <span className={`px-2 py-0.5 rounded-full font-mono text-[9px] 2xl:text-[10px] font-extrabold shadow-xs ${
                 isDark ? 'bg-white text-black' : 'bg-[#00288e] text-white'
@@ -710,7 +710,7 @@ export function App() {
             ? 'bg-[#06070a] border-[#1a1e2e] text-[#94a3b8]' 
             : 'bg-[#f8f9ff] border-[#e2e8f0] text-[#565e74]'
         }`}>
-          <div className="w-full h-full px-2.5 sm:px-4 lg:px-5 xl:px-6 2xl:px-8 hidden sm:flex items-center justify-between text-[10px] 2xl:text-[11px] font-mono">
+          <div className="w-full h-full px-[clamp(10px,1.8vw,32px)] hidden sm:flex items-center justify-between text-[clamp(9.5px,0.7vw,11px)] font-mono">
             <div className="flex items-center gap-2 truncate">
               <span className={`px-1.5 py-0.2 rounded font-bold uppercase tracking-wider text-[8.5px] 2xl:text-[9.5px] border shrink-0 ${
                 isDark 

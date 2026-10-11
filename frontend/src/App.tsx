@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { ChatView } from './components/ChatView';
+import { ContractStudioView } from './components/ContractStudioView';
 import { SearchView } from './components/SearchView';
 import { InfoView } from './components/InfoView';
 import { DossiersDrawer, type ChamberDossier } from './components/DossiersDrawer';
@@ -91,7 +92,7 @@ const DAILY_LEGAL_TIPS: DailyLegalTip[] = [
 ];
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'chat' | 'search' | 'info'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'contracts' | 'search' | 'info'>('chat');
   const [mode, setMode] = useState<'citizen' | 'professional'>('professional');
   const [dossierCount, setDossierCount] = useState<number>(2);
   const [isDossiersOpen, setIsDossiersOpen] = useState(false);
@@ -386,7 +387,38 @@ export function App() {
                       )}
                     </button>
 
-                    {/* Option 2: Statute & Case Search */}
+                    {/* Option 2: AI Contract Studio */}
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTab('contracts'); setIsPagesMenuOpen(false); }}
+                      className={`w-full px-2 py-1.5 rounded-lg text-left transition-all flex items-center justify-between cursor-pointer border ${
+                        activeTab === 'contracts'
+                          ? isDark 
+                            ? 'bg-white text-black font-bold border-white shadow-xs' 
+                            : 'bg-[#00288e] text-white font-bold border-[#00288e] shadow-xs'
+                          : isDark 
+                            ? 'bg-[#131624] text-[#cbd5e1] hover:text-white border-[#23283f] hover:bg-[#1a1f33]' 
+                            : 'bg-[#f8f9ff] text-[#334155] hover:text-[#0b1c30] border-[#e2e8f0] hover:bg-[#eff4ff]'
+                      }`}
+                      style={{ backgroundColor: activeTab === 'contracts' ? (isDark ? '#ffffff' : '#00288e') : (isDark ? '#131624' : '#f8f9ff'), opacity: 1 }}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className={`material-symbols-outlined text-[15px] shrink-0 ${activeTab === 'contracts' ? (isDark ? 'text-black' : 'text-white') : 'text-amber-500'}`}>
+                          edit_document
+                        </span>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[11px] font-bold leading-tight truncate">AI Contract Studio</span>
+                          <span className={`text-[8.5px] truncate ${activeTab === 'contracts' ? (isDark ? 'text-black/70' : 'text-white/80') : 'text-zinc-400'}`}>
+                            Drafting & Redline Risk Scanner
+                          </span>
+                        </div>
+                      </div>
+                      {activeTab === 'contracts' && (
+                        <span className="material-symbols-outlined text-[14px] shrink-0">check</span>
+                      )}
+                    </button>
+
+                    {/* Option 3: Statute & Case Search */}
                     <button
                       type="button"
                       onClick={() => { setActiveTab('search'); setIsPagesMenuOpen(false); }}
@@ -475,6 +507,20 @@ export function App() {
 
               <button
                 type="button"
+                onClick={() => setActiveTab('contracts')}
+                className={`px-2 py-0.5 rounded-md text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                  activeTab === 'contracts'
+                    ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
+                    : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
+                }`}
+                title="AI Contract Studio & Redline Risk Scanner"
+              >
+                <span className="material-symbols-outlined text-[13px]">edit_document</span>
+                <span className="tracking-tight">AI Contract Studio</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setActiveTab('search')}
                 className={`px-2 py-0.5 rounded-md text-[10.5px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
                   activeTab === 'search'
@@ -518,6 +564,20 @@ export function App() {
               >
                 <span className="material-symbols-outlined text-[13px]">chat</span>
                 <span>Chat</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('contracts')}
+                className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium transition-all flex items-center gap-1 cursor-pointer ${
+                  activeTab === 'contracts'
+                    ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
+                    : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
+                }`}
+                title="AI Contract Studio"
+              >
+                <span className="material-symbols-outlined text-[13px]">edit_document</span>
+                <span>Contracts</span>
               </button>
 
               <button
@@ -697,6 +757,12 @@ export function App() {
                 setActiveTab('search');
               }} 
               geminiApiKey={geminiApiKey}
+            />
+          )}
+          {activeTab === 'contracts' && (
+            <ContractStudioView 
+              isDark={isDark} 
+              mode={mode} 
             />
           )}
           {activeTab === 'search' && (

@@ -216,8 +216,8 @@ interface ChatViewProps {
   launchContext?: ChatLaunchContext | null;
   onClearLaunchContext?: () => void;
   geminiApiKey?: string;
-  activeTab?: 'chat' | 'search' | 'info';
-  onSelectTab?: (tab: 'chat' | 'search' | 'info') => void;
+  activeTab?: 'chat' | 'contracts' | 'search' | 'info';
+  onSelectTab?: (tab: 'chat' | 'contracts' | 'search' | 'info') => void;
 }
 
 interface ChatInputFormProps {
@@ -910,9 +910,9 @@ export function ChatView({
   const renderSidebarContent = () => (
     <>
       <div className="flex-1 flex flex-col p-3 gap-3 overflow-y-auto">
-        {/* Mobile Platform Navigation (< lg) - Ultra-Compact Horizontal 3-Tab Segment */}
+        {/* Mobile Platform Navigation (< lg) - Ultra-Compact Horizontal 4-Tab Segment */}
         <div className="lg:hidden pb-1.5 border-b border-zinc-700/20">
-          <div className={`grid grid-cols-3 gap-1 p-0.5 rounded-lg border ${
+          <div className={`grid grid-cols-4 gap-1 p-0.5 rounded-lg border ${
             isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
           }`}>
             <button
@@ -934,6 +934,27 @@ export function ChatView({
             >
               <span className="material-symbols-outlined text-[13px]">chat</span>
               <span className="truncate">Chat</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                onSelectTab?.('contracts');
+                setIsMobileSidebarOpen(false);
+              }}
+              className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md text-[10px] font-medium transition-all cursor-pointer ${
+                activeTab === 'contracts'
+                  ? isDark 
+                    ? 'bg-white text-black font-bold shadow-2xs' 
+                    : 'bg-[#00288e] text-white font-bold shadow-2xs'
+                  : isDark 
+                    ? 'text-[#cbd5e1] hover:text-white hover:bg-white/5' 
+                    : 'text-[#334155] hover:text-[#0b1c30] hover:bg-white'
+              }`}
+              title="AI Contract Studio"
+            >
+              <span className="material-symbols-outlined text-[13px]">edit_document</span>
+              <span className="truncate">Contracts</span>
             </button>
 
             <button

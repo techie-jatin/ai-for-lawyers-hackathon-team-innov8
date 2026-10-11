@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import auth, search, assistant, concordance, registry, dossiers, precedents
+from app.api.routes import auth, search, assistant, concordance, registry, dossiers, precedents, contracts
 
 app = FastAPI(
     title="Bharat Legal Intelligence API",
@@ -32,6 +32,7 @@ app.include_router(concordance.router, prefix="/api/concordance", tags=["concord
 app.include_router(registry.router, prefix="/api/registry", tags=["registry"])
 app.include_router(dossiers.router, prefix="/api/dossiers", tags=["dossiers"])
 app.include_router(precedents.router, prefix="/api/precedents", tags=["precedents"])
+app.include_router(contracts.router, prefix="/api/contracts", tags=["contracts"])
 
 @app.get("/health")
 def health_check():

@@ -17,14 +17,15 @@
 2. [👥 Dual-Audience Value: Advocates vs. Citizens](#-dual-audience-value-advocates-vs-citizens)
 3. [⚖️ Real Data Integration (2024–2026 Sanhitas & Official Gazettes)](#️-real-data-integration-20242026-sanhitas--official-gazettes)
 4. [📚 RealCasePrecedent: Landmark Supreme Court Jurisprudence](#-realcaseprecedent-landmark-supreme-court-jurisprudence)
-5. [⚙️ How the Platform Works & Working Mechanism (With Real Statistics)](#️-how-the-platform-works--working-mechanism-with-real-statistics)
-6. [🛡️ AI Safety, Anti-Hallucination & Anti-Misuse Guardrails](#️-ai-safety-anti-hallucination--anti-misuse-guardrails)
-7. [💻 Technical Architecture & Coding Blueprint](#-technical-architecture--coding-blueprint)
-8. [🚀 Step-by-Step User Guide (How to Use Our Platform)](#-step-by-step-user-guide-how-to-use-our-platform)
-9. [🐛 Engineering Challenges Encountered & Resolutions](#-engineering-challenges-encountered--resolutions)
-10. [❓ Frequently Asked Questions (Q&A)](#-frequently-asked-questions-qa)
-11. [📦 Local Setup & Deployment Guide](#-local-setup--deployment-guide)
-12. [📜 License & Hackathon Credits](#-license--hackathon-credits)
+5. [📄 AI Contract Studio: Drafting & Redline Risk Scanner](#-ai-contract-studio-drafting--redline-risk-scanner)
+6. [⚙️ How the Platform Works & Working Mechanism (With Real Statistics)](#️-how-the-platform-works--working-mechanism-with-real-statistics)
+7. [🛡️ AI Safety, Anti-Hallucination & Anti-Misuse Guardrails](#️-ai-safety-anti-hallucination--anti-misuse-guardrails)
+8. [💻 Technical Architecture & Coding Blueprint](#-technical-architecture--coding-blueprint)
+9. [🚀 Step-by-Step User Guide (How to Use Our Platform)](#-step-by-step-user-guide-how-to-use-our-platform)
+10. [🐛 Engineering Challenges Encountered & Resolutions](#-engineering-challenges-encountered--resolutions)
+11. [❓ Frequently Asked Questions (Q&A)](#-frequently-asked-questions-qa)
+12. [📦 Local Setup & Deployment Guide](#-local-setup--deployment-guide)
+13. [📜 License & Hackathon Credits](#-license--hackathon-credits)
 
 ---
 
@@ -148,6 +149,49 @@ When legal advocates consult Bharat Legal Intelligence, the system does not simp
 
 ---
 
+## 📄 AI Contract Studio: Drafting & Redline Risk Scanner
+
+### 1. Real-Life Problem Analysis: The Indian Contract Crisis
+In India's commercial landscape, over **63 million MSMEs**, startups, and freelancers enter into commercial agreements every day under severe legal hazards:
+- **The "Western Template" Trap**: Over 80% of founders download US/Delaware boilerplate contracts from Google that lack essential safeguards under the **Indian Contract Act, 1872** (e.g., Section 23 unlawful objects, Section 27 void non-competes, Section 28 restraint of legal proceedings) and omit arbitration mechanisms under the **Arbitration & Conciliation Act, 1996**.
+- **Predatory & Asymmetric Boilerplates**: Enterprise counterparties frequently impose **uncapped indemnities** (exposing small vendors to unlimited third-party damages under Section 73), unilateral termination at will without cure periods, and distant foreign/remote litigation venues.
+- **The Stamp Duty & Admissibility Landmine**: Under the **Indian Stamp Act, 1899** and state-specific stamp acts, an unstamped or inadequately stamped contract cannot be admitted as evidence or acted upon in court (*N.N. Global Mercantile v. Indo Unique Flame Ltd.*). Generic Western AIs have zero awareness of Indian State e-Stamping rules (SHCIL).
+- **DPDP Act 2023 Statutory Liabilities**: Any commercial contract handling Indian citizen data must stipulate formal "Data Fiduciary" vs. "Data Processor" commitments under Section 8 of the **Digital Personal Data Protection Act, 2023**. Non-compliance exposes entities to penalties up to **₹250 Crore**.
+
+---
+
+### 2. Why This MUST Be Done by AI (Why Humans & Manual Methods Fail)
+
+| Dimension | Manual / Traditional Law Firm Approach | Bharat AI Contract Studio Approach |
+| :--- | :--- | :--- |
+| **Cost Barrier** | Engaging a chamber advocate or law firm costs **₹20,000 to ₹1,50,000 per agreement**, which is unaffordable for MSMEs and freelancers. | **₹0 Marginal Cost**: Free, institutional-grade contract generation and risk audit accessible to any business. |
+| **Turnaround Latency** | Manual drafting, redlining, and reviews take **3 to 14 days**, stalling business deals and hiring. | **Instant Synthesis (15 seconds)**: Dynamic parameters and statutory clauses assembled in real time. |
+| **Cognitive Fatigue & Human Error** | Lawyers skimming 30-page MSAs regularly miss conflicting indemnity carve-outs, missing cure periods, and obscure liability waivers. | **Deterministic Clause-by-Clause Scanning**: Exhaustive rule-based and LLM-grounded audit checks every sentence against statutory red flags. |
+| **Indian Statutory Grounding** | Generic LLMs hallucinate US case law or invalid boilerplates. | **Grounded in Indian Law**: Explicitly incorporates Indian Contract Act 1872, Arbitration Act 1996, DPDP Act 2023, and State Stamp Duty requirements. |
+
+---
+
+### 3. Dual-Engine Architecture
+
+#### Engine A: Interactive Contract Generator
+Natively generates 5 core Indian commercial agreements:
+1. **Mutual Non-Disclosure Agreement (NDA)**: Trade secret protection strictly compliant with Section 27 ICA 1872 (no unlawful profession restraint).
+2. **Master Services Agreement (MSA / Freelance)**: Work-made-for-hire copyright assignment, milestone payments, TDS/GST terms, and 15-day cure period.
+3. **Employment & IP Assignment Agreement**: Invention assignment under Copyright Act §17, non-solicitation, and mandatory DPDP 2023 employee data consent.
+4. **Commercial Office Lease Deed**: Security deposit protection, lock-in period, maintenance allocation, and Registration Act §17 / Stamp Duty advisories.
+5. **SaaS & Cloud Vendor Agreement**: 99.5% SLA, mutual limitation of liability caps, and statutory Section 8 DPDP Data Processor schedules.
+
+#### Engine B: Redlining & Risk Scanner
+- **Contract Health Score (0–100)**: Instant numerical health gauge and risk classification (*Critical Risk*, *High Risk*, *Moderate Risk*, *Compliant*).
+- **Clause-by-Clause Redline Breakdown**:
+  - 🔴 **Critical Traps**: Flags uncapped indemnities, void post-employment non-competes, and remote jurisdiction traps.
+  - 🟡 **Moderate Warnings**: Missing cure periods, ambiguous IP ownership, missing breach notification SLAs.
+  - 🟢 **Safe Clauses**: Standard mutual notice and confidentiality provisions.
+- **Copyable Counter-Clause Revisions**: 1-click copy of balanced, legally enforceable substitute clauses to propose to counterparties.
+- **State e-Stamping Advisory**: Prescribes proper non-judicial stamp duty requirements to ensure court admissibility.
+
+---
+
 ## ⚙️ How the Platform Works & Working Mechanism (With Real Statistics)
 
 ### Working Mechanism: 5-Stage Evidence Pipeline
@@ -230,7 +274,11 @@ Queries indicating physical peril, domestic assault, or suicide bypass legal res
 lawyer/
 ├── backend/
 │   ├── app/
-│   │   ├── api/routes/          # REST Endpoints (/assistant, /precedents, /sources, /provisions)
+│   │   ├── api/routes/          # REST Endpoints (/assistant, /contracts, /precedents, /sources, /provisions)
+│   │   │   ├── assistant.py     # Primary grounded RAG query route
+│   │   │   ├── contracts.py     # AI Contract Drafting & Redline Risk Scanner route
+│   │   │   ├── concordance.py   # IPC ↔ BNS & CrPC ↔ BNSS concordance engine
+│   │   │   └── precedents.py    # Supreme Court Landmark Precedents API
 │   │   ├── core/config.py       # Pydantic v2 Settings (Neon DB URL, Vector Dims)
 │   │   ├── db/
 │   │   │   ├── base.py          # SQLAlchemy ORM declarative base
@@ -245,19 +293,23 @@ lawyer/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── ChatView.tsx     # Conversational Assistant, Persona Toggle, Dictation, Sidebar
-│   │   │   ├── SearchView.tsx   # Direct Statute & Precedent Browser with Filter Pills
-│   │   │   └── InfoView.tsx     # Anti-Hallucination Live Sandbox & Legal Aid Directory
-│   │   ├── App.tsx              # Root Shell, Ultra-Compact Header, Dark/Light Theme Engine
-│   │   ├── index.css            # Tailwind CSS 4 directives & custom theme variables
-│   │   └── main.tsx             # Vite entry point
+│   │   │   ├── ChatView.tsx               # Conversational Assistant, Persona Toggle, Dictation, Sidebar
+│   │   │   ├── ContractStudioView.tsx     # AI Contract Generator & Redline Risk Scanner
+│   │   │   ├── LegalMarkdownRenderer.tsx  # Executive Summary & Statutory Markdown Parser
+│   │   │   ├── SearchView.tsx             # Direct Statute & Precedent Browser with Filter Pills
+│   │   │   ├── InfoView.tsx               # Anti-Hallucination Live Sandbox & Legal Aid Directory
+│   │   │   ├── DossiersDrawer.tsx         # Client Docket & Saved Case Files
+│   │   │   └── PrecedentDossierDrawer.tsx # 6-Point Courtroom Case Playbook Drawer
+│   │   ├── App.tsx                        # Root Shell, 4-Tab Navigation Header, Dark/Light Theme Engine
+│   │   ├── index.css                      # Tailwind CSS 4 directives, Print Opinion Styles & Theme
+│   │   └── main.tsx                       # Vite entry point
 │   └── package.json
 ├── ingestion/
-│   ├── seed_concordance_and_registry.py  # Seeds BNS concordance & 2026 Gazette circulars
-│   └── seed_initial_provisions.py        # Ingests 59 core statutory provisions
-├── package.json                 # Monorepo root workspace
-├── render.yaml                  # Render.com backend deployment configuration
-├── docker-compose.yml           # Local PostgreSQL service
+│   ├── seed_concordance_and_registry.py   # Seeds BNS concordance & 2026 Gazette circulars
+│   └── seed_initial_provisions.py         # Ingests 59 core statutory provisions
+├── package.json                           # Monorepo root workspace
+├── render.yaml                            # Render.com backend deployment configuration
+├── docker-compose.yml                     # Local PostgreSQL service
 └── README.md
 ```
 
@@ -265,7 +317,7 @@ lawyer/
 - **FastAPI Async Pipeline**: Asynchronous request handling with dependency-injected SQLAlchemy sessions (`AsyncSession` compatible).
 - **Dual Database Resilience**: Native support for **Neon Serverless PostgreSQL (pgvector)** in production with zero-dependency **SQLite** local fallback for offline evaluation.
 - **React 19 Concurrent Rendering**: Modern hook state transitions with zero screen jitter.
-- **Ultra-Compact Micro Navigation**: Custom space-saving responsive navigation header (`Chat Assistant`, `Statute Search`, `Validator Hub`) with full accessibility labels.
+- **Ultra-Compact Micro Navigation**: Custom space-saving responsive navigation header (`Chat Assistant`, `AI Contract Studio`, `Statute Search`, `Validator Hub`) with full accessibility labels.
 
 ---
 
@@ -280,14 +332,25 @@ lawyer/
    - 🛡️ *DPDP Compliance*
    - 🏪 *Consumer Protection*
 3. **Ask Your Query**: Type your question or click the **Mic** button for speech dictation.
-4. **Inspect Evidence**: Click on any citation badge below the answer to view the full verified section text and court holding.
+4. **Inspect Evidence & Playbooks**: Click on any citation badge or case card to inspect the 6-point Courtroom Dossier.
 
-### Screen 2: Statute & Case Search (`SearchView`)
+### Screen 2: AI Contract Studio (`ContractStudioView`)
+1. **Choose Mode**:
+   - **Contract Generator**: Pick from 5 pre-vetted Indian commercial suites (Mutual NDA, MSA / Freelancer, Employment & IP, Lease Deed, SaaS with DPDP).
+   - Customize party names, governing state, consideration amount, and arbitration seat.
+   - Click **"Generate Agreement"** (or **"AI Refine"** for Gemini 1.5 synthesis) to preview the court-ready contract.
+   - Click **"Print Deed"** or **"Copy Text"** for instant execution with e-Stamp placeholders.
+2. **Redline Risk Scanner**:
+   - Paste any third-party contract text or click **"Load Predatory Contract Sample"**.
+   - Click **"Audit Contract Health"** to view the **Health Score (0–100)**, critical traps (uncapped indemnity, void non-compete §27, jurisdiction traps), and DPDP compliance status.
+   - Click **"Copy Counter-Clause"** on any finding to propose safe, balanced language to your counterparty.
+
+### Screen 3: Statute & Case Search (`SearchView`)
 1. Enter any section number (e.g., `BNS 318`, `BNSS 482`, `BSA 63`) or keyword (`anticipatory bail`, `cyber fraud`).
 2. Use the **Legislation Filter Pills** to isolate specific enactments.
 3. Click **"Copy Citation"** to copy court-ready citations directly to your clipboard.
 
-### Screen 3: Legal Knowledge & Validator Hub (`InfoView`)
+### Screen 4: Legal Knowledge & Validator Hub (`InfoView`)
 1. **Anti-Hallucination Sandbox**: Paste any legal quote or claim into the verification box and click **"Test Quote Authenticity"**.
 2. **Statutory Directory**: Browse all 59 indexed legal provisions and 8 gazette notifications.
 3. **Emergency Helplines**: Access one-touch dialers for NALSA, Cybercrime (1930), and Women's safety.

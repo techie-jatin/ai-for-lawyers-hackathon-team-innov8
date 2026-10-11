@@ -293,21 +293,21 @@ export function App() {
               <img 
                 src="/logo.png" 
                 alt="भारत Legal Intelligence" 
-                className={`w-7 h-7 sm:w-8 sm:h-8 2xl:w-9 2xl:h-9 rounded-lg object-contain shadow-xs p-0.5 border ${
+                className={`w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-lg object-contain shadow-xs p-0.5 border ${
                   isDark ? 'bg-[#131726] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
                 }`}
               />
               {/* Brand name text: HIDDEN on small screens (< sm) to free up header space */}
               <div className="hidden sm:flex flex-col">
                 <div className="flex items-center gap-1.5 whitespace-nowrap">
-                  <span className="font-extrabold text-[14px] sm:text-[17px] 2xl:text-[19px] tracking-tight text-[#ff7722]">भारत</span>
-                  <span className={`font-extrabold text-[14px] sm:text-[17px] 2xl:text-[19px] tracking-tight ${
+                  <span className="font-extrabold text-[13px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
+                  <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight ${
                     isDark ? 'text-white' : 'text-[#00288e]'
                   }`}>
                     Legal Intelligence
                   </span>
                 </div>
-                <span className={`text-[9.5px] 2xl:text-[10.5px] font-medium leading-tight hidden md:block truncate ${
+                <span className={`text-[8.5px] font-medium leading-tight hidden md:block truncate ${
                   isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
                 }`}>
                   Constitutional & Statutory Platform

@@ -380,13 +380,21 @@ code {
   #court-ready-deed-printable {
     display: block !important;
     visibility: visible !important;
+    position: relative !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    padding: 0 !important;
+    padding: 10mm 12mm !important;
     background: #ffffff !important;
     color: #000000 !important;
     font-family: 'Times New Roman', Times, Georgia, serif !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #court-ready-deed-printable * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   #court-ready-deed-printable .page-break-before {

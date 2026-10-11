@@ -141,7 +141,7 @@ function CourtReadyParchmentDeed({
 
   return (
     <div
-      id={isPrintOnly ? "court-ready-deed-printable" : undefined}
+      id={isPrintOnly ? "court-ready-deed-printable" : "court-ready-deed-preview"}
       className={
         isPrintOnly
           ? "hidden print:block bg-white text-black font-serif text-[11pt] leading-[1.8] text-justify"
@@ -522,12 +522,181 @@ FOR ${partyB.toUpperCase()}: ______________________`;
     }
   };
 
+  // Dedicated Isolated Print Engine for Court-Ready Parchment Deed
+  const handlePrintDeed = () => {
+    const printableEl = document.getElementById('court-ready-deed-printable') || document.getElementById('court-ready-deed-preview');
+    if (!printableEl) {
+      window.print();
+      return;
+    }
+
+    // Clean up any existing print iframe
+    const oldIframe = document.getElementById('bharat-contract-print-frame');
+    if (oldIframe) {
+      oldIframe.remove();
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'bharat-contract-print-frame';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (!doc) {
+      window.print();
+      return;
+    }
+
+    doc.open();
+    doc.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Court-Ready Commercial Deed - Team Innov8</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 15mm 15mm 15mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.75;
+      text-align: justify;
+    }
+    .avoid-page-break {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .page-break-before {
+      page-break-before: always !important;
+      break-before: page !important;
+    }
+    .border-2 { border: 2px solid #000000; }
+    .border { border: 1px solid #000000; }
+    .border-black { border-color: #000000; }
+    .border-t-2 { border-top: 2px solid #000000; }
+    .border-b { border-bottom: 1px solid #000000; }
+    .border-t { border-top: 1px solid #cbd5e1; }
+    .border-slate-300 { border-color: #cbd5e1; }
+    .p-3 { padding: 12px; }
+    .p-4 { padding: 16px; }
+    .p-3\\.5 { padding: 14px; }
+    .pl-4 { padding-left: 20px; }
+    .pt-1 { padding-top: 4px; }
+    .pt-2 { padding-top: 8px; }
+    .pt-3 { padding-top: 12px; }
+    .pt-4 { padding-top: 16px; }
+    .pt-6 { padding-top: 24px; }
+    .pt-8 { padding-top: 32px; }
+    .pb-1\\.5 { padding-bottom: 6px; }
+    .pb-4 { padding-bottom: 16px; }
+    .my-6 { margin-top: 22px; margin-bottom: 22px; }
+    .mt-1 { margin-top: 4px; }
+    .mt-4 { margin-top: 16px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-6 { margin-bottom: 24px; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .text-center { text-align: center; }
+    .text-justify { text-align: justify; }
+    .font-bold { font-weight: 700; }
+    .font-black { font-weight: 900; }
+    .font-semibold { font-weight: 600; }
+    .font-serif { font-family: 'Times New Roman', Times, Georgia, serif; }
+    .font-sans { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .uppercase { text-transform: uppercase; }
+    .italic { font-style: italic; }
+    .tracking-normal { letter-spacing: normal; }
+    .tracking-wide { letter-spacing: 0.025em; }
+    .tracking-wider { letter-spacing: 0.05em; }
+    .tracking-widest { letter-spacing: 0.1em; }
+    .space-y-1 > * + * { margin-top: 4px; }
+    .space-y-2 > * + * { margin-top: 8px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .space-y-6 > * + * { margin-top: 24px; }
+    .grid { display: grid; }
+    .grid-cols-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .gap-4 { gap: 16px; }
+    .gap-6 { gap: 24px; }
+    .gap-x-4 { column-gap: 16px; }
+    .gap-y-1 { row-gap: 4px; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .flex-col { flex-direction: column; }
+    .whitespace-pre-wrap { white-space: pre-wrap; }
+    .w-8 { width: 32px; }
+    .h-8 { height: 32px; }
+    .w-48 { width: 192px; }
+    .h-1 { height: 4px; }
+    .text-black { color: #000000; }
+    .text-slate-600 { color: #475569; }
+    .text-slate-700 { color: #334155; }
+    .text-slate-800 { color: #1e293b; }
+    .bg-white { background-color: #ffffff; }
+    .bg-slate-50\\/50 { background-color: #f8fafc; }
+    .rounded { border-radius: 4px; }
+    .rounded-sm { border-radius: 2px; }
+    .leading-tight { line-height: 1.25; }
+    .leading-\\[1\\.8\\] { line-height: 1.8; }
+    .text-\\[7px\\] { font-size: 7px; }
+    .text-\\[8\\.5px\\] { font-size: 8.5px; }
+    .text-\\[9px\\] { font-size: 9px; }
+    .text-\\[9\\.5px\\] { font-size: 9.5px; }
+    .text-\\[10px\\] { font-size: 10px; }
+    .text-\\[10\\.5px\\] { font-size: 10.5px; }
+    .text-\\[11px\\] { font-size: 11px; }
+    .text-\\[11\\.5px\\] { font-size: 11.5px; }
+    .text-\\[12px\\] { font-size: 12px; }
+    .text-\\[12\\.5px\\] { font-size: 12.5px; }
+    .text-\\[13px\\] { font-size: 13px; }
+    .text-\\[15px\\] { font-size: 15px; }
+    .text-\\[17px\\] { font-size: 17px; }
+  </style>
+</head>
+<body>
+  <div style="padding: 10mm 5mm;">
+    ${printableEl.innerHTML}
+  </div>
+</body>
+</html>`);
+    doc.close();
+
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (err) {
+        console.error('Print iframe error:', err);
+        window.print();
+      }
+    }, 250);
+  };
+
   return (
-    <div className={`flex-1 flex flex-col h-full overflow-hidden transition-colors contract-studio-no-print ${
+    <div className={`flex-1 flex flex-col h-full overflow-hidden transition-colors ${
       isDark ? 'bg-[#090a0f] text-slate-100' : 'bg-[#f4f6fb] text-[#0b1c30]'
     }`}>
       {/* HEADER BANNER */}
-      <div className={`p-3 sm:p-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 ${
+      <div className={`p-3 sm:p-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 contract-studio-no-print ${
         isDark ? 'bg-[#0d0f17] border-[#1f2438]' : 'bg-white border-[#e2e8f0]'
       }`}>
         <div className="flex items-center gap-2.5">
@@ -591,7 +760,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
       </div>
 
       {/* WORKSPACE BODY */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-5">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-5 contract-studio-no-print">
         <div className="max-w-[1240px] mx-auto space-y-5">
           {studioMode === 'generator' ? (
             /* ================= MODE 1: CONTRACT GENERATOR ================= */
@@ -902,7 +1071,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
 
                     <button
                       type="button"
-                      onClick={() => window.print()}
+                      onClick={() => handlePrintDeed()}
                       className="px-3.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center gap-1.5 cursor-pointer shadow-md"
                       title="Prints ONLY the official white sheet agreement with e-Stamp certificate and signatures"
                     >
@@ -1143,7 +1312,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
 
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={() => handlePrintDeed()}
                 className="px-3.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center gap-1.5 cursor-pointer shadow-md"
               >
                 <span className="material-symbols-outlined text-[15px]">print</span>

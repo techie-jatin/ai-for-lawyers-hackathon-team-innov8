@@ -2,6 +2,9 @@
 > **Evidence-First Indian Legal AI Assistant & Judicial Research Platform for Advocates & Citizens**  
 > *Engineered for HackIndia 2026 • Powered by 2024–2026 Sanhitas, Landmark Supreme Court Precedents & 2026 Official Gazette Circulars.*
 
+[![Live App](https://img.shields.io/badge/Live_Deployment-Vercel_Production-000000?logo=vercel&style=for-the-badge)](https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app/)
+[![HackIndia Team](https://img.shields.io/badge/HackIndia_2026-Team_Innov8-FF9933?logo=target&style=for-the-badge)](https://hackindia.org/2026/ai-for-lawyers-hackathon/teams/team-innov8)
+
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_16_%2B_pgvector-336791?logo=postgresql)](https://neon.tech)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React_19_%2B_TypeScript-61DAFB?logo=react)](https://react.dev)
@@ -9,6 +12,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?logo=render)](https://render.com)
 [![Operating Budget](https://img.shields.io/badge/Operating_Budget-%E2%82%B90_(Serverless_Free_Tier)-green)](#)
+
+> 🚀 **Official HackIndia 2026 Submission Links:**  
+> - 🌐 **Live Web Application**: [https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app/](https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app/)  
+> - 🏆 **HackIndia Official Team Profile**: [https://hackindia.org/2026/ai-for-lawyers-hackathon/teams/team-innov8](https://hackindia.org/2026/ai-for-lawyers-hackathon/teams/team-innov8)
 
 ---
 
@@ -446,12 +453,18 @@ npm run dev
 ```
 > The web interface will open at `http://localhost:5173`.
 
+### 🌐 Live Production Deployment
+- **Live Production URL**: [https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app/](https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app/)
+- **Official Team Profile (HackIndia)**: [https://hackindia.org/2026/ai-for-lawyers-hackathon/teams/team-innov8](https://hackindia.org/2026/ai-for-lawyers-hackathon/teams/team-innov8)
+
 ---
 
 ## 📜 License & Hackathon Credits
 
 - **License**: MIT Open Source License (see [`LICENSE`](LICENSE)).
-- **Project**: AI for Lawyers Hackathon 2026.
+- **Hackathon**: [HackIndia 2026 — AI for Lawyers Hackathon](https://hackindia.org/2026/ai-for-lawyers-hackathon)
+- **Official Team Profile**: [Team Innov8 on HackIndia](https://hackindia.org/2026/ai-for-lawyers-hackathon/teams/team-innov8)
+- **Live Application**: [https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app/](https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app/)
 - **Team**: **Innov8** (`techie-jatin` & contributors).
 
 ---

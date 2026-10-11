@@ -1177,25 +1177,25 @@ export function ChatView({
         isDark ? 'bg-[#08090e] border-[#1f2438]' : 'bg-[#eff4ff] border-[#e2e8f0]'
       }`}>
         {/* User Profile Card (Relocated from top-right header) */}
-        <div className={`p-2.5 rounded-lg border flex items-center justify-between shadow-xs ${
+        <div className={`p-2 rounded-lg border flex items-center justify-between shadow-xs ${
           isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-white border-[#dce9ff]'
         }`}>
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[12px] tracking-wider shrink-0 ${
+          <div className="flex items-center gap-2 min-w-0">
+            <div className={`w-6.5 h-6.5 rounded-full flex items-center justify-center font-bold text-[10px] tracking-wider shrink-0 ${
               isDark ? 'bg-white text-black' : 'bg-[#00288e] text-white'
             }`}>
               {mode === 'citizen' ? 'CU' : 'AC'}
             </div>
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1">
-                <span className={`text-[12px] font-bold truncate ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
+                <span className={`text-[11px] font-bold truncate leading-tight ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
                   {mode === 'citizen' ? 'Citizen Inquirer' : 'Advocate Counsel'}
                 </span>
-                <span className="material-symbols-outlined text-[13px] text-emerald-400 shrink-0" title="Verified Credential">
+                <span className="material-symbols-outlined text-[11.5px] text-emerald-400 shrink-0" title="Verified Credential">
                   verified
                 </span>
               </div>
-              <span className={`text-[10px] truncate font-mono ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
+              <span className={`text-[8.5px] truncate font-mono leading-tight mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
                 {mode === 'citizen' ? 'General Public Access' : 'BCI Registered Chamber'}
               </span>
             </div>
@@ -1204,7 +1204,7 @@ export function ChatView({
           <button
             type="button"
             onClick={() => setMode(mode === 'citizen' ? 'professional' : 'citizen')}
-            className={`px-2 py-1 rounded-md border text-[10px] font-mono font-bold transition-all shrink-0 cursor-pointer ${
+            className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border transition-all shrink-0 cursor-pointer ${
               isDark 
                 ? 'bg-[#1c2136] hover:bg-[#252b47] text-white border-white/10' 
                 : 'bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#00288e] border-[#cbd5e1]'

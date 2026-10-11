@@ -396,6 +396,7 @@ export function ChatView({
     mode: string;
     context_filter: string;
     gemini_api_key?: string;
+    history?: Array<{ role: string; text: string }>;
   }): Promise<AssistantResponse> => {
     const cleanBase = apiBase.replace(/\/+$/, '');
     const targets = [
@@ -634,13 +635,16 @@ export function ChatView({
   }, [launchContext]);
 
   const handleSelectThread = (threadId: string) => {
-    // Save current messages to the thread being left
-    const updated = threads.map(t => t.id === activeThreadId ? { ...t, messages } : t);
+    // Save current messages & active category to the thread being left
+    const updated = threads.map(t => t.id === activeThreadId ? { ...t, messages, category: contextFilter } : t);
     saveThreadsToStorage(updated);
 
     setActiveThreadId(threadId);
     const target = updated.find(t => t.id === threadId);
     setMessages(target ? target.messages : []);
+    if (target && target.category) {
+      setContextFilter(target.category);
+    }
     setIsMobileSidebarOpen(false);
   };
 
@@ -814,6 +818,7 @@ export function ChatView({
         return {
           ...t,
           title: updatedTitle || t.title,
+          category: contextFilter,
           messages: newMessages
         };
       }
@@ -822,11 +827,17 @@ export function ChatView({
     saveThreadsToStorage(updatedThreads);
 
     try {
+      const historyPayload = messages.slice(-6).map(m => ({
+        role: m.role,
+        text: m.text
+      }));
+
       const data = await sendAssistantQuery({
         query: textToSend,
         mode: mode,
         context_filter: contextFilter,
-        gemini_api_key: geminiApiKey || undefined
+        gemini_api_key: geminiApiKey || undefined,
+        history: historyPayload
       });
 
       const asstMsgId = `msg-${Date.now() + 1}`;
@@ -2199,6 +2210,8 @@ export function ChatView({
                             onClick={() => {
                               setContextFilter(c.name);
                               setIsContextDropdownOpen(false);
+                              const updated = threads.map(t => t.id === activeThreadId ? { ...t, category: c.name } : t);
+                              saveThreadsToStorage(updated);
                             }}
                             style={{
                               backgroundColor: isSelected 

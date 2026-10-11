@@ -181,6 +181,14 @@ Natively generates 5 core Indian commercial agreements:
 4. **Commercial Office Lease Deed**: Security deposit protection, lock-in period, maintenance allocation, and Registration Act §17 / Stamp Duty advisories.
 5. **SaaS & Cloud Vendor Agreement**: 99.5% SLA, mutual limitation of liability caps, and statutory Section 8 DPDP Data Processor schedules.
 
+- **Court-Ready White Page Deed Preview**:
+  - Interactive switch: `[ 📜 Official White Sheet ]` vs `[ 💻 Raw Monospace Text ]`.
+  - Authentic Indian Non-Judicial e-Stamp Certificate banner (State Government stamp duty reference, Certificate Number, First/Second Party, Duty Paid).
+  - Formal courtroom deed typography: Centered title with double rule, formal preamble, **WHEREAS** recitals, numbered serif clauses, dual-column execution blocks (Party A & Party B with Authorized Signatory lines & Corporate Seal boxes), two-witness attestation block, and Section 63 BSA digital admissibility footnote.
+  - Full-screen pop-out modal viewer for examining the complete deed in high-resolution white paper layout.
+- **Isolated One-Click Print Engine**:
+  - Clicking **"Print Deed"** prints **ONLY** the official white sheet agreement on clean A4 pages, completely suppressing surrounding website chrome, headers, navigation bars, and buttons via dedicated `@media print` CSS rules.
+
 #### Engine B: Redlining & Risk Scanner
 - **Contract Health Score (0–100)**: Instant numerical health gauge and risk classification (*Critical Risk*, *High Risk*, *Moderate Risk*, *Compliant*).
 - **Clause-by-Clause Redline Breakdown**:
@@ -189,6 +197,13 @@ Natively generates 5 core Indian commercial agreements:
   - 🟢 **Safe Clauses**: Standard mutual notice and confidentiality provisions.
 - **Copyable Counter-Clause Revisions**: 1-click copy of balanced, legally enforceable substitute clauses to propose to counterparties.
 - **State e-Stamping Advisory**: Prescribes proper non-judicial stamp duty requirements to ensure court admissibility.
+
+---
+
+### 💬 Comprehensive Chat Context Engine
+- **Multi-Turn Conversational Memory**: Chat queries maintain complete factual and statutory continuity across conversational turns. Follow-up inquiries (e.g. *"What is the penalty if I fail to appear?"*, *"Can I get anticipatory bail for this?"*) automatically blend prior inquiry facts into hybrid retrieval and Gemini synthesis.
+- **Dynamic Thread Category Synchronization**: Selecting a chat thread automatically synchronizes the active legal domain dropdown (`Criminal Law (BNS)`, `Cyber & IT`, `Constitutional`, `DPDP Compliance`, `Consumer Protection`) and vice versa, preserving thread state in `localStorage`.
+- **Domain-Grounded LLM Synthesis**: Active legal pillars are directly injected into Gemini's system instructions to enforce domain-specific legal reasoning and statutory priorities.
 
 ---
 

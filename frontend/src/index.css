@@ -129,7 +129,9 @@ code {
   #root > div,
   main,
   #printable-legal-dossier,
-  #printable-legal-dossier > div {
+  #printable-legal-dossier > div,
+  #court-ready-deed-printable,
+  #court-ready-deed-printable > div {
     display: block !important;
     float: none !important;
     position: static !important;
@@ -368,4 +370,33 @@ code {
   .print-emergency-card * {
     color: #9f1239 !important;
   }
+
+  /* Court-Ready Agreement White Page Dedicated Print Engine */
+  .contract-studio-no-print {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  #court-ready-deed-printable {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Times New Roman', Times, Georgia, serif !important;
+  }
+
+  #court-ready-deed-printable .page-break-before {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  #court-ready-deed-printable .avoid-page-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 }
+

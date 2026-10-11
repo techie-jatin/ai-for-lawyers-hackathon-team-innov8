@@ -86,6 +86,265 @@ This Agreement shall be governed by the laws of the State of Delaware, USA, and 
 5. CUSTOMER DATA USAGE:
 Provider may access and process Client customer records for operational purposes without requiring formal Data Fiduciary agreements.`;
 
+interface CourtReadyParchmentProps {
+  contractText: string;
+  presetKey: string;
+  partyA: string;
+  partyB: string;
+  governingState: string;
+  arbitrationCity: string;
+  durationMonths: number;
+  consideration: string;
+  specificScope: string;
+  isPrintOnly?: boolean;
+}
+
+function CourtReadyParchmentDeed({
+  contractText,
+  presetKey,
+  partyA,
+  partyB,
+  governingState,
+  arbitrationCity,
+  durationMonths,
+  consideration,
+  specificScope,
+  isPrintOnly = false
+}: CourtReadyParchmentProps) {
+  // Deterministic certificate number
+  const certNumber = `IN-DL${Math.abs(
+    (partyA + partyB + governingState).split('').reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) | 0, 0)
+  ).toString().padStart(10, '7')}Z`;
+
+  const presetTitle = TEMPLATE_PRESETS.find(p => p.key === presetKey)?.title || 'COMMERCIAL LEGAL AGREEMENT';
+
+  // Parse text into structured clauses
+  const rawLines = (contractText || '').split('\n');
+  const filteredLines = rawLines.filter(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return true;
+    if (
+      trimmed.startsWith('MUTUAL COMMERCIAL AGREEMENT') ||
+      trimmed.startsWith('Executed at') ||
+      trimmed.startsWith('BY AND BETWEEN:') ||
+      trimmed.startsWith('1. ' + partyA) ||
+      trimmed.startsWith('2. ' + partyB) ||
+      trimmed.startsWith('AND') ||
+      trimmed.startsWith('OPERATIVE STATUTORY CLAUSES:') ||
+      trimmed.startsWith('SIGNATURES:')
+    ) {
+      return false;
+    }
+    return true;
+  });
+  const cleanedBody = filteredLines.join('\n').trim();
+
+  return (
+    <div
+      id={isPrintOnly ? "court-ready-deed-printable" : undefined}
+      className={
+        isPrintOnly
+          ? "hidden print:block bg-white text-black font-serif text-[11pt] leading-[1.8] text-justify"
+          : "bg-white text-[#111827] font-serif p-6 sm:p-10 rounded-sm shadow-xl border border-slate-300 max-h-[580px] overflow-y-auto select-text text-[12.5px] sm:text-[13px] leading-[1.8] text-justify space-y-6"
+      }
+      style={{
+        fontFamily: "'Times New Roman', Times, Georgia, serif"
+      }}
+    >
+      {/* 1. OFFICIAL NON-JUDICIAL E-STAMP CERTIFICATE HEADER */}
+      <div className="border-2 border-black p-3 bg-white text-black font-sans text-[10px] sm:text-[10.5px] leading-tight space-y-2 avoid-page-break">
+        <div className="text-center font-bold uppercase tracking-wider text-[11px] sm:text-[12px] border-b border-black pb-1.5 flex items-center justify-between">
+          <div className="w-8 h-8 rounded border border-black flex items-center justify-center font-serif text-[11px] font-bold">
+            सत्य
+          </div>
+          <div>
+            <div>GOVERNMENT OF NATIONAL CAPITAL TERRITORY OF DELHI / STATE OF {governingState.toUpperCase()}</div>
+            <div className="text-[9.5px] font-semibold tracking-normal text-slate-800">
+              e-Stamp Certificate • Non-Judicial Commercial Stamp (Ref: SHCIL/IND-STAMP-2026)
+            </div>
+          </div>
+          <div className="w-8 h-8 border border-black flex flex-col items-center justify-center text-[7px] font-mono">
+            <span>QR</span>
+            <span>SEC</span>
+          </div>
+        </div>
+
+        {/* 2-Column Official Metadata Grid */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 py-1 font-mono text-[9px] sm:text-[9.5px]">
+          <div><strong>Certificate No:</strong> {certNumber}</div>
+          <div><strong>Issued Date:</strong> 12-Oct-2026 11:30 AM IST</div>
+          <div><strong>Account Reference:</strong> NONACC (FI) / dl2026 / {governingState.toUpperCase()} / INDIA</div>
+          <div><strong>Unique Doc Ref:</strong> SUBIN-DL{governingState.slice(0, 2).toUpperCase()}202688410291X</div>
+          <div><strong>Purchased By:</strong> {partyA}</div>
+          <div><strong>Description:</strong> Article 5(c) / Article 35 - Agreement</div>
+          <div><strong>First Party:</strong> {partyA}</div>
+          <div><strong>Second Party:</strong> {partyB}</div>
+          <div><strong>Stamp Duty Paid By:</strong> {partyA}</div>
+          <div><strong>Duty Amount (Rs.):</strong> ₹ 100/- (One Hundred Only) [Adjudicated]</div>
+          <div><strong>Consideration:</strong> {consideration}</div>
+          <div><strong>Arbitration Seat:</strong> {arbitrationCity}, State of {governingState}</div>
+        </div>
+
+        <div className="border-t border-black pt-1 text-center font-sans italic text-[8.5px] text-slate-700">
+          *** Please write or type below this line. Official verification: www.shcilestamp.com / National e-Stamping Portal ***
+        </div>
+      </div>
+
+      {/* 2. DEED TITLE */}
+      <div className="text-center my-6 avoid-page-break">
+        <h1 className="text-[15px] sm:text-[17px] font-black uppercase tracking-wider text-black">
+          {presetTitle}
+        </h1>
+        <div className="w-48 mx-auto border-t-2 border-b border-black h-1 mt-1 mb-2" />
+        <p className="text-[11px] font-sans font-bold uppercase tracking-wider text-slate-700">
+          Executed under the Indian Contract Act, 1872 & Arbitration and Conciliation Act, 1996
+        </p>
+      </div>
+
+      {/* 3. FORMAL PREAMBLE */}
+      <div className="space-y-3">
+        <p>
+          <strong>THIS COMMERCIAL DEED OF AGREEMENT</strong> (hereinafter referred to as the <em>"Agreement"</em>) is entered into and executed on this <strong>12th day of October, 2026</strong> at <strong>{arbitrationCity}</strong>, State of <strong>{governingState}</strong>, Republic of India:
+        </p>
+
+        <p className="font-bold uppercase tracking-wider">BY AND BETWEEN:</p>
+
+        <p className="pl-4">
+          <strong>1. {partyA}</strong>, an entity incorporated and operating under the laws of India, having its registered / corporate office at its principal place of business (hereinafter referred to as the <strong>"PARTY OF THE FIRST PART / DISCLOSING PARTY"</strong>, which expression shall, unless repugnant to the context or meaning thereof, be deemed to include its authorized directors, legal representatives, successors-in-interest, and permitted assigns);
+        </p>
+
+        <p className="font-bold text-center uppercase tracking-widest text-[11px]">- AND -</p>
+
+        <p className="pl-4">
+          <strong>2. {partyB}</strong>, an entity incorporated and operating under the laws of India, having its commercial office at its principal place of business (hereinafter referred to as the <strong>"PARTY OF THE SECOND PART / RECEIVING PARTY"</strong>, which expression shall, unless repugnant to the context or meaning thereof, be deemed to include its authorized directors, legal representatives, successors-in-interest, and permitted assigns).
+        </p>
+
+        <p className="italic text-[11.5px] text-slate-800">
+          (The Party of the First Part and Party of the Second Part are hereinafter collectively referred to as the <strong>"Parties"</strong> and individually as a <strong>"Party"</strong>).
+        </p>
+      </div>
+
+      {/* 4. RECITALS ("WHEREAS" CLAUSES) */}
+      <div className="space-y-2 border-t border-slate-300 pt-3">
+        <p className="font-bold uppercase tracking-wider text-[12px]">RECITALS:</p>
+        <p className="pl-4">
+          <strong>WHEREAS</strong>, the Parties are engaged in commercial discussions and active business collaboration concerning <strong>{specificScope}</strong>;
+        </p>
+        <p className="pl-4">
+          <strong>AND WHEREAS</strong>, the Parties acknowledge that in the course of such engagement, confidential information, intellectual assets, and valuable considerations will be exchanged between them;
+        </p>
+        <p className="pl-4">
+          <strong>AND WHEREAS</strong>, the Parties desire to define their mutual statutory rights, reciprocal covenants, liabilities, and obligations in writing under the provisions of the Indian Contract Act, 1872;
+        </p>
+        <p className="pt-2 font-bold uppercase tracking-wide">
+          NOW, THEREFORE, IN CONSIDERATION OF THE MUTUAL COVENANTS CONTAINED HEREIN, AND THE VALUABLE CONSIDERATION OF {consideration.toUpperCase()}, THE RECEIPT AND SUFFICIENCY OF WHICH ARE HEREBY MUTUALLY ACKNOWLEDGED, THE PARTIES MUTUALLY AGREE AS FOLLOWS:
+        </p>
+      </div>
+
+      {/* 5. OPERATIVE STATUTORY CLAUSES */}
+      <div className="space-y-4 border-t border-slate-300 pt-3">
+        {cleanedBody ? (
+          <div className="whitespace-pre-wrap leading-[1.8] text-[12.5px] sm:text-[13px]">
+            {cleanedBody}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p>
+              <strong>1. SCOPE AND OBLIGATIONS:</strong> The Parties agree that all commercial deliverables and services shall strictly adhere to the defined project scope: {specificScope}. Neither Party shall subcontract or delegate performance without prior express written authorization.
+            </p>
+            <p>
+              <strong>2. CONSIDERATION & TAX COMPLIANCE:</strong> The agreed consideration payable under this deed is {consideration}, payable against valid tax invoices and subject to statutory Indian Tax Deducted at Source (TDS) and Goods and Services Tax (GST) mandates.
+            </p>
+            <p>
+              <strong>3. TERM & DURATION:</strong> This Agreement shall commence on the Effective Execution Date and continue in full force and effect for a period of {durationMonths} months, unless terminated earlier in writing in accordance with the provisions herein.
+            </p>
+            <p>
+              <strong>4. SECTION 27 INDIAN CONTRACT ACT COMPLIANCE:</strong> The Parties mutually agree that post-termination covenants shall be strictly restricted to the protection of proprietary trade secrets and non-solicitation of active personnel. Post-employment non-compete restraints on any lawful profession, trade, or business are expressly excluded as void pursuant to Section 27 of the Indian Contract Act, 1872.
+            </p>
+            <p>
+              <strong>5. DATA PRIVACY UNDER DPDP ACT, 2023:</strong> In the event either Party processes digital personal data of Indian citizens, such Party shall act in full compliance with the Digital Personal Data Protection Act, 2023, implementing reasonable technical and organizational security safeguards to prevent personal data breaches.
+            </p>
+            <p>
+              <strong>6. LIMITATION OF LIABILITY (§73 ICA):</strong> Neither Party shall be liable to the other for indirect, remote, punitive, or consequential damages. Aggregate liability under this Agreement shall not exceed the total fees paid or payable in the preceding six (6) months.
+            </p>
+            <p>
+              <strong>7. GOVERNING LAW & ARBITRATION:</strong> This Agreement shall be governed by, and construed in accordance with, the substantive laws of India. Any controversy, claim, or dispute arising out of or in connection with this Agreement shall be referred to and finally resolved by arbitration in {arbitrationCity}, State of {governingState}, in accordance with the Arbitration & Conciliation Act, 1996 by a sole arbitrator mutually appointed by the Parties.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* 6. EXECUTION CLOSING FORMULA */}
+      <div className="pt-6 border-t border-slate-300 avoid-page-break">
+        <p className="font-bold uppercase tracking-wider text-[11.5px] text-center mb-6">
+          IN WITNESS WHEREOF, THE PARTIES HERETO HAVE CAUSED THIS COMMERCIAL DEED TO BE DULY EXECUTED AND DELIVERED BY THEIR RESPECTIVE AUTHORIZED SIGNATORIES AS OF THE DAY, MONTH AND YEAR FIRST ABOVE WRITTEN.
+        </p>
+
+        {/* 7. DUAL-COLUMN SIGNATURE BOXES */}
+        <div className="grid grid-cols-2 gap-6 sm:gap-10 pt-2 pb-4">
+          {/* Party A */}
+          <div className="border border-black p-4 space-y-3 bg-white">
+            <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-700">
+              For and on behalf of First Party:
+            </div>
+            <div className="font-bold text-[12px]">{partyA}</div>
+            <div className="pt-8 border-b border-black" />
+            <div className="text-[10px] font-sans space-y-1">
+              <div><strong>By:</strong> ____________________________________</div>
+              <div><strong>Name:</strong> Authorized Signatory</div>
+              <div><strong>Title:</strong> Managing Director / Partner</div>
+              <div><strong>Date:</strong> 12 / 10 / 2026</div>
+              <div className="pt-2 text-center text-slate-600 italic">[ Common Seal / Company Stamp ]</div>
+            </div>
+          </div>
+
+          {/* Party B */}
+          <div className="border border-black p-4 space-y-3 bg-white">
+            <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-700">
+              For and on behalf of Second Party:
+            </div>
+            <div className="font-bold text-[12px]">{partyB}</div>
+            <div className="pt-8 border-b border-black" />
+            <div className="text-[10px] font-sans space-y-1">
+              <div><strong>By:</strong> ____________________________________</div>
+              <div><strong>Name:</strong> Authorized Signatory</div>
+              <div><strong>Title:</strong> Director / Authorized Signatory</div>
+              <div><strong>Date:</strong> 12 / 10 / 2026</div>
+              <div className="pt-2 text-center text-slate-600 italic">[ Common Seal / Company Stamp ]</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 8. WITNESS ATTESTATION BOX */}
+        <div className="border border-black p-3.5 mt-4 space-y-2 font-sans text-[10px] avoid-page-break bg-slate-50/50">
+          <div className="font-bold uppercase tracking-wider">
+            IN THE PRESENCE OF INDEPENDENT WITNESSES:
+          </div>
+          <div className="grid grid-cols-2 gap-4 pt-1">
+            <div className="space-y-1">
+              <div><strong>Witness 1:</strong></div>
+              <div>Signature: ____________________________________</div>
+              <div>Full Name: ____________________________________</div>
+              <div>Address: ______________________________________</div>
+            </div>
+            <div className="space-y-1">
+              <div><strong>Witness 2:</strong></div>
+              <div>Signature: ____________________________________</div>
+              <div>Full Name: ____________________________________</div>
+              <div>Address: ______________________________________</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 9. STATUTORY ADMISSIBILITY CERTIFICATE */}
+        <div className="pt-4 text-center font-mono text-[9px] text-slate-600 border-t border-slate-300 mt-4">
+          ⚖️ Certified under Section 63 of Bharatiya Sakshya Adhiniyam, 2023 (BSA). Formatted for Indian Judicial Admissibility under the Indian Stamp Act, 1899 and Arbitration & Conciliation Act, 1996.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const ContractStudioView: React.FC<ContractStudioViewProps> = ({ isDark, mode }) => {
   const [studioMode, setStudioMode] = useState<StudioMode>('generator');
 
@@ -103,6 +362,8 @@ export const ContractStudioView: React.FC<ContractStudioViewProps> = ({ isDark, 
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [engineUsed, setEngineUsed] = useState<string>('Bharat Statutory Contract Engine (Deterministic Indian Law)');
   const [copiedContract, setCopiedContract] = useState<boolean>(false);
+  const [previewFormat, setPreviewFormat] = useState<'parchment' | 'code'>('parchment');
+  const [isFullParchmentModalOpen, setIsFullParchmentModalOpen] = useState<boolean>(false);
 
   // Scanner State
   const [scanText, setScanText] = useState<string>('');
@@ -262,7 +523,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
   };
 
   return (
-    <div className={`flex-1 flex flex-col h-full overflow-hidden transition-colors ${
+    <div className={`flex-1 flex flex-col h-full overflow-hidden transition-colors contract-studio-no-print ${
       isDark ? 'bg-[#090a0f] text-slate-100' : 'bg-[#f4f6fb] text-[#0b1c30]'
     }`}>
       {/* HEADER BANNER */}
@@ -519,69 +780,137 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                 isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0] shadow-sm'
               }`}>
                 <div>
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-700/20">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-700/20">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-[18px] text-amber-500">article</span>
                       <h3 className={`text-[13px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
                         Court-Ready Agreement Preview
                       </h3>
                     </div>
-                    {generatedText && (
-                      <span className="text-[9.5px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        {engineUsed}
-                      </span>
-                    )}
+
+                    {/* VIEW TOGGLE: [ 📜 Court Sheet ] vs [ 💻 Raw Text ] + FULLSCREEN */}
+                    <div className="flex items-center gap-1.5">
+                      <div className={`flex items-center p-0.5 rounded-lg border text-[10.5px] font-bold ${
+                        isDark ? 'bg-[#121524] border-[#242a42]' : 'bg-slate-100 border-slate-200'
+                      }`}>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewFormat('parchment')}
+                          className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                            previewFormat === 'parchment'
+                              ? isDark ? 'bg-amber-500 text-slate-950 shadow-xs' : 'bg-white text-[#00288e] shadow-xs'
+                              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="View authentic legal parchment format with e-Stamp certificate and court margins"
+                        >
+                          <span className="material-symbols-outlined text-[13px]">description</span>
+                          <span>Official White Sheet</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPreviewFormat('code')}
+                          className={`px-2 py-1 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                            previewFormat === 'code'
+                              ? isDark ? 'bg-amber-500 text-slate-950 shadow-xs' : 'bg-white text-[#00288e] shadow-xs'
+                              : isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="View raw monospace clause text"
+                        >
+                          <span className="material-symbols-outlined text-[13px]">code</span>
+                          <span>Raw Text</span>
+                        </button>
+                      </div>
+
+                      {/* Full-Page Popout Button */}
+                      <button
+                        type="button"
+                        onClick={() => setIsFullParchmentModalOpen(true)}
+                        className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                          isDark 
+                            ? 'bg-[#181c2d] hover:bg-[#20253d] text-amber-400 border-[#2b334d]' 
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+                        }`}
+                        title="Open in Fullscreen Court Document Viewer"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">open_in_full</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <div className={`mt-3 p-4 rounded-xl border font-mono text-[11px] leading-relaxed max-h-[520px] overflow-y-auto whitespace-pre-wrap select-text ${
-                    isDark ? 'bg-[#0a0c14] border-[#1f2438] text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
-                  }`}>
-                    {generatedText || (
-                      <div className="text-center py-20 text-slate-400 space-y-2">
-                        <span className="material-symbols-outlined text-[36px] opacity-40">assignment</span>
-                        <p className="text-[12px]">Configure parties and click "Generate Agreement" to preview the complete legal deed.</p>
+                  {/* PREVIEW CONTAINER */}
+                  <div className="mt-3">
+                    {previewFormat === 'parchment' ? (
+                      <CourtReadyParchmentDeed
+                        contractText={generatedText}
+                        presetKey={selectedPreset}
+                        partyA={partyA}
+                        partyB={partyB}
+                        governingState={governingState}
+                        arbitrationCity={arbitrationCity}
+                        durationMonths={durationMonths}
+                        consideration={consideration}
+                        specificScope={specificScope}
+                        isPrintOnly={false}
+                      />
+                    ) : (
+                      <div className={`p-4 rounded-xl border font-mono text-[11px] leading-relaxed max-h-[520px] overflow-y-auto whitespace-pre-wrap select-text ${
+                        isDark ? 'bg-[#0a0c14] border-[#1f2438] text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
+                      }`}>
+                        {generatedText || (
+                          <div className="text-center py-20 text-slate-400 space-y-2">
+                            <span className="material-symbols-outlined text-[36px] opacity-40">assignment</span>
+                            <p className="text-[12px]">Configure parties and click "Generate Agreement" to preview the complete legal deed.</p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
                 </div>
 
-                {generatedText && (
-                  <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-700/20">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-3 border-t border-slate-700/20">
+                  <div className="flex items-center gap-2">
                     <span className="text-[10px] text-slate-400 font-sans">
                       ⚖️ Formatted with Indian Stamp Act e-Stamping placeholder & Section 63 BSA execution lines.
                     </span>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(generatedText);
-                          setCopiedContract(true);
-                          setTimeout(() => setCopiedContract(false), 2000);
-                        }}
-                        className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border flex items-center gap-1 cursor-pointer transition-all ${
-                          copiedContract
-                            ? 'bg-emerald-600 text-white border-emerald-500'
-                            : isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-white border-[#2b334d]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-[15px]">
-                          {copiedContract ? 'check' : 'content_copy'}
-                        </span>
-                        <span>{copiedContract ? 'Copied Deed' : 'Copy Text'}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => window.print()}
-                        className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center gap-1 cursor-pointer shadow-xs"
-                      >
-                        <span className="material-symbols-outlined text-[15px]">print</span>
-                        <span>Print Deed</span>
-                      </button>
-                    </div>
+                    {engineUsed && (
+                      <span className="hidden sm:inline-block text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        {engineUsed}
+                      </span>
+                    )}
                   </div>
-                )}
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(generatedText || 'Legal Deed');
+                        setCopiedContract(true);
+                        setTimeout(() => setCopiedContract(false), 2000);
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border flex items-center gap-1 cursor-pointer transition-all ${
+                        copiedContract
+                          ? 'bg-emerald-600 text-white border-emerald-500'
+                          : isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-white border-[#2b334d]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[15px]">
+                        {copiedContract ? 'check' : 'content_copy'}
+                      </span>
+                      <span>{copiedContract ? 'Copied Deed' : 'Copy Text'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="px-3.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center gap-1.5 cursor-pointer shadow-md"
+                      title="Prints ONLY the official white sheet agreement with e-Stamp certificate and signatures"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">print</span>
+                      <span>Print Deed</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
@@ -787,6 +1116,83 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           )}
         </div>
       </div>
+
+      {/* FULL-PAGE PARCHMENT MODAL */}
+      {isFullParchmentModalOpen && (
+        <div className="fixed inset-0 z-[1000] bg-black/80 flex flex-col items-center justify-between p-2 sm:p-6 backdrop-blur-xs contract-studio-no-print">
+          <div className="w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-t-xl px-4 py-3 flex items-center justify-between text-white shrink-0 shadow-2xl">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-500 text-[20px]">description</span>
+              <h3 className="text-[13px] font-bold">Court-Ready Parchment Viewer (Official Indian Deed)</h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(generatedText || 'Legal Deed');
+                  setCopiedContract(true);
+                  setTimeout(() => setCopiedContract(false), 2000);
+                }}
+                className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 flex items-center gap-1 cursor-pointer transition-all"
+              >
+                <span className="material-symbols-outlined text-[14px]">
+                  {copiedContract ? 'check' : 'content_copy'}
+                </span>
+                <span>{copiedContract ? 'Copied' : 'Copy Text'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="px-3.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#00288e] hover:bg-[#002070] text-white flex items-center gap-1.5 cursor-pointer shadow-md"
+              >
+                <span className="material-symbols-outlined text-[15px]">print</span>
+                <span>Print Deed</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsFullParchmentModalOpen(false)}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer ml-1"
+                title="Close Viewer"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="w-full max-w-4xl flex-1 overflow-y-auto bg-slate-300/90 p-3 sm:p-8 rounded-b-xl border border-slate-700 flex justify-center">
+            <div className="w-full max-w-[850px] shadow-2xl">
+              <CourtReadyParchmentDeed
+                contractText={generatedText}
+                presetKey={selectedPreset}
+                partyA={partyA}
+                partyB={partyB}
+                governingState={governingState}
+                arbitrationCity={arbitrationCity}
+                durationMonths={durationMonths}
+                consideration={consideration}
+                specificScope={specificScope}
+                isPrintOnly={false}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ISOLATED PRINTABLE CANVAS (Only visible during window.print()) */}
+      <CourtReadyParchmentDeed
+        contractText={generatedText}
+        presetKey={selectedPreset}
+        partyA={partyA}
+        partyB={partyB}
+        governingState={governingState}
+        arbitrationCity={arbitrationCity}
+        durationMonths={durationMonths}
+        consideration={consideration}
+        specificScope={specificScope}
+        isPrintOnly={true}
+      />
     </div>
   );
 };

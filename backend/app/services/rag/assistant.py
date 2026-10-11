@@ -33,7 +33,9 @@ class GeminiSynthesizer:
         concordance_items: Optional[List[StatutoryConcordance]] = None,
         gazettes: Optional[List[GazetteNotification]] = None,
         helplines: Optional[List[LegalHelpline]] = None,
-        precedents: Optional[List[RealCasePrecedent]] = None
+        precedents: Optional[List[RealCasePrecedent]] = None,
+        context_filter: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None
     ) -> Optional[str]:
         if not self.is_available():
             return None
@@ -168,8 +170,25 @@ class GeminiSynthesizer:
                 "- National Consumer Helpline: Dial 1915."
             )
 
+        pillar_section = ""
+        if context_filter:
+            pillar_section = f"### ACTIVE LEGAL DOMAIN / PILLAR CONTEXT: {context_filter}\nApply statutory reasoning and judicial principles grounded in this legal domain.\n\n"
+
+        history_section = ""
+        if history and len(history) > 0:
+            history_section = "### PRECEDING CONVERSATION CONTEXT (MULTI-TURN DIALOGUE HISTORY):\n"
+            for item in history[-6:]:
+                role_label = "Citizen / Counsel" if item.get("role") == "user" else "Legal Intelligence Assistant"
+                msg_txt = (item.get("text") or "").strip()
+                if len(msg_txt) > 350:
+                    msg_txt = msg_txt[:350] + "..."
+                history_section += f"- **{role_label}**: {msg_txt}\n"
+            history_section += "\n"
+
         user_content = (
-            f"USER INQUIRY:\n{query}\n\n"
+            f"{pillar_section}"
+            f"{history_section}"
+            f"CURRENT USER INQUIRY:\n{query}\n\n"
             f"OFFICIAL STATUTORY EVIDENCE & CONCORDANCE DOSSIER (FROM NEON PGVECTOR):\n{evidence_text}\n\n"
             f"Synthesize the exhaustive legal analysis now strictly following the mandated structure."
         )
@@ -255,16 +274,34 @@ class LegalAssistantService:
                 }
         return None
 
-    def retrieve_context(self, query: str, top_k: int = 4, context_filter: Optional[str] = None) -> List[LegalProvision]:
+    def retrieve_context(
+        self,
+        query: str,
+        top_k: int = 4,
+        context_filter: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None
+    ) -> List[LegalProvision]:
         """
         Retrieves relevant provisions using a hybrid strategy:
         1. Exact article/section regex match prioritized by statute title match
         2. Keyword substring matches on title and text
         3. Context category scoring boost for user-selected pillar
-        4. pgvector semantic embedding distance
+        4. Multi-turn dialogue query augmentation
+        5. pgvector semantic embedding distance
         """
         candidate_scores = {}  # provision_id -> (provision, score)
-        q_lower = query.lower()
+        
+        # Multi-turn query augmentation: if query is brief or follow-up, fuse prior user context
+        augmented_query = query
+        if history and len(history) > 0:
+            user_past_queries = [m.get("text", "") for m in history if m.get("role") == "user" and m.get("text")]
+            if user_past_queries:
+                last_user_query = user_past_queries[-1]
+                q_words = query.strip().split()
+                if len(q_words) < 8 or any(w in query.lower() for w in ["this", "that", "it", "penalty", "punishment", "bail", "appeal", "fine", "arrest", "fir", "quash", "period", "limitation"]):
+                    augmented_query = f"{query} {last_user_query}"
+
+        q_lower = augmented_query.lower()
 
         # Check for statute/case mentions in query
         all_sources = self.db.query(LegalSource).all()
@@ -466,7 +503,8 @@ class LegalAssistantService:
         query: str,
         mode: str = "citizen",  # "citizen" or "professional"
         context_filter: Optional[str] = None,
-        gemini_api_key: Optional[str] = None
+        gemini_api_key: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None
     ) -> Dict[str, Any]:
         """
         Orchestrates full RAG flow:
@@ -490,7 +528,7 @@ class LegalAssistantService:
                 return ai_abuse
 
         # 3. Retrieve authoritative provisions & multi-source evidence
-        provisions = self.retrieve_context(query, top_k=5, context_filter=context_filter)
+        provisions = self.retrieve_context(query, top_k=5, context_filter=context_filter, history=history)
         concordance_items = self.retrieve_concordance_context(query)
         precedents = self.retrieve_precedents_context(query, category=context_filter, limit=3)
         gazettes = self.retrieve_gazette_context(query)
@@ -543,7 +581,9 @@ class LegalAssistantService:
             concordance_items=concordance_items,
             gazettes=gazettes,
             helplines=helplines,
-            precedents=precedents
+            precedents=precedents,
+            context_filter=context_filter,
+            history=history
         )
         used_gemini = bool(gemini_answer)
 

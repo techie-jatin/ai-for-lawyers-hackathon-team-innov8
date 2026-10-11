@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from app.api import deps
 from app.services.rag.assistant import LegalAssistantService
@@ -13,6 +13,7 @@ class ChatRequest(BaseModel):
     mode: Optional[str] = "citizen"  # "citizen" or "professional"
     context_filter: Optional[str] = None  # e.g. "Criminal Law (BNS)", "Cyber & IT", "Constitutional", "DPDP Compliance"
     gemini_api_key: Optional[str] = None
+    history: Optional[List[Dict[str, str]]] = None  # Multi-turn context: [{"role": "user", "text": "..."}, ...]
 
 class ValidateCitationRequest(BaseModel):
     provision_id: Optional[int] = None
@@ -22,15 +23,16 @@ class ValidateCitationRequest(BaseModel):
 @router.post("/query")
 def ask_assistant(req: ChatRequest, db: Session = Depends(deps.get_db)) -> Dict[str, Any]:
     """
-    Primary RAG query endpoint for citizens and legal professionals with dynamic statutory context filtering
-    and optional free Google Gemini synthesis.
+    Primary RAG query endpoint for citizens and legal professionals with dynamic statutory context filtering,
+    multi-turn conversational memory, and optional free Google Gemini synthesis.
     """
     service = LegalAssistantService(db)
     return service.generate_response(
         query=req.query,
         mode=req.mode or "citizen",
         context_filter=req.context_filter,
-        gemini_api_key=req.gemini_api_key
+        gemini_api_key=req.gemini_api_key,
+        history=req.history
     )
 
 @router.post("/validate-citation")

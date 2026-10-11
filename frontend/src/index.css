@@ -253,6 +253,20 @@ code {
     color: #0f172a !important;
     font-size: 10.5pt !important;
     line-height: 1.6 !important;
+    margin-bottom: 6pt !important;
+  }
+
+  .print-exec-summary blockquote {
+    background-color: #f8fafc !important;
+    border-left: 3pt solid #1e3a8a !important;
+    padding: 6pt 10pt !important;
+    margin: 6pt 0 !important;
+  }
+
+  .print-exec-summary ul,
+  .print-exec-summary ol {
+    margin: 6pt 0 !important;
+    padding-left: 12pt !important;
   }
 
   /* Applicable Statutory Framework Pills */

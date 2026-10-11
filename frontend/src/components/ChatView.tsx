@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { ChatLaunchContext } from '../App';
 import { PrecedentDossierDrawer, type RealCasePrecedentItem } from './PrecedentDossierDrawer';
+import { LegalStructuredAnswer } from './LegalMarkdownRenderer';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -888,7 +889,9 @@ export function ChatView({
           category: contextFilter,
           mode: mode,
           initial_query: firstUserMsg?.text || 'Legal Inquiry',
-          legal_summary: lastAsstMsg?.text?.slice(0, 500) || 'Consultation record',
+          legal_summary: lastAsstMsg?.text 
+            ? lastAsstMsg.text.replace(/^#{1,4}\s+.*?\n+/g, '').replace(/[*#>`]/g, '').trim().slice(0, 400)
+            : 'Consultation record',
           applicable_sections: lastAsstMsg?.response?.applicable_laws || []
         })
       });
@@ -1535,7 +1538,7 @@ export function ChatView({
                           {msg.timestamp || 'Today'}
                         </span>
                       </div>
-                      <p className="text-[14px] sm:text-[15px] leading-relaxed">
+                      <p className="text-[14px] sm:text-[15px] leading-relaxed whitespace-pre-line">
                         "{msg.text}"
                       </p>
                       <div className={`user-meta mt-2.5 pt-2 flex items-center justify-between font-mono text-[10px] border-t ${
@@ -1717,30 +1720,12 @@ export function ChatView({
                     ) : (
                       /* STANDARD GROUNDED LEGAL RESPONSE */
                       <>
-                        {/* Section 1: Executive Legal Summary */}
-                        <div className={`print-exec-summary p-3.5 rounded-lg border ${
-                          isDark 
-                            ? 'bg-[#131624] border-[#23283f]' 
-                            : 'bg-[#eff4ff] border-[#dce9ff]'
-                        }`}>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`material-symbols-outlined text-[17px] ${
-                              isDark ? 'text-white' : 'text-[#00288e]'
-                            }`}>
-                              gavel
-                            </span>
-                            <h3 className={`text-[13px] font-bold ${
-                              isDark ? 'text-white' : 'text-[#00288e]'
-                            }`}>
-                              Executive Legal Summary
-                            </h3>
-                          </div>
-                          <p className={`text-[13px] leading-relaxed ${
-                            isDark ? 'text-[#e2e8f0]' : 'text-[#0b1c30]'
-                          }`}>
-                            {msg.response?.answer || msg.text}
-                          </p>
-                        </div>
+                        {/* Section 1: Executive Legal Summary & Structured Statutory Analysis */}
+                        <LegalStructuredAnswer
+                          answerText={msg.response?.answer || msg.text}
+                          isDark={isDark}
+                          mode={msg.response?.mode || mode}
+                        />
 
                         {/* Section 2: Applicable Statutory Framework Pills */}
                         {msg.response?.applicable_laws && msg.response.applicable_laws.length > 0 && (

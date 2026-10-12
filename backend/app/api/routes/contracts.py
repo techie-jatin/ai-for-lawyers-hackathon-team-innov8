@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import re
 import os
@@ -10,18 +10,18 @@ from app.core.config import settings
 router = APIRouter()
 
 class DraftContractRequest(BaseModel):
-    template_type: str  # "nda", "msa", "employment", "lease", "saas_dpdp"
-    title: Optional[str] = None
-    party_a_name: str
-    party_a_role: Optional[str] = "First Party / Disclosing Party"
-    party_b_name: str
-    party_b_role: Optional[str] = "Second Party / Receiving Party"
-    governing_state: Optional[str] = "Delhi"
-    arbitration_city: Optional[str] = "New Delhi"
-    duration_months: Optional[int] = 24
-    consideration_amount: Optional[str] = None
-    specific_covenants: Optional[str] = None
-    gemini_api_key: Optional[str] = None
+    template_type: str = Field(..., max_length=50)  # "nda", "msa", "employment", "lease", "saas_dpdp"
+    title: Optional[str] = Field(None, max_length=200)
+    party_a_name: str = Field(..., min_length=1, max_length=200)
+    party_a_role: Optional[str] = Field("First Party / Disclosing Party", max_length=200)
+    party_b_name: str = Field(..., min_length=1, max_length=200)
+    party_b_role: Optional[str] = Field("Second Party / Receiving Party", max_length=200)
+    governing_state: Optional[str] = Field("Delhi", max_length=100)
+    arbitration_city: Optional[str] = Field("New Delhi", max_length=100)
+    duration_months: Optional[int] = Field(24, ge=1, le=1200)
+    consideration_amount: Optional[str] = Field(None, max_length=100)
+    specific_covenants: Optional[str] = Field(None, max_length=5000)
+    gemini_api_key: Optional[str] = Field(None, max_length=128)
 
 class RiskItem(BaseModel):
     id: str
@@ -33,10 +33,10 @@ class RiskItem(BaseModel):
     counter_clause_revision: str
 
 class AuditContractRequest(BaseModel):
-    contract_text: str
-    contract_title: Optional[str] = "Commercial Agreement"
-    contract_type: Optional[str] = "General Commercial"
-    gemini_api_key: Optional[str] = None
+    contract_text: str = Field(..., min_length=5, max_length=150000, description="Contract text (max 150k chars)")
+    contract_title: Optional[str] = Field("Commercial Agreement", max_length=200)
+    contract_type: Optional[str] = Field("General Commercial", max_length=100)
+    gemini_api_key: Optional[str] = Field(None, max_length=128)
 
 class AuditContractResponse(BaseModel):
     contract_title: str

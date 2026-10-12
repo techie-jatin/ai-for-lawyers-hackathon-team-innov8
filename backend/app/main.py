@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import auth, search, assistant, concordance, registry, dossiers, precedents, contracts
+from app.core.security import SecurityHeadersMiddleware, RateLimiterMiddleware
 
 app = FastAPI(
     title="Bharat Legal Intelligence API",
@@ -24,10 +25,16 @@ class NormalizePathMiddleware:
                 scope["path"] = re.sub(r"/+", "/", path)
         await self.app(scope, receive, send)
 
-# Path normalization middleware (runs before router to handle //api gracefully)
+# 1. Path normalization middleware
 app.add_middleware(NormalizePathMiddleware)
 
-# CORS configuration
+# 2. Defensive HTTP Security Headers Middleware (OWASP Secure Headers)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# 3. Sliding-window Rate Limiting Middleware (DoS and resource exhaustion defense)
+app.add_middleware(RateLimiterMiddleware, general_limit=120, heavy_limit=30, window_seconds=60)
+
+# 4. Strict CORS configuration (whitelisted origins & project-scoped Vercel domains)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -38,9 +45,9 @@ app.add_middleware(
         "https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app",
         "https://ai-for-lawyers-hackathon-team-innov8.vercel.app",
     ],
-    allow_origin_regex=r"^https?://.*",
+    allow_origin_regex=r"^https:\/\/(ai-for-lawyers-hackathon-team-innov[a-zA-Z0-9_-]*\.vercel\.app|.*\.onrender\.com)$",
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

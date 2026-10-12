@@ -6,6 +6,7 @@ from datetime import datetime
 
 from app.api import deps
 from app.models.legal import ChamberDossier
+from app.core.security import validate_guest_id_format
 
 router = APIRouter()
 
@@ -56,6 +57,9 @@ def create_dossier(req: CreateDossierRequest, db: Session = Depends(deps.get_db)
     """
     Save a research session / opinion to the advocate's chamber dossier.
     """
+    if req.guest_id and not validate_guest_id_format(req.guest_id):
+        raise HTTPException(status_code=400, detail="Invalid guest_id format. Must match GST-XXXX-XXXX.")
+
     docket_num = req.docket_number or f"#CR-2025-{100 + db.query(ChamberDossier).count() + 1}"
     dossier = ChamberDossier(
         guest_id=req.guest_id,
@@ -74,13 +78,27 @@ def create_dossier(req: CreateDossierRequest, db: Session = Depends(deps.get_db)
     return dossier
 
 @router.delete("/{dossier_id}")
-def delete_dossier(dossier_id: int, db: Session = Depends(deps.get_db)):
+def delete_dossier(
+    dossier_id: int,
+    guest_id: Optional[str] = Query(None, description="Guest session ID to verify deletion ownership"),
+    x_guest_id: Optional[str] = Header(None, alias="X-Guest-ID"),
+    db: Session = Depends(deps.get_db)
+):
     """
-    Delete a saved dossier.
+    Delete a saved dossier with ownership verification (IDOR protection).
     """
     dossier = db.query(ChamberDossier).filter(ChamberDossier.id == dossier_id).first()
     if not dossier:
         raise HTTPException(status_code=404, detail="Dossier not found")
+
+    caller_guest_id = guest_id or x_guest_id
+    # If the dossier is associated with a guest_id, prevent other sessions from deleting it
+    if dossier.guest_id and dossier.guest_id != caller_guest_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Unauthorized: Access denied. Cannot delete a dossier belonging to another research session."
+        )
+
     db.delete(dossier)
     db.commit()
     return {"status": "success", "deleted_id": dossier_id}

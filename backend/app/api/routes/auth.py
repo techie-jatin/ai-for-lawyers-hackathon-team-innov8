@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.api import deps
 from app.models.user import User
@@ -8,8 +8,8 @@ from app.models.user import User
 router = APIRouter()
 
 class UserCreate(BaseModel):
-    email: str
-    password: str
+    email: str = Field(..., min_length=5, max_length=100, pattern=r"^[^@]+@[^@]+\.[^@]+$", description="Valid email address")
+    password: str = Field(..., min_length=8, max_length=128, description="Password must be at least 8 characters")
 
 class UserResponse(BaseModel):
     id: int

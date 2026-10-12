@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 
 from app.api import deps
@@ -9,10 +9,10 @@ from app.services.rag.assistant import LegalAssistantService
 router = APIRouter()
 
 class ChatRequest(BaseModel):
-    query: str
-    mode: Optional[str] = "citizen"  # "citizen" or "professional"
-    context_filter: Optional[str] = None  # e.g. "Criminal Law (BNS)", "Cyber & IT", "Constitutional", "DPDP Compliance"
-    gemini_api_key: Optional[str] = None
+    query: str = Field(..., min_length=1, max_length=4000, description="User legal query (max 4000 chars)")
+    mode: Optional[str] = Field("citizen", pattern=r"^(citizen|professional)$")
+    context_filter: Optional[str] = Field(None, max_length=100)
+    gemini_api_key: Optional[str] = Field(None, max_length=128)
     history: Optional[List[Dict[str, str]]] = None  # Multi-turn context: [{"role": "user", "text": "..."}, ...]
 
 class ValidateCitationRequest(BaseModel):

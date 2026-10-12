@@ -65,139 +65,6 @@ export interface ChatThread {
   messages: ChatMessage[];
 }
 
-const DEFAULT_THREADS: ChatThread[] = [
-  {
-    id: 'thread-seed-1',
-    title: 'Arrest Rights under Article 21 & 22',
-    category: 'Constitutional Law',
-    createdAt: 'Today, 11:30 AM',
-    messages: [
-      {
-        id: 'msg-seed-1',
-        role: 'user',
-        text: 'What are my rights under Article 21 and 22 if detained by police?',
-        timestamp: '11:30 AM IST'
-      },
-      {
-        id: 'msg-seed-2',
-        role: 'assistant',
-        text: 'Under Article 21 and 22 of the Constitution of India, any person arrested or detained possesses non-derogable procedural safeguards:\n\n1. Right to be informed of grounds of arrest forthwith.\n2. Right to consult and be defended by a legal practitioner of choice.\n3. Mandatory production before the nearest Judicial Magistrate within 24 hours of arrest excluding journey time (Article 22(2)).\n4. Protection against arbitrary deprivation of personal liberty except according to procedure established by law (Article 21 as expanded in Maneka Gandhi and D.K. Basu guidelines).',
-        timestamp: '11:30 AM IST',
-        response: {
-          answer: 'Under Article 21 and 22 of the Constitution of India, any person arrested or detained possesses non-derogable procedural safeguards: 1. Right to be informed of grounds of arrest forthwith. 2. Right to consult and be defended by a legal practitioner of choice. 3. Mandatory production before nearest Judicial Magistrate within 24 hours. 4. Protection against arbitrary deprivation of liberty.',
-          similar_cases: [
-            {
-              id: 1,
-              title: 'Arnesh Kumar v. State of Bihar',
-              citation: '(2014) 8 SCC 273; AIR 2014 SC 2756',
-              court: 'Supreme Court of India',
-              bench: '2-Judge Bench',
-              decision_year: 2014,
-              category: 'Bail & Procedure (BNSS)',
-              governing_provisions: ['Section 35(3) BNSS', 'Section 41A CrPC', 'Section 85 BNS', 'Section 498A IPC'],
-              factual_matrix: 'Wife filed Section 498A IPC FIR alleging dowry harassment against husband and in-laws. Police sought immediate custodial arrest without inquiry.',
-              legal_controversy: 'Whether police officers can arrest automatically upon registration of a cognizable offense carrying punishment up to 7 years without objective necessity.',
-              court_holding: 'Mandated strict compliance with Notice of Appearance. Police cannot automatically arrest when punishment is 7 years or less without recording written checklist reasons.',
-              advocate_strategy: 'Defense strategy: Immediately file Section 35(3) BNSS notice compliance memo. Seek immediate release or departmental action against officer if arrested without notice.',
-              sanhita_mapping_2024: 'Enshrined in Section 35(3) to 35(7) BNSS 2023. Notice of appearance is mandatory.',
-              key_takeaways: [
-                'Mandatory Notice of Appearance under Section 35(3) BNSS.',
-                'No automatic arrest for offenses carrying up to 7 years imprisonment.',
-                'Contempt of court for non-compliant police officers.'
-              ]
-            },
-            {
-              id: 11,
-              title: 'D.K. Basu v. State of West Bengal',
-              citation: '(1997) 1 SCC 416; AIR 1997 SC 610',
-              court: 'Supreme Court of India',
-              bench: '2-Judge Bench',
-              decision_year: 1997,
-              category: 'Constitutional Protections',
-              governing_provisions: ['Article 21 & 22 Constitution', 'Section 36 & 37 BNSS'],
-              factual_matrix: 'PIL addressed custodial violence, custodial deaths, and unlawful detention in police lockups across India.',
-              legal_controversy: 'What binding procedural safeguards must be followed during arrest and detention to prevent custodial torture and uphold Article 21?',
-              court_holding: 'Formulated 11 mandatory arrest guidelines including preparation of arrest memo, right of arrestee to have friend/relative informed within 8-12 hours, and medical checkup every 48 hours.',
-              advocate_strategy: 'Defense strategy: Audit arrest memo for witness signatures, timing logs, and medical records. Use any violation to invalidate custodial remand.',
-              sanhita_mapping_2024: 'Codified in Section 36 to Section 40 of BNSS 2023.',
-              key_takeaways: [
-                '11 mandatory guidelines for arrest memo, identification, and family intimation.',
-                'Mandatory medical examination of arrestee.',
-                'Direct violation of guidelines invites departmental action and contempt.'
-              ]
-            }
-          ]
-        }
-      }
-    ]
-  },
-  {
-    id: 'thread-seed-2',
-    title: 'Cheating Offense under Sec 318 BNS',
-    category: 'Criminal Law (BNS)',
-    createdAt: 'Yesterday, 4:15 PM',
-    messages: [
-      {
-        id: 'msg-seed-3',
-        role: 'user',
-        text: 'What is the punishment for cheating under Section 318 of Bharatiya Nyaya Sanhita?',
-        timestamp: '04:15 PM IST'
-      },
-      {
-        id: 'msg-seed-4',
-        role: 'assistant',
-        text: 'Section 318 of Bharatiya Nyaya Sanhita (BNS), 2023 replaces Sections 415 and 420 of the Indian Penal Code (IPC).\n\nUnder Section 318(4) BNS, whoever cheats and thereby dishonestly induces the person deceived to deliver any property shall be punished with imprisonment of either description for a term which may extend to 7 years, and shall also be liable to fine.',
-        timestamp: '04:15 PM IST',
-        response: {
-          answer: 'Section 318 of Bharatiya Nyaya Sanhita (BNS), 2023 replaces Sections 415 and 420 IPC. Under Section 318(4) BNS, cheating and dishonestly inducing delivery of property carries imprisonment up to 7 years and fine.',
-          similar_cases: [
-            {
-              id: 3,
-              title: 'Hridaya Ranjan Prasad Verma v. State of Bihar',
-              citation: '(2000) 4 SCC 168; AIR 2000 SC 2341',
-              court: 'Supreme Court of India',
-              bench: '2-Judge Bench',
-              decision_year: 2000,
-              category: 'Criminal Law (BNS)',
-              governing_provisions: ['Section 318 BNS', 'Section 420 IPC', 'Section 528 BNSS', 'Section 482 CrPC'],
-              factual_matrix: 'Parties entered into a land sale agreement where cheques bounced and vendors alleged fraudulent inducement to execute deeds without consideration.',
-              legal_controversy: 'Distinction between mere breach of contract and criminal offense of cheating under Section 415/420 IPC (Section 318 BNS).',
-              court_holding: 'To hold a person guilty of cheating under Section 420 IPC (Section 318 BNS), fraudulent or dishonest intention must be shown to exist at the very inception of the transaction. Mere inability to fulfill promise later does not constitute cheating.',
-              advocate_strategy: 'Defense strategy: Produce pre-contract communications demonstrating genuine mutual commercial engagement. Argue that subsequent inability to perform is a civil remedy and file Section 528 BNSS quashing petition.',
-              sanhita_mapping_2024: 'Directly governs Section 318(1) and 318(4) BNS 2023. Essential shield against criminalizing civil transactions.',
-              key_takeaways: [
-                'Fraudulent intent must exist at the inception of the contract.',
-                'Subsequent failure to perform is a breach of contract, not cheating.',
-                'Civil disputes cannot be converted into criminal prosecution.'
-              ]
-            },
-            {
-              id: 2,
-              title: 'State of Haryana v. Bhajan Lal',
-              citation: '1992 Supp (1) SCC 335; AIR 1992 SC 604',
-              court: 'Supreme Court of India',
-              bench: '2-Judge Bench',
-              decision_year: 1992,
-              category: 'Criminal Law (BNS)',
-              governing_provisions: ['Section 528 BNSS', 'Section 482 CrPC', 'Article 226 Constitution'],
-              factual_matrix: 'Political rivalry FIR filed alleging disproportionate assets and corruption without prima facie basis or corroborating material.',
-              legal_controversy: 'Scope of inherent jurisdiction of High Courts to quash an FIR / criminal proceedings under Section 482 CrPC (now Section 528 BNSS).',
-              court_holding: 'Laid down 7 exhaustive benchmark categories where criminal proceedings can and should be quashed, including where allegations do not disclose cognizable offense or proceeding is maliciously instituted.',
-              advocate_strategy: 'Defense strategy: Map FIR allegations against the 7 Bhajan Lal benchmarks. Argue Category 1 (allegations taken on face value do not constitute offense) and Category 7 (manifest malice for wreaking vengeance).',
-              sanhita_mapping_2024: 'Directly governs petitions filed under Section 528 BNSS 2023. Benchmark precedent for quashing false FIRs.',
-              key_takeaways: [
-                '7 categories for quashing criminal proceedings under Section 528 BNSS.',
-                'Court can quash when allegations do not disclose any cognizable offense.',
-                'Protects citizens from malicious prosecution.'
-              ]
-            }
-          ]
-        }
-      }
-    ]
-  }
-];
-
 const CONTEXT_CATEGORIES = [
   { name: 'Criminal Law (BNS)', icon: 'gavel' },
   { name: 'Cyber & IT', icon: 'laptop_mac' },
@@ -207,6 +74,7 @@ const CONTEXT_CATEGORIES = [
 ];
 
 interface ChatViewProps {
+  guestId?: string;
   apiBase: string;
   mode: 'citizen' | 'professional';
   setMode: (mode: 'citizen' | 'professional') => void;
@@ -309,6 +177,7 @@ function ChatInputForm({
 }
 
 export function ChatView({
+  guestId = 'GST-GUEST-SESSION',
   apiBase,
   mode,
   setMode,
@@ -322,23 +191,24 @@ export function ChatView({
   onSelectTab
 }: ChatViewProps) {
   const isDark = theme === 'dark';
+  const storageKey = `bharat_chat_threads_${guestId}`;
 
-  // Chat Threads State (Persistent in localStorage)
+  // Chat Threads State (Persistent in localStorage per Guest ID)
   const [threads, setThreads] = useState<ChatThread[]>(() => {
     try {
-      const saved = localStorage.getItem('bharat_chat_threads');
+      const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
       console.error('Failed to load chat threads:', e);
     }
-    return DEFAULT_THREADS;
+    return []; // Clean empty slate for new guests!
   });
 
   const [activeThreadId, setActiveThreadId] = useState<string>(() => {
-    return threads[0]?.id || 'thread-seed-1';
+    return threads[0]?.id || '';
   });
 
   const [externalInput, setExternalInput] = useState<string | null>(null);
@@ -346,7 +216,7 @@ export function ChatView({
   const [contextFilter, setContextFilter] = useState('Criminal Law (BNS)');
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const active = threads.find(t => t.id === activeThreadId);
-    return active ? active.messages : (threads[0]?.messages || []);
+    return active ? active.messages : [];
   });
   const [expandedSources, setExpandedSources] = useState<{ [key: string]: boolean }>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -363,11 +233,32 @@ export function ChatView({
 
   const MAX_FREE_THREADS = 7;
 
+  // Sync state if guestId changes
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`bharat_chat_threads_${guestId}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setThreads(parsed);
+          setActiveThreadId(parsed[0]?.id || '');
+          setMessages(parsed[0]?.messages || []);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Error reloading threads on guestId change:', e);
+    }
+    setThreads([]);
+    setActiveThreadId('');
+    setMessages([]);
+  }, [guestId]);
+
   // Sync active thread messages to localStorage
   const saveThreadsToStorage = (updatedThreads: ChatThread[]) => {
     setThreads(updatedThreads);
     try {
-      localStorage.setItem('bharat_chat_threads', JSON.stringify(updatedThreads));
+      localStorage.setItem(`bharat_chat_threads_${guestId}`, JSON.stringify(updatedThreads));
     } catch (e) {
       console.error('Error saving threads:', e);
     }
@@ -806,25 +697,40 @@ export function ChatView({
     setMessages(newMessages);
     setLoading(true);
 
-    // Update active thread title if it was default
-    const currentThread = threads.find(t => t.id === activeThreadId);
-    let updatedTitle = currentThread?.title;
-    if (currentThread && (currentThread.title === 'New Research Inquiry' || messages.length === 0)) {
-      updatedTitle = textToSend.slice(0, 36) + (textToSend.length > 36 ? '...' : '');
-    }
+    // Ensure active thread exists, or dynamically create one
+    let targetThreadId = activeThreadId;
+    let baseThreads = threads;
+    let updatedTitle = textToSend.slice(0, 36) + (textToSend.length > 36 ? '...' : '');
 
-    const updatedThreads = threads.map(t => {
-      if (t.id === activeThreadId) {
-        return {
-          ...t,
-          title: updatedTitle || t.title,
-          category: contextFilter,
-          messages: newMessages
-        };
+    const currentThread = threads.find(t => t.id === targetThreadId);
+    if (!currentThread) {
+      targetThreadId = `thread-${Date.now()}`;
+      const newThread: ChatThread = {
+        id: targetThreadId,
+        title: updatedTitle,
+        category: contextFilter,
+        createdAt: 'Just now',
+        messages: newMessages
+      };
+      baseThreads = [newThread, ...threads];
+      setActiveThreadId(targetThreadId);
+    } else {
+      if (currentThread.title !== 'New Research Inquiry' && messages.length > 0) {
+        updatedTitle = currentThread.title;
       }
-      return t;
-    });
-    saveThreadsToStorage(updatedThreads);
+      baseThreads = threads.map(t => {
+        if (t.id === targetThreadId) {
+          return {
+            ...t,
+            title: updatedTitle,
+            category: contextFilter,
+            messages: newMessages
+          };
+        }
+        return t;
+      });
+    }
+    saveThreadsToStorage(baseThreads);
 
     try {
       const historyPayload = messages.slice(-6).map(m => ({
@@ -852,8 +758,8 @@ export function ChatView({
       const finalMessages = [...newMessages, asstMsg];
       setMessages(finalMessages);
 
-      const finalThreads = updatedThreads.map(t => {
-        if (t.id === activeThreadId) {
+      const finalThreads = baseThreads.map(t => {
+        if (t.id === targetThreadId) {
           return {
             ...t,
             title: updatedTitle || t.title,
@@ -873,8 +779,8 @@ export function ChatView({
       };
       const finalMessages = [...newMessages, errorMsg];
       setMessages(finalMessages);
-      const finalThreads = updatedThreads.map(t => {
-        if (t.id === activeThreadId) {
+      const finalThreads = baseThreads.map(t => {
+        if (t.id === targetThreadId) {
           return { ...t, messages: finalMessages };
         }
         return t;
@@ -896,6 +802,7 @@ export function ChatView({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          guest_id: guestId,
           title: activeThread?.title || 'Legal Analysis Consultation',
           category: contextFilter,
           mode: mode,
@@ -1072,53 +979,63 @@ export function ChatView({
           </div>
 
           <div className="flex flex-col gap-1">
-            {threads.map(thread => {
-              const isActive = activeThreadId === thread.id;
-              const replyCount = thread.messages.filter(m => m.role === 'assistant').length;
-              return (
-                <div
-                  key={thread.id}
-                  onClick={() => handleSelectThread(thread.id)}
-                  className={`group relative flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition-all cursor-pointer border ${
-                    isActive
-                      ? isDark 
-                        ? 'bg-[#1a1e2e] text-white border-white/20 shadow-xs' 
-                        : 'bg-white text-[#00288e] border-[#00288e]/30 shadow-xs font-semibold'
-                      : isDark
-                        ? 'bg-[#131624]/60 hover:bg-[#131624] text-[#cbd5e1] hover:text-white border-transparent'
-                        : 'bg-[#f1f5f9]/60 hover:bg-[#eff4ff] text-[#334155] hover:text-[#0b1c30] border-transparent'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 min-w-0 pr-5">
-                    <span className={`material-symbols-outlined text-[15px] shrink-0 ${
-                      isActive 
-                        ? isDark ? 'text-white' : 'text-[#00288e]' 
-                        : 'text-[#64748b]'
-                    }`}>
-                      chat_bubble
-                    </span>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-[12px] truncate leading-tight">{thread.title}</span>
-                      <span className="text-[9px] text-[#64748b] font-mono">
-                        {thread.createdAt || 'Recent'} • {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
-                      </span>
-                    </div>
-                  </div>
-                  {/* Delete action button */}
-                  <button
-                    type="button"
-                    title="Delete thread"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteThread(thread.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 hover:text-red-400 p-1 rounded transition-opacity absolute right-1.5 top-1/2 -translate-y-1/2 cursor-pointer"
+            {threads.length === 0 ? (
+              <div className={`p-3 rounded-lg text-center border border-dashed text-[11px] ${
+                isDark ? 'border-zinc-800 text-zinc-400 bg-zinc-900/30' : 'border-slate-200 text-slate-500 bg-slate-50'
+              }`}>
+                <span className="material-symbols-outlined text-[18px] mb-1 block text-slate-400">forum</span>
+                <p className="font-semibold text-[11px]">No research threads yet</p>
+                <p className="text-[10px] opacity-75 mt-0.5">Start a query or select a quick prompt below</p>
+              </div>
+            ) : (
+              threads.map(thread => {
+                const isActive = activeThreadId === thread.id;
+                const replyCount = thread.messages.filter(m => m.role === 'assistant').length;
+                return (
+                  <div
+                    key={thread.id}
+                    onClick={() => handleSelectThread(thread.id)}
+                    className={`group relative flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition-all cursor-pointer border ${
+                      isActive
+                        ? isDark 
+                          ? 'bg-[#1a1e2e] text-white border-white/20 shadow-xs' 
+                          : 'bg-white text-[#00288e] border-[#00288e]/30 shadow-xs font-semibold'
+                        : isDark
+                          ? 'bg-[#131624]/60 hover:bg-[#131624] text-[#cbd5e1] hover:text-white border-transparent'
+                          : 'bg-[#f1f5f9]/60 hover:bg-[#eff4ff] text-[#334155] hover:text-[#0b1c30] border-transparent'
+                    }`}
                   >
-                    <span className="material-symbols-outlined text-[14px]">close</span>
-                  </button>
-                </div>
-              );
-            })}
+                    <div className="flex items-center gap-2 min-w-0 pr-5">
+                      <span className={`material-symbols-outlined text-[15px] shrink-0 ${
+                        isActive 
+                          ? isDark ? 'text-white' : 'text-[#00288e]' 
+                          : 'text-[#64748b]'
+                      }`}>
+                        chat_bubble
+                      </span>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[12px] truncate leading-tight">{thread.title}</span>
+                        <span className="text-[9px] text-[#64748b] font-mono">
+                          {thread.createdAt || 'Recent'} • {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Delete action button */}
+                    <button
+                      type="button"
+                      title="Delete thread"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteThread(thread.id);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 hover:text-red-400 p-1 rounded transition-opacity absolute right-1.5 top-1/2 -translate-y-1/2 cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">close</span>
+                    </button>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -1457,6 +1374,16 @@ export function ChatView({
                 <h2 className="text-[18px] sm:text-[20px] font-bold tracking-tight">
                   <span className="text-[#ff7722]">भारत</span> <span className={isDark ? 'text-white' : 'text-[#00288e]'}>Legal Intelligence</span>
                 </h2>
+                <div className="flex items-center gap-2 mt-2 mb-2">
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-medium flex items-center gap-1.5 border shadow-xs ${
+                    isDark 
+                      ? 'bg-[#182038] text-emerald-300 border-emerald-800/60' 
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  }`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Guest Mode • #{guestId || 'GST-LOCAL'} (Private to this browser)
+                  </span>
+                </div>
                 <p className={`text-[12px] sm:text-[13px] max-w-lg mt-1 mb-5 leading-relaxed ${
                   isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
                 }`}>

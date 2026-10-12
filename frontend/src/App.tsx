@@ -5,6 +5,7 @@ import { ContractStudioView } from './components/ContractStudioView';
 import { SearchView } from './components/SearchView';
 import { InfoView } from './components/InfoView';
 import { DossiersDrawer, type ChamberDossier } from './components/DossiersDrawer';
+import { getGuestId, resetGuestId, hasSeenGuestNotice, markGuestNoticeSeen } from './utils/guestSession';
 
 export interface ChatLaunchContext {
   type: 'search_provision' | 'concordance' | 'gazette' | 'dossier';
@@ -92,9 +93,15 @@ const DAILY_LEGAL_TIPS: DailyLegalTip[] = [
 ];
 
 export function App() {
+  const [guestId] = useState<string>(() => getGuestId());
+  const [showGuestNoticeModal, setShowGuestNoticeModal] = useState<boolean>(() => !hasSeenGuestNotice());
+  const [isGuestMenuOpen, setIsGuestMenuOpen] = useState(false);
+  const [guestIdCopied, setGuestIdCopied] = useState(false);
+  const guestMenuRef = useRef<HTMLDivElement>(null);
+
   const [activeTab, setActiveTab] = useState<'chat' | 'contracts' | 'search' | 'info'>('chat');
   const [mode, setMode] = useState<'citizen' | 'professional'>('professional');
-  const [dossierCount, setDossierCount] = useState<number>(2);
+  const [dossierCount, setDossierCount] = useState<number>(0);
   const [isDossiersOpen, setIsDossiersOpen] = useState(false);
   const [isPagesMenuOpen, setIsPagesMenuOpen] = useState(false);
   const pagesMenuRef = useRef<HTMLDivElement>(null);
@@ -127,18 +134,19 @@ export function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Click-outside listener for mobile pages dropdown
+  // Click-outside listener for mobile pages dropdown and guest menu
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (pagesMenuRef.current && !pagesMenuRef.current.contains(event.target as Node)) {
         setIsPagesMenuOpen(false);
       }
+      if (guestMenuRef.current && !guestMenuRef.current.contains(event.target as Node)) {
+        setIsGuestMenuOpen(false);
+      }
     }
-    if (isPagesMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isPagesMenuOpen]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('bharat_theme', theme);
@@ -154,7 +162,7 @@ export function App() {
   }, [theme]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/dossiers`)
+    fetch(`${API_BASE}/api/dossiers?guest_id=${guestId}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setDossierCount(data.length);
@@ -170,7 +178,7 @@ export function App() {
         }
       })
       .catch(err => console.error('Error fetching sources count:', err));
-  }, []);
+  }, [guestId]);
 
   const isDark = theme === 'dark';
 
@@ -662,6 +670,91 @@ export function App() {
               {mode === 'citizen' ? 'CU' : 'AC'}
             </button>
 
+            {/* GUEST SESSION IDENTITY PILL & MENU */}
+            <div className="relative" ref={guestMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsGuestMenuOpen(!isGuestMenuOpen)}
+                className={`flex items-center gap-1.5 px-[clamp(8px,0.7vw,12px)] py-1 xl:py-1.5 rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-mono border transition-all cursor-pointer shadow-2xs whitespace-nowrap ${
+                  isDark 
+                    ? 'bg-[#131624] text-[#cbd5e1] border-[#23283f] hover:border-[#ff7722]/50 hover:text-white' 
+                    : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:border-[#00288e]/40 hover:bg-[#e5eeff]'
+                }`}
+                title={`Guest Session #${guestId} • Click for session details`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ff7722] animate-pulse shrink-0"></span>
+                <span className="material-symbols-outlined text-[14px] 2xl:text-[16px] text-[#ff7722] shrink-0">shield_person</span>
+                <span className="font-bold hidden md:inline">Guest</span>
+                <span className="font-extrabold text-[#ff7722]">{guestId.slice(0, 8)}</span>
+                <span className={`material-symbols-outlined text-[13px] transition-transform duration-200 ${isGuestMenuOpen ? 'rotate-180' : ''}`}>
+                  expand_more
+                </span>
+              </button>
+
+              {isGuestMenuOpen && (
+                <div 
+                  className={`absolute right-0 top-full mt-2 w-72 rounded-xl shadow-2xl border p-3 z-[9999] animate-in fade-in zoom-in-95 duration-150 ${
+                    isDark ? 'border-[#23283f] text-white' : 'border-[#e2e8f0] text-[#0b1c30]'
+                  }`}
+                  style={{ backgroundColor: isDark ? '#0f121e' : '#ffffff', opacity: 1, zIndex: 9999 }}
+                >
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-700/20">
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px] text-[#ff7722]">fingerprint</span>
+                      <span className="text-[11px] font-black uppercase tracking-wider">Guest Session Identity</span>
+                    </div>
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                      Private
+                    </span>
+                  </div>
+
+                  <div className={`p-2 rounded-lg font-mono text-[11px] break-all border mb-2.5 flex items-center justify-between gap-1.5 ${
+                    isDark ? 'bg-[#090b12] border-[#1f2438] text-amber-300' : 'bg-slate-50 border-slate-200 text-[#00288e]'
+                  }`}>
+                    <span className="font-bold select-all">{guestId}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(guestId);
+                        setGuestIdCopied(true);
+                        setTimeout(() => setGuestIdCopied(false), 2000);
+                      }}
+                      className={`p-1 rounded cursor-pointer transition-all ${
+                        guestIdCopied ? 'text-emerald-400' : 'text-slate-400 hover:text-white'
+                      }`}
+                      title="Copy Guest ID"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">
+                        {guestIdCopied ? 'check' : 'content_copy'}
+                      </span>
+                    </button>
+                  </div>
+
+                  <p className={`text-[10px] leading-relaxed mb-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    🔒 Your chat history and chamber research briefs are safely stored locally in this browser. To sync across devices, advocate/citizen profile registration is launching soon.
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm('Start a fresh session? This will create a new Guest ID and start a new clean chat workspace.')) {
+                          resetGuestId();
+                          window.location.reload();
+                        }
+                      }}
+                      className={`w-full py-1.5 px-2 rounded-lg text-[10.5px] font-bold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                        isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-rose-300 border-rose-900/40' : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[13px]">refresh</span>
+                      <span>Start Fresh Session</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* THEME TOGGLE SWITCH (Light / Dark) */}
             <button
               type="button"
@@ -744,6 +837,7 @@ export function App() {
         }`}>
           {activeTab === 'chat' && (
             <ChatView 
+              guestId={guestId}
               apiBase={API_BASE} 
               mode={mode} 
               setMode={setMode} 
@@ -790,6 +884,7 @@ export function App() {
 
       {/* Chamber Dossiers Slide-Over Drawer */}
       <DossiersDrawer
+        guestId={guestId}
         isOpen={isDossiersOpen}
         onClose={() => setIsDossiersOpen(false)}
         apiBase={API_BASE}
@@ -808,6 +903,77 @@ export function App() {
           setIsDossiersOpen(false);
         }}
       />
+
+      {/* FIRST-VISIT GUEST NOTICE MODAL */}
+      {showGuestNoticeModal && (
+        <div className="fixed inset-0 z-[10001] bg-black/80 flex items-center justify-center p-4 backdrop-blur-xs select-none animate-in fade-in duration-200">
+          <div className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 sm:p-6 space-y-4 ${
+            isDark ? 'bg-[#0f121e] border-[#242b42] text-white' : 'bg-white border-[#e2e8f0] text-[#0b1c30]'
+          }`}>
+            {/* Header with Seal and Guest ID */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00288e] to-[#ff7722] flex items-center justify-center text-white shadow-md shrink-0">
+                  <span className="material-symbols-outlined text-[22px]">shield_person</span>
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-black tracking-tight">Private Guest Session Active</h3>
+                  <span className="text-[11px] font-mono font-bold text-[#ff7722]">
+                    Assigned ID: {guestId}
+                  </span>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                Device Private
+              </span>
+            </div>
+
+            <div className={`p-3.5 rounded-xl border text-[11.5px] leading-relaxed space-y-2 ${
+              isDark ? 'bg-[#090b12] border-[#1f2438] text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+            }`}>
+              <p>
+                Welcome to <strong>Bharat Legal Intelligence</strong>. To protect judicial confidentiality and citizen privacy, your legal inquiries, statutory analyses, and chamber briefs are saved <strong>exclusively in this browser</strong> on your device under your unique Guest ID.
+              </p>
+              <p className="text-[10.5px] text-slate-400">
+                ⚖️ <em>We are currently enabling our secure Bar Council verified Advocate & Citizen Profile System. Until then, you can freely use all AI research tools, contract generators, and precedent databases as a Guest user.</em>
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(guestId);
+                  setGuestIdCopied(true);
+                  setTimeout(() => setGuestIdCopied(false), 2000);
+                }}
+                className={`px-3 py-2 rounded-xl text-[11px] font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  guestIdCopied
+                    ? 'bg-emerald-600 text-white border-emerald-500'
+                    : isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-white border-[#2b334d]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[15px]">
+                  {guestIdCopied ? 'check' : 'content_copy'}
+                </span>
+                <span>{guestIdCopied ? 'Copied ID' : 'Copy Guest ID'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  markGuestNoticeSeen();
+                  setShowGuestNoticeModal(false);
+                }}
+                className="px-4 py-2 rounded-xl text-[11.5px] font-black bg-gradient-to-r from-[#00288e] to-[#ff7722] hover:opacity-90 text-white flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+              >
+                <span>Start Legal Research</span>
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

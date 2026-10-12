@@ -84,6 +84,7 @@ class ChamberDossier(Base):
     __tablename__ = "chamber_dossiers"
 
     id = Column(Integer, primary_key=True, index=True)
+    guest_id = Column(String, index=True, nullable=True)        # e.g., 'GST-7E4A-9B21'
     docket_number = Column(String, index=True, nullable=False)  # e.g., '#CR-2025-084'
     title = Column(String, nullable=False)                      # e.g., 'Bail Arguments under Section 482 BNSS'
     category = Column(String, default="Criminal Law (BNS)")

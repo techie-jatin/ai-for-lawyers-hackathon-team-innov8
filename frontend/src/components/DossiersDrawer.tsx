@@ -18,6 +18,7 @@ interface DossiersDrawerProps {
   onClose: () => void;
   apiBase: string;
   theme?: 'dark' | 'light';
+  guestId?: string;
   onDossierCountChange?: (count: number) => void;
   onLoadInChat?: (dossier: ChamberDossier) => void;
 }
@@ -27,6 +28,7 @@ export function DossiersDrawer({
   onClose,
   apiBase,
   theme = 'dark',
+  guestId,
   onDossierCountChange,
   onLoadInChat
 }: DossiersDrawerProps) {
@@ -39,7 +41,10 @@ export function DossiersDrawer({
   const fetchDossiers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}/api/dossiers`);
+      const url = guestId 
+        ? `${apiBase}/api/dossiers?guest_id=${encodeURIComponent(guestId)}`
+        : `${apiBase}/api/dossiers`;
+      const res = await fetch(url);
       const data = await res.json();
       if (Array.isArray(data)) {
         setDossiers(data);
@@ -120,6 +125,13 @@ export function DossiersDrawer({
                 }`}>
                   {dossiers.length} Saved
                 </span>
+                {guestId && (
+                  <span className={`px-2 py-0.5 rounded-full font-mono text-[9px] border hidden sm:inline-block ${
+                    isDark ? 'bg-[#182038] text-slate-300 border-white/10' : 'bg-slate-100 text-slate-600 border-slate-200'
+                  }`}>
+                    #{guestId}
+                  </span>
+                )}
               </div>
               <p className={`text-[11px] ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>
                 Saved legal analyses, case briefs, and statutory advisory notes
@@ -177,7 +189,7 @@ export function DossiersDrawer({
                 {searchFilter ? 'No matching dossiers found' : 'No Chamber Dossiers Saved Yet'}
               </h3>
               <p className={`text-[12px] mt-1 max-w-sm mx-auto ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>
-                When examining legal queries in the chat, click <strong className={isDark ? 'text-white' : 'text-[#00288e]'}>"Save Dossier"</strong> in the top header to archive your research opinion here.
+                When examining legal queries in the chat, click <strong className={isDark ? 'text-white' : 'text-[#00288e]'}>"Save Dossier"</strong> in the top header to archive your research opinion here. Dossiers are scoped to your private guest session.
               </p>
             </div>
           ) : (

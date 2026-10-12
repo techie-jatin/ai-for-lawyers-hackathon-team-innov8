@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional, Any
@@ -10,6 +10,7 @@ from app.models.legal import ChamberDossier
 router = APIRouter()
 
 class CreateDossierRequest(BaseModel):
+    guest_id: Optional[str] = None
     docket_number: Optional[str] = None
     title: str
     category: Optional[str] = "Criminal Law (BNS)"
@@ -21,6 +22,7 @@ class CreateDossierRequest(BaseModel):
 
 class DossierResponse(BaseModel):
     id: int
+    guest_id: Optional[str] = None
     docket_number: str
     title: str
     category: str
@@ -35,11 +37,19 @@ class DossierResponse(BaseModel):
         from_attributes = True
 
 @router.get("", response_model=List[DossierResponse])
-def get_all_dossiers(db: Session = Depends(deps.get_db)):
+def get_all_dossiers(
+    guest_id: Optional[str] = Query(None, description="Optional guest session ID to filter dossiers"),
+    x_guest_id: Optional[str] = Header(None, alias="X-Guest-ID"),
+    db: Session = Depends(deps.get_db)
+):
     """
-    Get all saved chamber research dossiers and legal briefs.
+    Get saved chamber research dossiers, scoped to the active guest user session.
     """
-    return db.query(ChamberDossier).order_by(ChamberDossier.id.desc()).all()
+    effective_guest_id = guest_id or x_guest_id
+    query = db.query(ChamberDossier)
+    if effective_guest_id:
+        query = query.filter(ChamberDossier.guest_id == effective_guest_id)
+    return query.order_by(ChamberDossier.id.desc()).all()
 
 @router.post("", response_model=DossierResponse)
 def create_dossier(req: CreateDossierRequest, db: Session = Depends(deps.get_db)):
@@ -48,6 +58,7 @@ def create_dossier(req: CreateDossierRequest, db: Session = Depends(deps.get_db)
     """
     docket_num = req.docket_number or f"#CR-2025-{100 + db.query(ChamberDossier).count() + 1}"
     dossier = ChamberDossier(
+        guest_id=req.guest_id,
         docket_number=docket_num,
         title=req.title,
         category=req.category or "Criminal Law (BNS)",

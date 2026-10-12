@@ -35,6 +35,8 @@
 6. [⚙️ How the Platform Works & Working Mechanism (With Real Statistics)](#️-how-the-platform-works--working-mechanism-with-real-statistics)
 7. [🛡️ AI Safety, Anti-Hallucination & Anti-Misuse Guardrails](#️-ai-safety-anti-hallucination--anti-misuse-guardrails)
 8. [💻 Technical Architecture & Coding Blueprint](#-technical-architecture--coding-blueprint)
+   - [📐 Architecture Overview Diagram](#-architecture-overview-diagram)
+   - [🔐 Multi-Tenant Guest Session Isolation Architecture](#-multi-tenant-guest-session-isolation-architecture-gst-xxxx-xxxx)
 9. [🚀 Step-by-Step User Guide (How to Use Our Platform)](#-step-by-step-user-guide-how-to-use-our-platform)
 10. [🐛 Engineering Challenges Encountered & Resolutions](#-engineering-challenges-encountered--resolutions)
 11. [❓ Frequently Asked Questions (Q&A)](#-frequently-asked-questions-qa)
@@ -298,6 +300,69 @@ Queries indicating physical peril, domestic assault, or suicide bypass legal res
 ---
 
 ## 💻 Technical Architecture & Coding Blueprint
+
+### 📐 Architecture Overview Diagram
+
+```mermaid
+graph TD
+    subgraph Browser ["User Browser (Guest Session)"]
+        UI["Frontend React 19 Client"]
+        GID["Guest ID Generator (#GST-XXXX-XXXX)"]
+        LS["Isolated localStorage (bharat_chat_threads_{guestId})"]
+        Notice["First-Visit Privacy Notice Modal"]
+    end
+
+    subgraph Backend ["FastAPI Cloud Application (Render.com)"]
+        API_Chat["/api/assistant (Dual-Persona RAG Engine)"]
+        API_Dossier["/api/dossiers?guest_id={guestId}"]
+        API_Contracts["/api/contracts/draft & /redline"]
+        API_Precedents["/api/precedents (Supreme Court Bench Catalog)"]
+        Validator["CitationValidator Engine (Exact & N-Gram Match)"]
+    end
+
+    subgraph Database ["Neon Serverless PostgreSQL 16"]
+        DossiersTable[("chamber_dossiers Table (Scoped by guest_id)")]
+        PgVector[("pgvector (59 Provisions & 768-dim Embeddings)")]
+        PrecedentTable[("real_case_precedents Table")]
+    end
+
+    subgraph External ["External AI & Model APIs"]
+        Gemini["Google Gemini Pro / Flash API"]
+    end
+
+    GID -->|Auto-Generated & Persisted| UI
+    UI -->|Read/Write Private Threads| LS
+    UI -->|Advisory on First Visit| Notice
+    UI -->|RAG Legal Prompts| API_Chat
+    UI -->|Save & Fetch Scoped Dossiers (X-Guest-ID)| API_Dossier
+    UI -->|Analyze Contract Clauses| API_Contracts
+    API_Dossier -->|Scoped SQL: WHERE guest_id = :gid| DossiersTable
+    API_Chat -->|pgvector Cosine Search| PgVector
+    API_Chat -->|Synthesis Prompts| Gemini
+    Gemini -->|Raw Response| Validator
+    PgVector -->|Ground Truth Verification| Validator
+    Validator -->|Verified Output + Trust Score| UI
+```
+
+### 🔐 Multi-Tenant Guest Session Isolation Architecture (`#GST-XXXX-XXXX`)
+
+In public and unauthenticated legal platforms, a fundamental flaw in naive architectures is **cross-user conversation bleeding**—where different visitors inadvertently see each other's legal discussions, query history, or sensitive client dossiers.
+
+To resolve this with zero login friction while ensuring complete user privacy, Bharat Legal Intelligence implements a **ChatGPT-Style Isolated Guest Session Protocol**:
+
+1. **Deterministic Guest ID Provisioning (`#GST-XXXX-XXXX`)**:
+   - On first visit, the client generates a cryptographically random, collision-resistant guest identifier (e.g., `#GST-4892-1084`) stored strictly in the user's browser `localStorage`.
+   - The user is immediately presented with a **First-Visit Privacy Notice Modal**, clarifying that their conversation and case briefs remain strictly private to their current device until authenticated cloud profiles are introduced.
+
+2. **Dual-Layer Privacy Separation**:
+   - **Client-Side Thread Isolation**: Chat conversation threads are keyed per guest (`bharat_chat_threads_${guestId}`). Visitors start with a clean slate (zero pre-seeded mock discussions), clean starter chips, and instant thread creation upon their first prompt.
+   - **Database Row-Level Dossier Scoping**: Backend `ChamberDossier` records include a dedicated `guest_id` column indexed in Neon PostgreSQL. `GET /api/dossiers?guest_id=...` and `POST /api/dossiers` strictly scope access to the active guest, preventing data leakage across chambers.
+
+3. **Session Management & Portability**:
+   - The persistent header displays an active **Guest ID Pill** (`Guest #GST-XXXX-XXXX`) with a dedicated popover.
+   - Users can **Copy Guest ID** for future account linking/restoration or trigger **Start Fresh Session** to securely rotate credentials and purge client-side session state.
+
+### 🗂️ Codebase Directory Structure
 
 ```
 lawyer/

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { CANONICAL_PROVISIONS, verifyStatutoryQuote } from '../services/clientLegalEngine';
 
 interface LegalSource {
   id: number;
@@ -135,32 +136,23 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
     }
   }, [apiBase]);
 
-  const handleTestCitation = async (useFakeQuote = false) => {
+  // Provision selector state
+  const [selectedProvisionId, setSelectedProvisionId] = useState<number>(11); // Default Art 21
+
+  const executeVerification = async (section: string, quote: string, useFake: boolean) => {
     setTestLoading(true);
-    setIsHallucinatedMode(useFakeQuote);
-
-    const quoteToSend = useFakeQuote 
-      ? "Every citizen is guaranteed free luxury air travel and penthouse housing unconditionally by the Union Government under constitutional privilege." 
-      : testQuote;
-
-    if (useFakeQuote) {
-      setTestQuote(quoteToSend);
-    }
-
+    setIsHallucinatedMode(useFake);
     try {
       if (apiBase && apiBase.trim() !== '') {
         const res = await fetch(`${apiBase}/api/assistant/validate-citation`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            claimed_section: testSection,
-            claimed_quote: quoteToSend
-          })
+          body: JSON.stringify({ claimed_section: section, claimed_quote: quote })
         });
         if (res.ok) {
           const data = await res.json();
           setTestResult(data);
-          const digest = await calculateSha256(`${testSection}:${quoteToSend}`);
+          const digest = await calculateSha256(`${section}:${quote}`);
           setCurrentHash(digest);
           setTestLoading(false);
           return;
@@ -168,32 +160,107 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
       }
       throw new Error('Local verification');
     } catch {
-      // Local deterministic verification
-      const isQuoteReal = !useFakeQuote && quoteToSend.toLowerCase().includes('procedure established by law');
-      const mockResult: ValidationTestResult = {
-        provision_id: 11,
-        source_title: 'Constitution of India',
-        section_number: testSection,
-        is_valid: isQuoteReal,
-        quote_verified: isQuoteReal,
-        match_ratio: isQuoteReal ? 1.0 : 0.12,
-        reason: isQuoteReal 
-          ? '100% Verbatim Match: Verified against Constitution of India & official statutory corpus.'
-          : 'Hallucination Detected: Text differs from official Gazette wording (Similarity: 12%).'
-      };
-      setTestResult(mockResult);
-      const digest = await calculateSha256(`${testSection}:${quoteToSend}`);
+      const outcome = verifyStatutoryQuote(section, quote, useFake);
+      setTestResult({
+        provision_id: outcome.provision_id,
+        source_title: outcome.source_title,
+        section_number: outcome.section_number,
+        is_valid: outcome.is_valid,
+        quote_verified: outcome.quote_verified,
+        match_ratio: outcome.match_ratio,
+        reason: outcome.reason
+      });
+      const digest = await calculateSha256(`${outcome.section_number}:${quote}`);
       setCurrentHash(digest);
     } finally {
       setTestLoading(false);
     }
   };
 
+  useEffect(() => {
+    // Initial verification on load
+    executeVerification(testSection, testQuote, false);
+  }, []);
+
+  const handleSelectCorpus = (corpusKey: string) => {
+    setSourceCorpus(corpusKey);
+    let targetProv = CANONICAL_PROVISIONS[0];
+    switch (corpusKey) {
+      case 'constitution':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Constitution')) || CANONICAL_PROVISIONS[10];
+        break;
+      case 'bns':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Nyaya Sanhita')) || CANONICAL_PROVISIONS[0];
+        break;
+      case 'bnss':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Nagarik Suraksha')) || CANONICAL_PROVISIONS[5];
+        break;
+      case 'bsa':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Sakshya')) || CANONICAL_PROVISIONS[9];
+        break;
+      case 'contract':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Contract')) || CANONICAL_PROVISIONS[14];
+        break;
+      case 'ni_act':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Negotiable')) || CANONICAL_PROVISIONS[18];
+        break;
+      case 'cpc':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Civil Procedure')) || CANONICAL_PROVISIONS[21];
+        break;
+      case 'arbitration':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Arbitration')) || CANONICAL_PROVISIONS[23];
+        break;
+      case 'consumer':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Consumer')) || CANONICAL_PROVISIONS[26];
+        break;
+      case 'dpdp':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Digital Personal Data')) || CANONICAL_PROVISIONS[12];
+        break;
+      case 'itact':
+        targetProv = CANONICAL_PROVISIONS.find(p => p.source_title.includes('Information Technology')) || CANONICAL_PROVISIONS[13];
+        break;
+      default:
+        targetProv = CANONICAL_PROVISIONS[0];
+    }
+    if (targetProv) {
+      setSelectedProvisionId(targetProv.id);
+      setTestSection(targetProv.section_number);
+      setTestQuote(targetProv.text_content);
+      setIsHallucinatedMode(false);
+      executeVerification(targetProv.section_number, targetProv.text_content, false);
+    }
+  };
+
+  const handleSelectProvision = (provId: number) => {
+    setSelectedProvisionId(provId);
+    const p = CANONICAL_PROVISIONS.find(pr => pr.id === provId);
+    if (p) {
+      setTestSection(p.section_number);
+      setTestQuote(p.text_content);
+      setIsHallucinatedMode(false);
+      executeVerification(p.section_number, p.text_content, false);
+    }
+  };
+
+  const handleTestCitation = (useFakeQuote = false) => {
+    const quoteToSend = useFakeQuote 
+      ? "Every citizen is guaranteed free luxury air travel and penthouse housing unconditionally by the Union Government under constitutional privilege." 
+      : testQuote;
+
+    if (useFakeQuote) {
+      setTestQuote(quoteToSend);
+    }
+    executeVerification(testSection, quoteToSend, useFakeQuote);
+  };
+
   const handleRestoreArticle21 = () => {
+    const art21 = CANONICAL_PROVISIONS.find(p => p.section_number.includes('Article 21')) || CANONICAL_PROVISIONS[10];
     setIsHallucinatedMode(false);
-    setTestSection('Article 21');
-    setTestQuote('No person shall be deprived of his life or personal liberty except according to procedure established by law.');
-    handleTestCitation(false);
+    setSelectedProvisionId(art21.id);
+    setSourceCorpus('constitution');
+    setTestSection(art21.section_number);
+    setTestQuote(art21.text_content);
+    executeVerification(art21.section_number, art21.text_content, false);
   };
 
   const handleCopyHash = () => {
@@ -380,7 +447,7 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
                     }`}>Source Corpus</label>
                     <select
                       value={sourceCorpus}
-                      onChange={(e) => setSourceCorpus(e.target.value)}
+                      onChange={(e) => handleSelectCorpus(e.target.value)}
                       className={`w-full px-3 py-2 rounded text-[12px] focus:outline-none transition-colors border ${
                         isDark 
                           ? 'bg-[#131624] text-white border-[#23283f] focus:border-white' 
@@ -390,26 +457,35 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
                       <option value="constitution">Constitution of India (1950)</option>
                       <option value="bns">Bharatiya Nyaya Sanhita (BNS 2023)</option>
                       <option value="bnss">Bharatiya Nagarik Suraksha (BNSS 2023)</option>
-                      <option value="dpdp">Digital Personal Data Protection Act 2023</option>
-                      <option value="itact">Information Technology Act 2000</option>
-                      <option value="precedents">Landmark SC Precedents (Ratio Decidendi)</option>
+                      <option value="bsa">Bharatiya Sakshya Adhiniyam (BSA 2023)</option>
+                      <option value="contract">Indian Contract Act (1872)</option>
+                      <option value="ni_act">Negotiable Instruments Act (1881)</option>
+                      <option value="cpc">Code of Civil Procedure (CPC 1908)</option>
+                      <option value="arbitration">Arbitration & Conciliation Act (1996)</option>
+                      <option value="consumer">Consumer Protection Act (2019)</option>
+                      <option value="dpdp">Digital Personal Data Protection Act (2023)</option>
+                      <option value="itact">Information Technology Act (2000)</option>
                     </select>
                   </div>
                   <div>
                     <label className={`text-[10px] font-bold uppercase tracking-wider block mb-1 ${
                       isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'
-                    }`}>Target Provision / Section</label>
-                    <input
-                      type="text"
-                      value={testSection}
-                      onChange={(e) => setTestSection(e.target.value)}
-                      placeholder="e.g. Article 21, Section 318 BNS"
+                    }`}>Authoritative Provision</label>
+                    <select
+                      value={selectedProvisionId}
+                      onChange={(e) => handleSelectProvision(Number(e.target.value))}
                       className={`w-full px-3 py-2 rounded font-mono text-[12px] focus:outline-none transition-colors border ${
                         isDark 
-                          ? 'bg-[#131624] text-white border-[#23283f] focus:border-white placeholder:text-[#64748b]' 
-                          : 'bg-[#f8fafc] text-[#0b1c30] border-[#cbd5e1] focus:border-[#00288e] placeholder:text-[#94a3b8]'
+                          ? 'bg-[#131624] text-white border-[#23283f] focus:border-white' 
+                          : 'bg-[#f8fafc] text-[#0b1c30] border-[#cbd5e1] focus:border-[#00288e]'
                       }`}
-                    />
+                    >
+                      {CANONICAL_PROVISIONS.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.section_number} - {p.title.slice(0, 36)}...
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -582,16 +658,33 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
                     </blockquote>
                   </div>
 
-                  {/* Constitutional Scope & Benchmarks */}
-                  <div className="space-y-1">
-                    <span className={`text-[10px] uppercase font-bold ${isDark ? 'text-[#94a3b8]' : 'text-slate-600'}`}>Constitutional Scope & Benchmarks</span>
+                  {/* Authoritative Scope & AIR Precedent Benchmarks */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-bold ${isDark ? 'text-[#94a3b8]' : 'text-slate-600'}`}>Judicial Benchmarks & Ratio</span>
+                      <a
+                        href="https://www.aironline.in/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-mono text-[10px] text-amber-500 hover:text-amber-400 font-bold transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">open_in_new</span>
+                        <span>AIR Online Verified</span>
+                      </a>
+                    </div>
                     <div className="flex flex-wrap gap-1 font-mono text-[10px]">
                       <span className={`px-2 py-0.5 rounded border ${
                         isDark ? 'bg-[#131624] text-white border-[#23283f]' : 'bg-white text-slate-800 border-slate-200'
-                      }`}>Maneka Gandhi (1978) 1 SCC 248</span>
+                      }`}>AIR 1978 SC 597 (Maneka Gandhi)</span>
                       <span className={`px-2 py-0.5 rounded border ${
                         isDark ? 'bg-[#131624] text-white border-[#23283f]' : 'bg-white text-slate-800 border-slate-200'
-                      }`}>K.S. Puttaswamy (2017) 10 SCC 1</span>
+                      }`}>AIR 2014 SC 2756 (Arnesh Kumar)</span>
+                      <span className={`px-2 py-0.5 rounded border ${
+                        isDark ? 'bg-[#131624] text-white border-[#23283f]' : 'bg-white text-slate-800 border-slate-200'
+                      }`}>AIR 2010 SC 1898 (Rangappa)</span>
+                      <span className={`px-2 py-0.5 rounded border ${
+                        isDark ? 'bg-[#131624] text-white border-[#23283f]' : 'bg-white text-slate-800 border-slate-200'
+                      }`}>AIR 1993 SC 276 (Dalpat Kumar)</span>
                     </div>
                   </div>
 

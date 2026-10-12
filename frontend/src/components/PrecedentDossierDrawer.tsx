@@ -151,6 +151,15 @@ Generated via भारत Legal Intelligence Engine`;
               <span className="material-symbols-outlined text-14px text-slate-400">account_balance</span>
               <span>{precedent.court}</span>
             </div>
+            <a
+              href="https://www.aironline.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-amber-500 hover:text-amber-400 font-bold hover:underline transition-colors ml-auto"
+            >
+              <span className="material-symbols-outlined text-14px">open_in_new</span>
+              <span>AIR Online Verified</span>
+            </a>
           </div>
 
           {/* Quick Action Navigation Tabs */}

@@ -48,6 +48,10 @@ export interface AssistantResponse {
   trust_score?: number;
   limitations?: string;
   ai_engine?: string;
+  auto_detected_domain?: string;
+  detected_archetype?: 'PROVISION_LOOKUP' | 'DISPUTE_CONSULTATION';
+  domain_switched?: boolean;
+  original_filter?: string;
 }
 
 interface ChatMessage {
@@ -67,6 +71,7 @@ export interface ChatThread {
 }
 
 const CONTEXT_CATEGORIES = [
+  { name: 'Auto-Detect (All Laws)', icon: 'auto_awesome', isAuto: true },
   { name: 'Criminal Law (BNS)', icon: 'gavel' },
   { name: 'Cyber & IT', icon: 'laptop_mac' },
   { name: 'Constitutional', icon: 'balance' },
@@ -214,7 +219,7 @@ export function ChatView({
 
   const [externalInput, setExternalInput] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [contextFilter, setContextFilter] = useState('Criminal Law (BNS)');
+  const [contextFilter, setContextFilter] = useState('Auto-Detect (All Laws)');
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const active = threads.find(t => t.id === activeThreadId);
     return active ? active.messages : [];
@@ -602,7 +607,7 @@ export function ChatView({
       const fallback: ChatThread = {
         id: `thread-${Date.now()}`,
         title: 'New Research Inquiry',
-        category: 'Criminal Law (BNS)',
+        category: 'Auto-Detect (All Laws)',
         createdAt: 'Just now',
         messages: []
       };
@@ -1779,6 +1784,30 @@ export function ChatView({
                     ) : (
                       /* STANDARD GROUNDED LEGAL RESPONSE */
                       <>
+                        {/* Autonomous Domain & Archetype Indicator */}
+                        {msg.response?.auto_detected_domain && (
+                          <div className={`flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-lg border text-xs ${
+                            isDark ? 'bg-[#121626] border-blue-900/50 text-blue-200' : 'bg-blue-50/80 border-blue-200 text-blue-900'
+                          }`}>
+                            <div className="flex items-center gap-2">
+                              <span className="material-symbols-outlined text-[16px] text-blue-400">
+                                {msg.response.detected_archetype === 'PROVISION_LOOKUP' ? 'auto_stories' : 'alt_route'}
+                              </span>
+                              <span className="font-semibold">
+                                {msg.response.detected_archetype === 'PROVISION_LOOKUP' ? 'Gazette Lexicon Dossier' : 'Autonomous Legal Routing'}:
+                              </span>
+                              <span className="font-mono text-[11px] font-medium">{msg.response.auto_detected_domain}</span>
+                            </div>
+                            {msg.response.domain_switched && msg.response.original_filter && (
+                              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                                isDark ? 'bg-amber-950/40 border-amber-800 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'
+                              }`}>
+                                Auto-routed from "{msg.response.original_filter}"
+                              </span>
+                            )}
+                          </div>
+                        )}
+
                         {/* Section 1: Executive Legal Summary & Structured Statutory Analysis */}
                         <LegalStructuredAnswer
                           answerText={msg.response?.answer || msg.text}

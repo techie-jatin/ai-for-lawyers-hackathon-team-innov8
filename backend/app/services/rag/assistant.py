@@ -647,7 +647,11 @@ class LegalAssistantService:
                 is_contract = any(k in q_lower for k in ["contract", "breach", "liquidated damages", "penalty clause", "section 73", "section 74", "specific performance", "earnest money"])
                 is_injunction = any(k in q_lower for k in ["injunction", "stay order", "order 39", "rule 1", "rule 2", "status quo", "summary suit", "order 37", "cpc"])
                 is_arbitration = any(k in q_lower for k in ["arbitrat", "section 9", "section 11", "section 34", "arbitral award"])
-                is_writ = any(k in q_lower for k in ["article 226", "article 32", "writ", "mandamus", "certiorari", "habeas corpus", "ultra vires"])
+                is_writ = any(k in q_lower for k in [
+                    "article 226", "article 32", "writ", "mandamus", "certiorari", "habeas corpus", "ultra vires",
+                    "article 26", "article 320", "article 14", "article 19", "article 21", "article 25", "article 311", "article 368",
+                    "essential religious", "religious denomination", "public service commission", "constitution of india"
+                ])
                 is_matrimonial = any(k in q_lower for k in ["divorce", "matrimonial", "maintenance", "alimony", "section 13", "section 24", "domestic violence", "dv act"])
                 is_consumer = any(k in q_lower for k in ["consumer", "deficiency in service", "unfair trade practice", "dcdrc", "ncdrc"])
 

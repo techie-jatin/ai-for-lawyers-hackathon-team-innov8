@@ -1055,7 +1055,21 @@ async function runBenchmark() {
   );
   console.log(`[SANDBOX TEST 4 - Hallucinated Claim] Valid=${test4.is_valid}, Ratio=${test4.match_ratio}, Reason=${test4.reason}`);
 
-  const sandboxPass = test1.is_valid && test2.is_valid && test3.is_valid && !test4.is_valid;
+  const test5 = verifyStatutoryQuote(
+    'Article 26',
+    'Subject to public order, morality and health, every religious denomination or any section thereof shall have the right...',
+    false
+  );
+  console.log(`[SANDBOX TEST 5 - Art 26 Verbatim] Valid=${test5.is_valid}, Ratio=${test5.match_ratio}, Section=${test5.section_number}`);
+
+  const test6 = verifyStatutoryQuote(
+    'Article 320',
+    'It shall be the duty of the Union and the State Public Service Commissions to conduct examinations for appointments...',
+    false
+  );
+  console.log(`[SANDBOX TEST 6 - Art 320 Verbatim] Valid=${test6.is_valid}, Ratio=${test6.match_ratio}, Section=${test6.section_number}`);
+
+  const sandboxPass = test1.is_valid && test2.is_valid && test3.is_valid && !test4.is_valid && test5.is_valid && test6.is_valid;
   console.log(`Sandbox Deterministic Gate Accuracy: ${sandboxPass ? '100% PASS' : 'FAIL'}`);
 
   if (passed === BENCHMARK_SUITE.length && sandboxPass) {

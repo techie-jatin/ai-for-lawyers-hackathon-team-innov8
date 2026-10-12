@@ -482,7 +482,7 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
                     >
                       {CANONICAL_PROVISIONS.map((p) => (
                         <option key={p.id} value={p.id}>
-                          {p.section_number} - {p.title.slice(0, 36)}...
+                          {p.source_title.includes('Constitution') ? '📜 ' : ''}{p.section_number} - {p.title.slice(0, 36)} ({p.source_title.includes('Constitution') ? 'Constitution' : p.source_title.slice(0, 16)})
                         </option>
                       ))}
                     </select>
@@ -542,15 +542,43 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
                     </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={handleRestoreArticle21}
-                    className={`text-[11px] underline cursor-pointer transition-colors ${
-                      isDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#64748b] hover:text-[#0b1c30]'
-                    }`}
-                  >
-                    Restore Article 21
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const art26 = CANONICAL_PROVISIONS.find(p => p.section_number === 'Article 26');
+                        if (art26) handleSelectProvision(art26.id);
+                      }}
+                      className={`text-[11px] underline cursor-pointer transition-colors ${
+                        isDark ? 'text-blue-400 hover:text-white' : 'text-blue-600 hover:text-blue-900'
+                      }`}
+                    >
+                      Test Art 26
+                    </button>
+                    <span className="opacity-40">•</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const art320 = CANONICAL_PROVISIONS.find(p => p.section_number === 'Article 320');
+                        if (art320) handleSelectProvision(art320.id);
+                      }}
+                      className={`text-[11px] underline cursor-pointer transition-colors ${
+                        isDark ? 'text-blue-400 hover:text-white' : 'text-blue-600 hover:text-blue-900'
+                      }`}
+                    >
+                      Test Art 320
+                    </button>
+                    <span className="opacity-40">•</span>
+                    <button
+                      type="button"
+                      onClick={handleRestoreArticle21}
+                      className={`text-[11px] underline cursor-pointer transition-colors ${
+                        isDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#64748b] hover:text-[#0b1c30]'
+                      }`}
+                    >
+                      Restore Art 21
+                    </button>
+                  </div>
                 </div>
               </div>
 

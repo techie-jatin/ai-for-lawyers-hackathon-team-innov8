@@ -8,5 +8,10 @@
   "scripts": {
     "build": "npm --prefix frontend run build",
     "dev": "npm --prefix frontend run dev"
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-linux-arm64-gnu": "^1.2.13",
+    "@rolldown/binding-linux-x64-gnu": "^1.2.13",
+    "@rolldown/binding-linux-x64-musl": "^1.2.13"
   }
 }

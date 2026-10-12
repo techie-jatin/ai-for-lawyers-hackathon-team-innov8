@@ -488,6 +488,28 @@ class LegalAssistantService:
                 score += 18.0
             if any(k in q_lower for k in ["liberty", "passport", "arbitrary", "article 21", "fair procedure", "fundamental right", "travel abroad", "natural justice"]) and "Maneka Gandhi" in c.title:
                 score += 18.0
+            if any(k in q_lower for k in ["injunction", "stay order", "temporary injunction", "order 39", "landlord", "tenant", "eviction", "evict", "trespass", "encroach", "possession", "flat lock", "boundary wall"]) and "Dalpat Kumar" in c.title:
+                score += 24.0
+            if any(k in q_lower for k in ["cheque", "check bounce", "dishonour", "dishonor", "138", "139", "return memo", "drawer", "payee", "insufficient funds", "stop payment"]) and "Rangappa" in c.title:
+                score += 24.0
+            if any(k in q_lower for k in ["liquidated damages", "earnest money", "forfeiture", "section 73", "section 74", "penalty clause", "breach of contract", "unpaid salary", "contract damages"]) and "Kailash Nath" in c.title:
+                score += 24.0
+            if any(k in q_lower for k in ["arbitrat", "arbitral", "arbitrator", "vidya drolia", "section 9", "section 11", "section 34", "lease dispute", "arbitrable"]) and "Vidya Drolia" in c.title:
+                score += 24.0
+            if any(k in q_lower for k in ["maintenance", "alimony", "divorce", "matrimonial", "wife", "assets affidavit", "125 crpc", "144 bnss", "dv act", "stridhan", "child custody"]) and "Rajnesh" in c.title:
+                score += 24.0
+            if any(k in q_lower for k in ["medical negligence", "doctor", "hospital", "surgery", "patient", "clinical", "cpa", "deficiency in service", "consumer protection", "malpractice"]) and "Shantha" in c.title:
+                score += 24.0
+            if any(k in q_lower for k in ["ibc", "cirp", "insolvency", "nclt", "corporate debtor", "financial creditor", "operational creditor", "section 7", "moratorium"]) and "Swiss Ribbons" in c.title:
+                score += 24.0
+            if any(k in q_lower for k in ["religious", "denomination", "temple", "mutt", "shirur", "essential religious practice", "article 26", "article 25", "deity"]) and "Shirur" in c.title:
+                score += 26.0
+            if any(k in q_lower for k in ["public service commission", "upsc", "spsc", "article 320", "article 311", "civil servant", "disciplinary inquiry", "directory", "manbodhan"]) and "Manbodhan" in c.title:
+                score += 26.0
+            if any(k in q_lower for k in ["oppression", "mismanagement", "section 241", "director removal", "minority shareholder", "companies act", "cyrus"]) and "Cyrus" in c.title:
+                score += 24.0
+            if any(k in q_lower for k in ["liquidated damages", "pre-estimated", "patent illegality", "section 34", "ongc", "saw pipes"]) and "Saw Pipes" in c.title:
+                score += 24.0
 
             scored_cases.append((c, score))
 

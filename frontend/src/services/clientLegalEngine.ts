@@ -1159,6 +1159,430 @@ export function resolveDirectStatutoryTarget(query: string): CanonicalProvision 
   return null;
 }
 
+export type LegalDomain =
+  | 'ni_act'
+  | 'commercial_contract'
+  | 'civil_injunction'
+  | 'arbitration'
+  | 'constitutional_writ'
+  | 'corporate_ibc'
+  | 'family_matrimonial'
+  | 'consumer_protection'
+  | 'cyber_privacy'
+  | 'criminal_defense';
+
+export function rankCanonicalProvisions(query: string, domain?: LegalDomain): CanonicalProvision[] {
+  const qLower = query.toLowerCase();
+  const qWords = qLower.split(/[^a-z0-9]+/).filter(w => w.length > 2);
+
+  const scored = CANONICAL_PROVISIONS.map(p => {
+    let score = 0;
+    const secNorm = p.section_number.toLowerCase();
+    const titleNorm = p.title.toLowerCase();
+    const textNorm = p.text_content.toLowerCase();
+    const srcNorm = p.source_title.toLowerCase();
+
+    // 1. Exact Section / Article Regex Matches (Highest Priority +160)
+    if (secNorm === 'article 26' && /\b(article\s*26|art\.?\s*26)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 320' && /\b(article\s*320|art\.?\s*320)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 14' && /\b(article\s*14|art\.?\s*14)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 19' && /\b(article\s*19|art\.?\s*19)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 21' && /\b(article\s*21|art\.?\s*21)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 22' && /\b(article\s*22|art\.?\s*22)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 25' && /\b(article\s*25|art\.?\s*25)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 311' && /\b(article\s*311|art\.?\s*311)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 368' && /\b(article\s*368|art\.?\s*368)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 32' && /\b(article\s*32|art\.?\s*32)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'article 226' && /\b(article\s*226|art\.?\s*226)\b/i.test(qLower)) score += 180;
+
+    else if (secNorm.includes('318') && /\b(section\s*318(?:\(4\))?|318\b)/i.test(qLower)) score += 180;
+    else if (secNorm.includes('303') && /\b(section\s*303|303\b)/i.test(qLower)) score += 180;
+    else if (secNorm.includes('103') && /\b(section\s*103|103\b)/i.test(qLower)) score += 180;
+    else if (secNorm.includes('85') && /\b(section\s*85|85\b)/i.test(qLower)) score += 180;
+    else if (secNorm.includes('316') && /\b(section\s*316|316\b)/i.test(qLower)) score += 180;
+    else if (secNorm.includes('35(3)') && /\b(section\s*35\s*\(\s*3\s*\)|35\(3\)|41a)\b/i.test(qLower)) score += 180;
+    else if (secNorm.includes('482') && /\b(section\s*482|482\b|438\b)/i.test(qLower)) score += 180;
+    else if (secNorm.includes('528') && /\b(section\s*528|528\b)/i.test(qLower)) score += 180;
+    else if (secNorm.includes('173') && /\b(section\s*173|173\b|154\b)/i.test(qLower)) score += 180;
+    else if (secNorm.includes('63') && /\b(section\s*63|63\b|65b\b)/i.test(qLower)) score += 180;
+
+    else if (secNorm === 'section 138' && /\b(section\s*138|138\b)/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 141' && /\b(section\s*141|141\b)/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 142' && /\b(section\s*142|142\b)/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 73' && /\b(section\s*73|73\b)/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 74' && /\b(section\s*74|74\b)/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 10' && p.source_title.includes('Specific Relief') && /\b(section\s*10|specific performance)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 41' && p.source_title.includes('Specific Relief') && /\b(section\s*41)\b/i.test(qLower)) score += 180;
+
+    else if (secNorm.includes('39') && /\border\s*(?:39|xxxix)\b/i.test(qLower)) score += 180;
+    else if (secNorm.includes('37') && /\border\s*(?:37|xxxvii)\b/i.test(qLower)) score += 180;
+
+    else if (secNorm === 'section 9' && p.source_title.includes('Arbitration') && /\b(section\s*9\b.*arbitrat|arbitrat.*section\s*9)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 11' && p.source_title.includes('Arbitration') && /\b(section\s*11\b.*arbitrat|arbitrat.*section\s*11)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 34' && p.source_title.includes('Arbitration') && /\b(section\s*34\b.*arbitrat|arbitrat.*section\s*34)\b/i.test(qLower)) score += 180;
+
+    else if (secNorm === 'section 35' && p.source_title.includes('Consumer') && /\b(section\s*35\b.*consumer|consumer.*section\s*35|cpa.*section\s*35)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 2(47)' && /\b(section\s*2\(47\)|unfair trade practice)\b/i.test(qLower)) score += 180;
+
+    else if (secNorm === 'section 241' && /\b(section\s*241|oppression|mismanagement)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 7' && p.source_title.includes('Insolvency') && /\b(section\s*7\b.*ibc|ibc.*section\s*7)\b/i.test(qLower)) score += 180;
+
+    else if (secNorm === 'section 13' && p.source_title.includes('Hindu Marriage') && /\b(section\s*13\b.*hma|divorce.*section\s*13)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 24' && p.source_title.includes('Hindu Marriage') && /\b(section\s*24\b.*hma|maintenance.*section\s*24)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 12' && p.source_title.includes('Domestic Violence') && /\b(section\s*12\b.*dv|domestic violence.*section\s*12)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 144' && /\b(section\s*144\b.*bnss|125\s*crpc|maintenance.*144)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 29' && p.source_title.includes('Trade Marks') && /\b(section\s*29\b.*tm|trademark.*section\s*29)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 33' && p.source_title.includes('Digital Personal Data') && /\b(section\s*33\b.*dpdp|dpdp.*section\s*33)\b/i.test(qLower)) score += 180;
+    else if (secNorm === 'section 66d' && /\b(section\s*66d|66d\b)\b/i.test(qLower)) score += 180;
+
+    // 2. Domain Alignment (+30)
+    if (domain) {
+      if (domain === 'ni_act' && srcNorm.includes('negotiable instruments')) score += 35;
+      else if (domain === 'commercial_contract' && (srcNorm.includes('contract') || srcNorm.includes('specific relief'))) score += 35;
+      else if (domain === 'civil_injunction' && (srcNorm.includes('civil procedure') || srcNorm.includes('specific relief'))) score += 35;
+      else if (domain === 'arbitration' && srcNorm.includes('arbitration')) score += 40;
+      else if (domain === 'constitutional_writ' && srcNorm.includes('constitution')) score += 35;
+      else if (domain === 'corporate_ibc' && (srcNorm.includes('insolvency') || srcNorm.includes('companies'))) score += 40;
+      else if (domain === 'family_matrimonial' && (srcNorm.includes('marriage') || srcNorm.includes('domestic violence') || secNorm === 'section 144')) score += 40;
+      else if (domain === 'consumer_protection' && srcNorm.includes('consumer')) score += 40;
+      else if (domain === 'cyber_privacy' && (srcNorm.includes('information technology') || srcNorm.includes('digital personal') || secNorm.includes('section 29') || secNorm.includes('section 63'))) score += 35;
+      else if (domain === 'criminal_defense' && (srcNorm.includes('nyaya') || srcNorm.includes('nagarik') || srcNorm.includes('sakshya'))) score += 25;
+    }
+
+    // 3. Substantive Concept Matching (+20 to +60)
+    // Tenancy / Landlord / Property / Stay / Encroachment / Trespass
+    if (/\b(landlord|tenant|tenancy|evict|eviction|rent|lease|flat|dispossess|trespass|encroach|boundary wall|stay order|possession)\b/i.test(qLower)) {
+      if (secNorm.includes('order 39')) score += 60;
+      if (secNorm.includes('order 37')) score += 30;
+      if (p.source_title.includes('Specific Relief')) score += 40;
+      if (p.source_title.includes('Arbitration')) score += 25;
+    }
+    // Medical Negligence / Hospital / Patient
+    if (/\b(doctor|hospital|medical|surgery|operation|patient|clinical|negligence.*doctor|prescription|medical malpractice)\b/i.test(qLower)) {
+      if (p.source_title.includes('Consumer')) score += 65;
+      if (secNorm === 'article 21') score += 30;
+    }
+    // Employment / Salary / Termination / Wages
+    if (/\b(salary|wages|terminate|termination|fired|employer|employee|gratuity|unpaid dues|resign|resignation|bonus|provident fund|notice period)\b/i.test(qLower)) {
+      if (secNorm === 'section 73' || secNorm === 'section 74') score += 65;
+      if (secNorm.includes('order 37')) score += 45;
+      if (secNorm === 'article 311') score += 35;
+      if (p.source_title.includes('Bharatiya') || secNorm.includes('318(4)')) score -= 60;
+    }
+    // Cyber / Phishing / UPI / Online fraud / Telegram / Crypto scam
+    if (/\b(upi|phishing|online fraud|scam|cyber|hacked|fake call|impersonat|otp|digital arrest|telegram task)\b/i.test(qLower)) {
+      if (secNorm.includes('66d')) score += 65;
+      if (secNorm.includes('63')) score += 45;
+      if (secNorm.includes('318(4)')) score += 35;
+      if (secNorm.includes('33') && p.source_title.includes('Digital Personal')) score += 30;
+    }
+    // Data Privacy / Breach / Tracking / Surveillance
+    if (/\b(privacy|personal data|data breach|consent|surveillance|leak|data fiduciary|biometric)\b/i.test(qLower)) {
+      if (secNorm.includes('33') && p.source_title.includes('Digital Personal')) score += 70;
+      if (secNorm === 'article 21') score += 45;
+      if (secNorm.includes('63')) score += 30;
+    }
+    // Trademark / Intellectual Property / Brand / Logo
+    if (/\b(trademark|trade mark|infringement|logo|brand name|passing off|counterfeit|copyright|patent)\b/i.test(qLower)) {
+      if (secNorm.includes('29')) score += 75;
+      if (secNorm.includes('order 39')) score += 40;
+    }
+    // Cheque / Bank Return / 138 / Dishonour
+    if (/\b(cheque|check bounce|dishonour|dishonor|return memo|drawer|payee|bounced cheque|insufficient funds|stop payment)\b/i.test(qLower)) {
+      if (secNorm.includes('138')) score += 70;
+      if (secNorm.includes('141')) score += 50;
+      if (secNorm.includes('142')) score += 45;
+    }
+    // Matrimonial / Divorce / Maintenance / DV / Cruelty / Child Custody
+    if (/\b(divorce|alimony|maintenance|wife|husband|matrimonial|child custody|stridhan|domestic violence|cruelty|498a|dowry)\b/i.test(qLower)) {
+      if (secNorm.includes('144')) score += 60;
+      if (secNorm.includes('section 13') && p.source_title.includes('Hindu Marriage')) score += 55;
+      if (secNorm.includes('section 24') && p.source_title.includes('Hindu Marriage')) score += 55;
+      if (secNorm.includes('section 12') && p.source_title.includes('Domestic Violence')) score += 55;
+      if (secNorm.includes('section 85')) score += 45;
+    }
+    // Bail / Anticipatory / Pre-arrest / Non-bailable
+    if (/\b(anticipatory bail|pre-arrest|fear arrest|apprehending arrest|section 482 bnss|438 crpc)\b/i.test(qLower)) {
+      if (secNorm.includes('482')) score += 70;
+      if (secNorm.includes('35(3)')) score += 35;
+    }
+    if (/\b(regular bail|jail|undertrial|custody|remand|bail application|480 bnss|437 crpc|439 crpc)\b/i.test(qLower)) {
+      if (secNorm.includes('482')) score += 45;
+      if (secNorm.includes('35(3)')) score += 40;
+      if (secNorm === 'article 21') score += 30;
+    }
+    // Quashing / Frivolous FIR / False FIR / Bhajan Lal
+    if (/\b(quash|quashing|false fir|frivolous|malice|personal vendetta|civil dispute criminalized|bhajan lal|528 bnss|482 crpc)\b/i.test(qLower)) {
+      if (secNorm.includes('528')) score += 75;
+      if (secNorm.includes('173')) score += 30;
+    }
+    // Mandatory FIR / Refuse to register / Zero FIR
+    if (/\b(refuse to register fir|police refuse|mandatory fir|zero fir|173 bnss|154 crpc|lalita kumari)\b/i.test(qLower)) {
+      if (secNorm.includes('173')) score += 75;
+      if (secNorm === 'article 21') score += 25;
+    }
+    // Religious Autonomy / Denomination / Worship / Temple / Mutt / Article 26 / Article 25
+    if (/\b(religious|denomination|temple|mutt|shirur|worship|ritual|deity|essential religious practice|article 26|article 25)\b/i.test(qLower)) {
+      if (secNorm === 'article 26') score += 75;
+      if (secNorm === 'article 25') score += 60;
+    }
+    // Public Service Commission / UPSC / SPSC / Civil Servants / Article 320 / Article 311
+    if (/\b(public service commission|upsc|spsc|civil servant|disciplinary inquiry|reduction in rank|dismissal.*government|article 320|article 311|manbodhan)\b/i.test(qLower)) {
+      if (secNorm === 'article 320') score += 75;
+      if (secNorm === 'article 311') score += 65;
+    }
+
+    // 4. Word-by-Word Overlap
+    qWords.forEach(w => {
+      if (titleNorm.includes(w)) score += 3;
+      if (srcNorm.includes(w)) score += 2;
+      if (textNorm.includes(w)) score += 1;
+    });
+
+    return { provision: p, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map(s => s.provision);
+}
+
+export function rankClientPrecedents(query: string, domain?: LegalDomain): RealCasePrecedentItem[] {
+  const qLower = query.toLowerCase();
+  const qWords = qLower.split(/[^a-z0-9]+/).filter(w => w.length > 2);
+
+  const scored = CLIENT_PRECEDENTS_DATA.map(c => {
+    let score = 0;
+    const titleNorm = c.title.toLowerCase();
+    const catNorm = c.category.toLowerCase();
+    const factNorm = c.factual_matrix.toLowerCase();
+    const holdNorm = c.court_holding.toLowerCase();
+    const stratNorm = c.advocate_strategy.toLowerCase();
+
+    // 1. Direct Case Name Citation in Query (+180)
+    if (titleNorm.includes('arnesh kumar') && /\barnesh(?:\s*kumar)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('bhajan lal') && /\bbhajan(?:\s*lal)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('hridaya ranjan') && /\bhridaya(?:\s*ranjan)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('satender kumar antil') && /\b(?:antil|satender(?:\s*kumar)?)\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('sushila aggarwal') && /\bsushila(?:\s*aggarwal)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('anvar') && /\b(?:anvar(?:\s*p\.?v\.?)?|arjun\s*panditrao)\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('puttaswamy') && /\bputtaswamy\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('shreya singhal') && /\bshreya(?:\s*singhal)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('lalita kumari') && /\blalita(?:\s*kumari)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('d.k. basu') && /\b(?:d\.?k\.?\s*basu|basu)\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('dalpat kumar') && /\bdalpat(?:\s*kumar)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('rangappa') && /\brangappa\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('kailash nath') && /\bkailash(?:\s*nath)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('vidya drolia') && /\bvidya(?:\s*drolia)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('rajnesh') && /\b(?:rajnesh|neha)\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('shantha') && /\b(?:shantha|ima\b|indian medical association)\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('swiss ribbons') && /\bswiss(?:\s*ribbons)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('maneka gandhi') && /\bmaneka(?:\s*gandhi)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('cyrus investments') && /\b(?:cyrus(?:\s*mistry)?|tata\s*consultancy)\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('saw pipes') && /\b(?:saw\s*pipes|ongc)\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('shirur mutt') && /\bshirur(?:\s*mutt)?\b/i.test(qLower)) score += 190;
+    else if (titleNorm.includes('manbodhan') && /\bmanbodhan(?:\s*lal)?\b/i.test(qLower)) score += 190;
+
+    // 2. Governing Provisions Matching
+    (c.governing_provisions || []).forEach(gp => {
+      const gpNorm = gp.toLowerCase();
+      if (qLower.includes(gpNorm)) score += 50;
+      const provMatch = gpNorm.match(/\b(article\s*\d+|section\s*\d+(?:\([0-9a-z]+\))?|order\s*(?:[0-9]+|[ivxlcdm]+))\b/i);
+      if (provMatch && qLower.includes(provMatch[1])) {
+        score += 60;
+      }
+      const gpWords = gpNorm.split(/[^a-z0-9]+/).filter(w => w.length > 2);
+      if (gpWords.length > 0 && gpWords.every(w => qLower.includes(w))) score += 35;
+    });
+
+    // 3. Substantive Problem Matrix & Real-World Domain Scoring (+40 to +80)
+    // Landlord-Tenant / Lease / Eviction / Immovable Property / Lock / Dispossession
+    if (/\b(landlord|tenant|tenancy|evict|eviction|rent|lease|flat|dispossess|trespass|encroach|boundary wall|stay order|possession)\b/i.test(qLower)) {
+      if (titleNorm.includes('vidya drolia')) score += 75; // Landlord-tenant lease dispute & arbitration
+      if (titleNorm.includes('dalpat kumar')) score += 70; // Three-pillar injunction test for immovable property possession
+    }
+    // Medical Negligence / Hospital / Patient / Doctor
+    if (/\b(doctor|hospital|medical|surgery|operation|patient|clinical|negligence.*doctor|prescription|medical malpractice)\b/i.test(qLower)) {
+      if (titleNorm.includes('shantha')) score += 85; // IMA v. VP Shantha: Medical services under Consumer Protection Act
+      if (titleNorm.includes('maneka gandhi')) score += 30;
+    }
+    // Contractual Breach / Damages / Penalty / Security Deposit / Unpaid Invoice / Vendor Default
+    if (/\b(contract|liquidated damages|penalty clause|earnest money|breach of contract|unpaid invoice|vendor|specific performance|security deposit)\b/i.test(qLower)) {
+      if (titleNorm.includes('kailash nath')) score += 75; // Liquidated damages & actual loss
+      if (titleNorm.includes('saw pipes')) score += 65; // Pre-estimated liquidated damages
+      if (titleNorm.includes('hridaya ranjan')) score += 45; // Civil breach vs criminal cheating
+    }
+    // Injunction / Stay / Status Quo / Civil Suit
+    if (/\b(injunction|stay order|temporary injunction|order 39|status quo|cpc)\b/i.test(qLower)) {
+      if (titleNorm.includes('dalpat kumar')) score += 80; // Dalpat Kumar: 3-pillar test
+      if (titleNorm.includes('kailash nath')) score += 30;
+    }
+    // Arbitration / Arbitrator / Arbitral Award / Section 34 / Section 9
+    if (/\b(arbitrat|arbitral|arbitrator|section 34|section 9|section 11|patent illegality)\b/i.test(qLower)) {
+      if (titleNorm.includes('vidya drolia')) score += 80; // Vidya Drolia: Arbitrability test
+      if (titleNorm.includes('saw pipes')) score += 70; // Saw Pipes: Patent illegality
+    }
+    // Cheque Bounce / Debt / Section 138 / NI Act / Bank Return Memo
+    if (/\b(cheque|check bounce|dishonour|dishonor|return memo|drawer|payee|bounced cheque|insufficient funds|section 138)\b/i.test(qLower)) {
+      if (titleNorm.includes('rangappa')) score += 85; // Rangappa: Sec 139 presumption
+      if (titleNorm.includes('hridaya ranjan')) score += 40; // Civil debt vs fraud
+    }
+    // Matrimonial / Divorce / Maintenance / Domestic Violence / Child Custody / 498A
+    if (/\b(divorce|alimony|maintenance|matrimonial|wife|husband|child custody|stridhan|domestic violence|dv act|section 144 bnss|125 crpc)\b/i.test(qLower)) {
+      if (titleNorm.includes('rajnesh')) score += 85; // Rajnesh v. Neha: Assets affidavit
+      if (titleNorm.includes('arnesh kumar') && (qLower.includes('cruelty') || qLower.includes('dowry') || qLower.includes('498a') || qLower.includes('arrest'))) score += 55;
+    }
+    // Corporate Insolvency / CIRP / NCLT / IBC / Operational Creditor / Financial Creditor
+    if (/\b(ibc|cirp|nclt|nclat|corporate debtor|financial creditor|operational creditor|insolvency)\b/i.test(qLower)) {
+      if (titleNorm.includes('swiss ribbons')) score += 85; // Swiss Ribbons: IBC validity
+      if (titleNorm.includes('cyrus investments')) score += 45;
+    }
+    // Corporate Governance / Director Removal / Oppression & Mismanagement
+    if (/\b(oppression|mismanagement|director removal|board of directors|minority shareholder|section 241)\b/i.test(qLower)) {
+      if (titleNorm.includes('cyrus investments')) score += 85; // Tata v. Cyrus: Sec 241
+      if (titleNorm.includes('swiss ribbons')) score += 40;
+    }
+    // Data Privacy / Personal Data / DPDP / Aadhaar / Biometric / Surveillance
+    if (/\b(privacy|dpdp|personal data|data breach|surveillance|aadhaar|biometric|phone tapping)\b/i.test(qLower)) {
+      if (titleNorm.includes('puttaswamy')) score += 90; // Puttaswamy: Fundamental right to privacy
+      if (titleNorm.includes('shreya singhal')) score += 40;
+      if (titleNorm.includes('anvar')) score += 30;
+    }
+    // Online Speech / Social Media / Defamation / Free Expression / Section 66A
+    if (/\b(social media|facebook|twitter|tweet|post|online speech|free speech|freedom of speech|66a|intermediary|troll)\b/i.test(qLower)) {
+      if (titleNorm.includes('shreya singhal')) score += 90; // Shreya Singhal: Free speech & 66A struck down
+      if (titleNorm.includes('puttaswamy')) score += 40;
+    }
+    // Electronic Evidence / WhatsApp / CCTV / CDR / Hash / Tampering / Section 63 BSA
+    if (/\b(electronic evidence|whatsapp|cctv|cdr|call records|secondary evidence|section 63|section 65b|hash|screenshot)\b/i.test(qLower)) {
+      if (titleNorm.includes('anvar')) score += 90; // Anvar PV: Mandatory certification
+    }
+    // Police Refusal / Mandatory FIR / Zero FIR / Section 173 BNSS / Section 154 CrPC
+    if (/\b(mandatory fir|refuse to register fir|police refuse|zero fir|section 173|section 154|cognizable offense)\b/i.test(qLower)) {
+      if (titleNorm.includes('lalita kumari')) score += 90; // Lalita Kumari: Mandatory FIR
+      if (titleNorm.includes('maneka gandhi')) score += 25;
+    }
+    // Custodial Violence / Third Degree / Arrest Memo / Medical Checkup / Handcuffing
+    if (/\b(custodial|torture|third degree|arrest memo|handcuff|police brutality|medical checkup|relative intimation)\b/i.test(qLower)) {
+      if (titleNorm.includes('d.k. basu')) score += 90; // D.K. Basu: 11 arrest guidelines
+      if (titleNorm.includes('arnesh kumar')) score += 40;
+    }
+    // Anticipatory Bail / Section 482 BNSS / Section 438 CrPC / Apprehending Arrest
+    if (/\b(anticipatory bail|pre-arrest|fear arrest|apprehending arrest|section 482 bnss|438 crpc)\b/i.test(qLower)) {
+      if (titleNorm.includes('sushila aggarwal')) score += 90; // Sushila Aggarwal: Life of anticipatory bail
+      if (titleNorm.includes('satender kumar antil')) score += 45;
+    }
+    // Regular Bail / Custody / Undertrial / 14 Days Remand / Category A / Section 480 BNSS
+    if (/\b(regular bail|undertrial|jail|remand|custody duration|category a|section 480 bnss|483 bnss|437 crpc|439 crpc)\b/i.test(qLower)) {
+      if (titleNorm.includes('satender kumar antil')) score += 90; // Satender Kumar Antil: Bail benchmarks
+      if (titleNorm.includes('sushila aggarwal')) score += 40;
+    }
+    // Mandatory Notice / Section 35(3) BNSS / 41A CrPC / Mechanical Arrest / 7 Years
+    if (/\b(notice of appearance|section 35\(3\)|section 35|41a crpc|mechanical arrest|checklist|up to 7 years|dowry arrest)\b/i.test(qLower)) {
+      if (titleNorm.includes('arnesh kumar')) score += 90; // Arnesh Kumar: Sec 35(3) Notice
+      if (titleNorm.includes('d.k. basu')) score += 40;
+    }
+    // FIR Quashing / Frivolous / Malice / Section 528 BNSS / Section 482 CrPC / Personal Vendetta
+    if (/\b(quash|quashing|false fir|frivolous|malice|personal vendetta|civil dispute criminalized|528 bnss|482 crpc|bhajan lal)\b/i.test(qLower)) {
+      if (titleNorm.includes('bhajan lal')) score += 90; // Bhajan Lal: 7 golden benchmarks
+      if (titleNorm.includes('hridaya ranjan')) score += 45;
+    }
+    // Cheating vs Civil Breach / Dishonest Intention Ab Initio / Section 318 BNS / Section 420 IPC
+    if (/\b(cheating|breach of contract vs cheating|civil dispute criminalized|section 318|section 420|fraudulent inducement|hridaya ranjan)\b/i.test(qLower)) {
+      if (titleNorm.includes('hridaya ranjan')) score += 90; // Hridaya Ranjan: Civil breach vs criminal fraud
+      if (titleNorm.includes('bhajan lal')) score += 40;
+    }
+    // Religious Autonomy / Denomination / Essential Religious Practice / Article 26 / Shirur Mutt
+    if (/\b(religious|denomination|temple|mutt|shirur|worship|ritual|deity|essential religious practice|article 26|article 25)\b/i.test(qLower)) {
+      if (titleNorm.includes('shirur mutt')) score += 95; // Shirur Mutt: Essential Religious Practices
+      if (titleNorm.includes('maneka gandhi')) score += 30;
+    }
+    // Public Service Commission / UPSC / SPSC / Civil Servants / Article 320 / Article 311 / Directory
+    if (/\b(public service commission|upsc|spsc|civil servant|disciplinary inquiry|reduction in rank|dismissal.*government|article 320|article 311|manbodhan)\b/i.test(qLower)) {
+      if (titleNorm.includes('manbodhan')) score += 95; // Manbodhan Lal: Directory nature of Art 320
+      if (titleNorm.includes('maneka gandhi')) score += 30;
+    }
+    // Natural Justice / Audi Alteram Partem / Procedure Established by Law / Article 21 / Writs / Article 32 / Article 226
+    if (/\b(natural justice|audi alteram partem|procedure established by law|article 21|article 14|article 32|article 226|fair procedure|arbitrary executive|writ petition|fundamental rights)\b/i.test(qLower)) {
+      if (titleNorm.includes('maneka gandhi')) score += 95; // Maneka Gandhi: Golden triangle & natural justice
+      if (titleNorm.includes('puttaswamy')) score += 45;
+    }
+
+    // 4. Overlap with category & Domain Specificity
+    if (domain) {
+      if (domain === 'ni_act') {
+        if (catNorm.includes('negotiable')) score += 35;
+        if (titleNorm.includes('rangappa')) score += 85;
+        if (titleNorm.includes('hridaya ranjan')) score += 50;
+        if (titleNorm.includes('arnesh kumar') || titleNorm.includes('rajnesh') || titleNorm.includes('shirur mutt') || titleNorm.includes('manbodhan')) score -= 100;
+      } else if (domain === 'commercial_contract') {
+        if (catNorm.includes('contract')) score += 35;
+        if (titleNorm.includes('kailash nath')) score += 85;
+        if (titleNorm.includes('saw pipes')) score += 75;
+        if (titleNorm.includes('vidya drolia')) score += 40;
+        if (titleNorm.includes('hridaya ranjan')) score += 35;
+        if (titleNorm.includes('shirur mutt') || titleNorm.includes('manbodhan') || titleNorm.includes('rajnesh') || titleNorm.includes('arnesh kumar') || titleNorm.includes('d.k. basu')) score -= 100;
+      } else if (domain === 'civil_injunction') {
+        if (catNorm.includes('civil')) score += 35;
+        if (titleNorm.includes('dalpat kumar')) score += 85;
+        if (titleNorm.includes('vidya drolia')) score += 60;
+        if (titleNorm.includes('kailash nath')) score += 30;
+        if (titleNorm.includes('arnesh kumar') || titleNorm.includes('d.k. basu') || titleNorm.includes('rajnesh') || titleNorm.includes('shirur mutt')) score -= 100;
+      } else if (domain === 'arbitration') {
+        if (catNorm.includes('arbitration')) score += 40;
+        if (titleNorm.includes('vidya drolia')) score += 85;
+        if (titleNorm.includes('saw pipes')) score += 75;
+        if (titleNorm.includes('arnesh kumar') || titleNorm.includes('rajnesh') || titleNorm.includes('shirur mutt')) score -= 100;
+      } else if (domain === 'constitutional_writ') {
+        if (catNorm.includes('constitutional')) score += 35;
+        if (titleNorm.includes('shirur mutt') && (qLower.includes('article 26') || qLower.includes('religio') || qLower.includes('temple') || qLower.includes('mutt'))) score += 95;
+        if (titleNorm.includes('manbodhan') && (qLower.includes('article 320') || qLower.includes('upsc') || qLower.includes('civil servant') || qLower.includes('service'))) score += 95;
+        if (titleNorm.includes('maneka gandhi')) score += 65;
+        if (titleNorm.includes('puttaswamy')) score += 45;
+        if (titleNorm.includes('arnesh kumar') || titleNorm.includes('kailash nath') || titleNorm.includes('saw pipes')) score -= 100;
+      } else if (domain === 'corporate_ibc') {
+        if (catNorm.includes('corporate')) score += 40;
+        if (titleNorm.includes('swiss ribbons')) score += 85;
+        if (titleNorm.includes('cyrus investments')) score += 80;
+        if (titleNorm.includes('arnesh kumar') || titleNorm.includes('rajnesh') || titleNorm.includes('shirur mutt')) score -= 100;
+      } else if (domain === 'family_matrimonial') {
+        if (catNorm.includes('family')) score += 40;
+        if (titleNorm.includes('rajnesh')) score += 85;
+        if (titleNorm.includes('maneka gandhi')) score += 45;
+        if (titleNorm.includes('arnesh kumar')) {
+          if (qLower.includes('cruelty') || qLower.includes('dowry') || qLower.includes('harass') || qLower.includes('arrest') || qLower.includes('violence') || qLower.includes('abandon')) score += 35;
+          else score += 15;
+        }
+        if (titleNorm.includes('kailash nath') || titleNorm.includes('saw pipes') || titleNorm.includes('swiss ribbons') || titleNorm.includes('cyrus investments') || titleNorm.includes('rangappa') || titleNorm.includes('vidya drolia')) score -= 100;
+      } else if (domain === 'consumer_protection') {
+        if (catNorm.includes('consumer')) score += 40;
+        if (titleNorm.includes('shantha')) score += 85;
+        if (titleNorm.includes('maneka gandhi')) score += 45;
+        if (titleNorm.includes('arnesh kumar') || titleNorm.includes('d.k. basu') || titleNorm.includes('cyrus investments') || titleNorm.includes('swiss ribbons')) score -= 100;
+      } else if (domain === 'cyber_privacy') {
+        if (catNorm.includes('cyber') || catNorm.includes('evidence')) score += 35;
+        if (titleNorm.includes('anvar')) score += 85;
+        if (titleNorm.includes('puttaswamy')) score += 80;
+        if (titleNorm.includes('shreya singhal')) score += 75;
+        if (titleNorm.includes('arnesh kumar') || titleNorm.includes('shirur mutt') || titleNorm.includes('manbodhan') || titleNorm.includes('rajnesh') || titleNorm.includes('kailash nath')) score -= 100;
+      } else if (domain === 'criminal_defense') {
+        if (catNorm.includes('criminal') || catNorm.includes('bail')) score += 25;
+      }
+    }
+
+    // 5. Lexical Token Overlap
+    qWords.forEach(w => {
+      if (factNorm.includes(w)) score += 2;
+      if (holdNorm.includes(w)) score += 2;
+      if (stratNorm.includes(w)) score += 2;
+    });
+
+    return { precedent: c, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map(s => s.precedent);
+}
+
 export function friendlyDomainTitle(domain: string, primary?: CanonicalProvision): string {
   if (primary && primary.source_title.includes('Constitution')) {
     return `${primary.source_title} (${primary.section_number}) • ${primary.title}`;
@@ -1196,7 +1620,6 @@ export function generateProvisionLexiconResponse(params: {
   original_filter?: string;
 }): AssistantResponse {
   const { target, mode, query, original_filter } = params;
-  const qLower = query.toLowerCase();
   const isConstitutional = target.source_title.includes('Constitution');
 
   let domainTitle = friendlyDomainTitle(isConstitutional ? 'constitutional_writ' : 'criminal_defense', target);
@@ -1343,7 +1766,7 @@ export function generateProvisionLexiconResponse(params: {
         `In the Constitution Bench landmark in *State of U.P. v. Manbodhan Lal Srivastava* (AIR 1957 SC 912), the Supreme Court ruled that the consultation requirement in Article 320(3) is **DIRECTORY and NOT MANDATORY**. Failure of the government to consult the Commission does not invalidate an otherwise lawful disciplinary order or give a public servant an automatic right to claim reinstatement.\n\n` +
         `### Important Takeaways for Candidates & Civil Servants\n\n` +
         `- **Merit Protection**: The Commission acts as an independent constitutional watchdog ensuring government jobs are awarded on merit rather than political favoritism.\n` +
-        `- **Redressal for Unfair Recruitment**: Job aspirants facing examination irregularities or arbitrary rule changes can approach the Central Administrative Tribunal (CAT) or the High Court under Article 226.`;
+        `- **Redressal for Unfair Recruitment & Legal Aid**: Job aspirants facing examination irregularities or arbitrary rule changes can approach the Central Administrative Tribunal (CAT) or the High Court under Article 226, or seek legal aid through the National Legal Aid Helpline at **15100**.`;
     }
   } else {
     // Other Statutory Provisions (Article 14, 19, 21, 226, 32, Section 138, etc.)
@@ -1356,29 +1779,20 @@ export function generateProvisionLexiconResponse(params: {
     if (isConstitutional) {
       expectedDomainName = 'Constitutional Writ Jurisprudence';
       domainTitle = 'Constitutional Writ Jurisprudence';
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[17]); // Maneka Gandhi
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[6]); // Puttaswamy
     } else if (isNI) {
       expectedDomainName = 'Negotiable Instruments Act';
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[11]); // Rangappa
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[2]); // Hridaya Ranjan
+      domainTitle = 'Negotiable Instruments Act';
     } else if (isBNSS || isBNS || isBSA) {
       expectedDomainName = 'Criminal Defense & BNSS';
       domainTitle = 'Criminal Defense & BNSS';
-      if (qLower.includes('basu') || target.section_number.includes('35')) {
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[0]); // Arnesh Kumar
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[9]); // D.K. Basu
-      }
-      if (target.section_number.includes('63') || qLower.includes('63') || qLower.includes('cdr') || qLower.includes('electronic')) {
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[5]); // Anvar P.V.
-      }
-      if (matchedPrecedents.length === 0) {
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[1]); // Bhajan Lal
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[0]); // Arnesh Kumar
-      }
-    } else {
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[12]); // Kailash Nath
     }
+
+    const dynamicPrecedents = rankClientPrecedents(`${target.section_number} ${target.title} ${query}`, isConstitutional ? 'constitutional_writ' : (isNI ? 'ni_act' : (isBNSS || isBNS || isBSA ? 'criminal_defense' : undefined)));
+    matchedPrecedents.push(...dynamicPrecedents.slice(0, 2));
+
+    const dynamicSecondary = rankCanonicalProvisions(`${target.section_number} ${target.title} ${query}`, isConstitutional ? 'constitutional_writ' : (isNI ? 'ni_act' : (isBNSS || isBNS || isBSA ? 'criminal_defense' : undefined)))
+      .filter(p => p.id !== target.id);
+    secondaryProvisions.push(...dynamicSecondary.slice(0, 2));
 
     if (mode === 'professional') {
       answerText =
@@ -1550,18 +1964,6 @@ export async function generateAutonomousLegalResponse(params: {
   }
 
   // 4. Autonomous Statutory Reasoning & Multi-Domain Jurisprudence Engine
-  type LegalDomain =
-    | 'ni_act'
-    | 'commercial_contract'
-    | 'civil_injunction'
-    | 'arbitration'
-    | 'constitutional_writ'
-    | 'corporate_ibc'
-    | 'family_matrimonial'
-    | 'consumer_protection'
-    | 'cyber_privacy'
-    | 'criminal_defense';
-
   let detectedDomain: LegalDomain = 'criminal_defense';
 
   // Domain 1: Corporate Law & Insolvency (IBC & Companies Act)
@@ -1583,19 +1985,20 @@ export async function generateAutonomousLegalResponse(params: {
   ) {
     detectedDomain = 'arbitration';
   }
-  // Domain 3: Consumer Protection
+  // Domain 3: Consumer Protection & Medical Negligence
   else if (
     /\b(consumer|dcdrc|ncdrc|scdrc|edaakhil)\b/i.test(query) ||
     /\b(deficiency in service|unfair trade practice|product liability|misleading advertisement|builder delay)\b/i.test(query) ||
     /\bcpa\b|consumer protection act/i.test(query) ||
-    /medical negligence.*service/i.test(query)
+    /\b(medical negligence|doctor malpractice|hospital negligence|wrong surgery|surgeon negligence|treatment deficiency|hospital liability)\b/i.test(query) ||
+    /medical negligence/i.test(query)
   ) {
     detectedDomain = 'consumer_protection';
   }
   // Domain 4: Cyber, IP & Data Protection
   else if (
     /\b(cyber\w*|online fraud|phishing|section\s*66d|66d|it act\b|information technology act|dpdp|data fiduciary|data breach|data protection|1930|forensics|digital chat)\b/i.test(query) ||
-    /\b(trademark|trade mark|infringement|passing off)\b/i.test(query) ||
+    /\b(trademark|trade mark|infringement|passing off|brand name copying|logo theft|counterfeit mark)\b/i.test(query) ||
     /informational privacy.*data/i.test(query) ||
     (/\b(electronic evidence|section\s*63\s*bsa|cdr|cctv|whatsapp)\b/i.test(query) && !/\b(prosecution|murder|homicide|theft|robbery|bail|fir|quash|remand|accused|bsa)\b/i.test(query))
   ) {
@@ -1608,10 +2011,14 @@ export async function generateAutonomousLegalResponse(params: {
   ) {
     detectedDomain = 'constitutional_writ';
   }
-  // Domain 6: Commercial Contracts & Damages
+  // Domain 6: Commercial Contracts, Employment & Damages
   else if (
     /distinction between civil breach/i.test(query) ||
     /\b(liquidated damages|penalty clause|section\s*73|section\s*74|indian contract act|contract act|earnest money|specific performance|section\s*10\b.*specific|time is essence|frustration of contract|force majeure|commercial contract|commercial dispute|order\s*xiii-a)\b/i.test(query) ||
+    (/\b(salary|remuneration|wages?|provident fund|gratuity|severance|bonus|notice period|notice pay)\b/i.test(query) &&
+      /\b(fired|terminat\w*|withheld|withhold\w*|unpaid|dismiss\w*|recover\w*|laid off|employment|employer|employee|workplace|company)\b/i.test(query)) ||
+    /\b(fired|dismissed|terminated)\s+(?:me\s+)?without\s+(?:any\s+)?notice\b/i.test(query) ||
+    /\b(unpaid salary|salary withheld|withheld salary|terminated without notice|unlawful termination|fired without cause|employment contract|gratuity unpaid|provident fund withheld)\b/i.test(query) ||
     (/\bbreach of contract\b/i.test(query) && !/\b(bns|bnss|fir|arrest|quash|section 318|section 316)\b/i.test(query))
   ) {
     detectedDomain = 'commercial_contract';
@@ -1636,9 +2043,10 @@ export async function generateAutonomousLegalResponse(params: {
   ) {
     detectedDomain = 'family_matrimonial';
   }
-  // Domain 9: Civil Procedure & Injunctions
+  // Domain 9: Civil Procedure, Injunctions, Tenancy & Property Disputes
   else if (
     /\b(injunction|stay order|temporary injunction|order\s*(?:39|xxxix)|order\s*37|order\s*7\s*rule\s*11|caveat|section\s*148a|res judicata|rejection of plaint)\b/i.test(query) ||
+    /\b(landlord|tenant|tenancy|eviction|illegal eviction|evict|rent agreement|lease agreement|dispossession|unlawful possession|flat lock|trespass|encroachment|boundary wall|property dispute)\b/i.test(query) ||
     (/\b(cpc|code of civil procedure)\b/i.test(query) && !/\border\s*xiii-a\b/i.test(query))
   ) {
     detectedDomain = 'civil_injunction';
@@ -1648,171 +2056,12 @@ export async function generateAutonomousLegalResponse(params: {
     detectedDomain = 'criminal_defense';
   }
 
-  // Populate Provisions & Precedents based on Detected Domain
-  const matchedProvisions: CanonicalProvision[] = [];
-  const matchedPrecedents: RealCasePrecedentItem[] = [];
+  // Dynamically rank all 44 canonical provisions and 22 landmark precedents
+  const rankedProvisions = rankCanonicalProvisions(query, detectedDomain);
+  const rankedPrecedents = rankClientPrecedents(query, detectedDomain);
 
-  switch (detectedDomain) {
-    case 'ni_act':
-      matchedProvisions.push(CANONICAL_PROVISIONS[18]); // Sec 138 NI Act
-      matchedProvisions.push(CANONICAL_PROVISIONS[19]); // Sec 141 NI Act
-      matchedProvisions.push(CANONICAL_PROVISIONS[20]); // Sec 142 NI Act
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[11]); // Rangappa v. Sri Mohan (AIR 2010 SC 1898)
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[2]); // Hridaya Ranjan
-      break;
-
-    case 'commercial_contract':
-      matchedProvisions.push(CANONICAL_PROVISIONS[14]); // Sec 73 Contract Act
-      matchedProvisions.push(CANONICAL_PROVISIONS[15]); // Sec 74 Contract Act
-      matchedProvisions.push(CANONICAL_PROVISIONS[16]); // Sec 10 Specific Relief Act
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[12]); // Kailash Nath Associates (AIR 2015 SC 2260)
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[19]); // ONGC v. Saw Pipes (AIR 2003 SC 2629)
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[2]); // Hridaya Ranjan
-      break;
-
-    case 'civil_injunction':
-      matchedProvisions.push(CANONICAL_PROVISIONS[21]); // Order 39 Rules 1 & 2 CPC
-      matchedProvisions.push(CANONICAL_PROVISIONS[22]); // Order 37 CPC
-      matchedProvisions.push(CANONICAL_PROVISIONS[17]); // Sec 41 Specific Relief Act
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[10]); // Dalpat Kumar (AIR 1993 SC 276)
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[12]); // Kailash Nath
-      break;
-
-    case 'arbitration':
-      matchedProvisions.push(CANONICAL_PROVISIONS[23]); // Sec 9 Arbitration Act
-      matchedProvisions.push(CANONICAL_PROVISIONS[24]); // Sec 11 Arbitration Act
-      matchedProvisions.push(CANONICAL_PROVISIONS[25]); // Sec 34 Arbitration Act
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[13]); // Vidya Drolia (AIR 2021 SC 79)
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[19]); // ONGC v. Saw Pipes (AIR 2003 SC 2629)
-      break;
-
-    case 'constitutional_writ':
-      if (/\b(article\s*26|religious|denomination|shirur)\b/i.test(query)) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[37]); // Article 26 Constitution
-        matchedProvisions.push(CANONICAL_PROVISIONS[41]); // Article 25 Constitution
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[20]); // Shirur Mutt (AIR 1954 SC 282)
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[17]); // Maneka Gandhi (AIR 1978 SC 597)
-      } else if (/\b(article\s*320|public service commission|upsc|spsc|manbodhan)\b/i.test(query)) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[38]); // Article 320 Constitution
-        matchedProvisions.push(CANONICAL_PROVISIONS[42]); // Article 311 Constitution
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[21]); // Manbodhan Lal Srivastava (AIR 1957 SC 912)
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[17]); // Maneka Gandhi (AIR 1978 SC 597)
-      } else if (/\b(article\s*14)\b/i.test(query)) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[39]); // Article 14 Constitution
-        matchedProvisions.push(CANONICAL_PROVISIONS[10]); // Article 21 Constitution
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[17]); // Maneka Gandhi (AIR 1978 SC 597)
-      } else if (/\b(article\s*19)\b/i.test(query)) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[40]); // Article 19 Constitution
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[7]); // Shreya Singhal (AIR 2015 SC 1523)
-      } else if (/\b(article\s*311)\b/i.test(query)) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[42]); // Article 311 Constitution
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[21]); // Manbodhan Lal Srivastava (AIR 1957 SC 912)
-      } else if (/\b(article\s*368)\b/i.test(query)) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[43]); // Article 368 Constitution
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[17]); // Maneka Gandhi (AIR 1978 SC 597)
-      } else {
-        matchedProvisions.push(CANONICAL_PROVISIONS[35]); // Article 226 Constitution
-        matchedProvisions.push(CANONICAL_PROVISIONS[34]); // Article 32 Constitution
-        matchedProvisions.push(CANONICAL_PROVISIONS[10]); // Article 21 Constitution
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[17]); // Maneka Gandhi (AIR 1978 SC 597)
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[6]); // Puttaswamy (AIR 2017 SC 4161)
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[9]); // D.K. Basu (AIR 1997 SC 610)
-      }
-      break;
-
-    case 'corporate_ibc':
-      matchedProvisions.push(CANONICAL_PROVISIONS[29]); // Sec 7 IBC
-      matchedProvisions.push(CANONICAL_PROVISIONS[28]); // Sec 241 Companies Act
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[16]); // Swiss Ribbons (AIR 2019 SC 739)
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[18]); // Tata v. Cyrus (AIR 2021 SC 2261)
-      break;
-
-    case 'family_matrimonial':
-      matchedProvisions.push(CANONICAL_PROVISIONS[30]); // Sec 13 Hindu Marriage Act
-      matchedProvisions.push(CANONICAL_PROVISIONS[31]); // Sec 24 HMA
-      matchedProvisions.push(CANONICAL_PROVISIONS[32]); // Sec 12 DV Act
-      matchedProvisions.push(CANONICAL_PROVISIONS[33]); // Sec 144 BNSS
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[14]); // Rajnesh v. Neha (AIR 2021 SC 569)
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[0]); // Arnesh Kumar (AIR 2014 SC 2756)
-      break;
-
-    case 'consumer_protection':
-      matchedProvisions.push(CANONICAL_PROVISIONS[26]); // Sec 35 CPA 2019
-      matchedProvisions.push(CANONICAL_PROVISIONS[27]); // Sec 2(47) CPA 2019
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[15]); // IMA v. VP Shantha (AIR 1996 SC 550)
-      break;
-
-    case 'cyber_privacy':
-      if (qLower.includes('trademark') || qLower.includes('trade mark') || qLower.includes('infringement') || qLower.includes('passing off')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[36]); // Sec 29 TM Act
-      } else {
-        matchedProvisions.push(CANONICAL_PROVISIONS[13]); // Sec 66D IT Act
-      }
-      matchedProvisions.push(CANONICAL_PROVISIONS[12]); // Sec 33 DPDP
-      matchedProvisions.push(CANONICAL_PROVISIONS[9]); // Sec 63 BSA
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[5]); // Anvar P.V.
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[6]); // Puttaswamy (AIR 2017 SC 4161)
-      matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[7]); // Shreya Singhal (AIR 2015 SC 1523)
-      break;
-
-    case 'criminal_defense':
-    default:
-      if (qLower.includes('cheat') || qLower.includes('420') || qLower.includes('fraud') || qLower.includes('318') || qLower.includes('scam') || qLower.includes('deceive')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[0]); // Sec 318(4)
-        matchedProvisions.push(CANONICAL_PROVISIONS[4]); // Sec 316
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[2]); // Hridaya Ranjan
-      }
-      if (qLower.includes('breach of trust') || qLower.includes('316')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[4]); // Sec 316
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[2]); // Hridaya Ranjan
-      }
-      if (qLower.includes('theft') || qLower.includes('steal') || qLower.includes('303') || qLower.includes('379') || qLower.includes('stolen') || qLower.includes('snatch')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[1]); // Sec 303
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[1]); // Bhajan Lal
-      }
-      if (qLower.includes('murder') || qLower.includes('kill') || qLower.includes('homicide') || qLower.includes('103') || qLower.includes('302') || qLower.includes('lynch')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[2]); // Sec 103
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[1]); // Bhajan Lal
-      }
-      if (qLower.includes('dowry') || qLower.includes('cruelty') || qLower.includes('498a') || qLower.includes('85')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[3]); // Sec 85
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[0]); // Arnesh Kumar
-      }
-      if (qLower.includes('arrest') || qLower.includes('notice') || qLower.includes('41a') || qLower.includes('35') || qLower.includes('summons')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[5]); // Sec 35(3) BNSS
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[0]); // Arnesh Kumar
-      }
-      if (qLower.includes('basu') || qLower.includes('custod')) {
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[9]); // D.K. Basu
-      }
-      if (qLower.includes('bail') || qLower.includes('anticipatory') || qLower.includes('438') || qLower.includes('482') || qLower.includes('480')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[6]); // Sec 482 BNSS
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[4]); // Sushila Aggarwal
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[3]); // Satender Kumar Antil
-      }
-      if (qLower.includes('quash') || qLower.includes('528') || qLower.includes('false fir') || qLower.includes('frivolous') || qLower.includes('malice')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[7]); // Sec 528 BNSS
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[1]); // Bhajan Lal
-      }
-      if (qLower.includes('fir') || qLower.includes('complaint') || qLower.includes('zero fir') || qLower.includes('173')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[8]); // Sec 173 BNSS
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[8]); // Lalita Kumari
-      }
-      if (qLower.includes('evidence') || qLower.includes('electronic') || qLower.includes('cctv') || qLower.includes('whatsapp') || qLower.includes('63') || qLower.includes('cdr')) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[9]); // Sec 63 BSA
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[5]); // Anvar P.V.
-      }
-      if (matchedProvisions.length === 0) {
-        matchedProvisions.push(CANONICAL_PROVISIONS[0]); // Sec 318(4) BNS
-        matchedProvisions.push(CANONICAL_PROVISIONS[5]); // Sec 35(3) BNSS
-      }
-      if (matchedPrecedents.length === 0) {
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[0]); // Arnesh Kumar
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[1]); // Bhajan Lal
-        matchedPrecedents.push(CLIENT_PRECEDENTS_DATA[3]); // Satender Kumar Antil
-      }
-      break;
-  }
+  const matchedProvisions: CanonicalProvision[] = rankedProvisions.slice(0, 3);
+  const matchedPrecedents: RealCasePrecedentItem[] = rankedPrecedents.slice(0, 3);
 
   // Remove duplicate provisions
   const uniqueProvisions = Array.from(new Set(matchedProvisions.filter(Boolean).map(p => p.id)))
@@ -2309,7 +2558,8 @@ export async function generateAutonomousLegalResponse(params: {
           `### Immediate Action Checklist\n\n` +
           `- Verify if the debt exceeds ₹1 Crore and obtain NeSL certificate or bank default records.\n` +
           `- For operational debts, issue the Section 8 demand notice via registered post.\n` +
-          `- Check NCLT causelists at [nclt.gov.in](https://nclt.gov.in).`;
+          `- Check NCLT causelists at [nclt.gov.in](https://nclt.gov.in).\n` +
+          `- For free legal aid on corporate insolvency debt recovery, contact NALSA at **15100**.`;
         break;
 
       case 'constitutional_writ':
@@ -2452,14 +2702,14 @@ Directives:
             mode: mode,
             query: query,
             answer: text.trim(),
-            applicable_laws: CANONICAL_PROVISIONS.slice(0, 3).map(p => ({
+            applicable_laws: rankCanonicalProvisions(query).slice(0, 3).map(p => ({
               provision_id: p.id,
               source_title: p.source_title,
               section_number: p.section_number,
               title: p.title,
-              text_snippet: p.text_content.slice(0, 200) + '...'
+              text_snippet: p.text_content.slice(0, 240) + '...'
             })),
-            similar_cases: CLIENT_PRECEDENTS_DATA.slice(0, 3),
+            similar_cases: rankClientPrecedents(query).slice(0, 3),
             trust_score: 0.98,
             ai_engine: `भारत Legal AI (${model} Grounded)`,
             limitations: 'Ground-truth validated against Constitution of India & Central Statutory Gazette.'

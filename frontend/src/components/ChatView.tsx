@@ -223,6 +223,8 @@ export function ChatView({
   const [dossierSaved, setDossierSaved] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [dictationNotice, setDictationNotice] = useState<string | null>(null);
+  const [showMicPromptModal, setShowMicPromptModal] = useState(false);
+  const [micBlockedHelp, setMicBlockedHelp] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [selectedPrecedent, setSelectedPrecedent] = useState<RealCasePrecedentItem | null>(null);
@@ -643,8 +645,8 @@ export function ChatView({
     }
   };
 
-  // Voice Dictation (Web Speech API)
-  const handleStartDictation = () => {
+  // Core Voice Dictation Execution
+  const executeDictation = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setDictationNotice('Voice dictation requires Chrome, Edge, or Safari with microphone access.');
@@ -656,13 +658,19 @@ export function ChatView({
     recognition.continuous = false;
     recognition.interimResults = false;
 
-    recognition.onstart = () => setIsListening(true);
+    recognition.onstart = () => {
+      setIsListening(true);
+      setMicBlockedHelp(false);
+      setDictationNotice(null);
+    };
     recognition.onend = () => setIsListening(false);
     recognition.onerror = (e: any) => {
       setIsListening(false);
       if (e?.error === 'not-allowed') {
-        setDictationNotice('Microphone permission denied. Please allow microphone access in your browser settings.');
-        setTimeout(() => setDictationNotice(null), 4500);
+        setMicBlockedHelp(true);
+      } else {
+        setDictationNotice(`Speech recognition notice: ${e?.error || 'ended'}`);
+        setTimeout(() => setDictationNotice(null), 4000);
       }
     };
 
@@ -676,6 +684,21 @@ export function ChatView({
       recognition.start();
     } catch {
       setIsListening(false);
+    }
+  };
+
+  // Voice Dictation Trigger with Just-in-Time Permission Prompting
+  const handleStartDictation = () => {
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    const hasAuthorized = localStorage.getItem('bharat_mic_permission_granted') === 'true';
+    if (!hasAuthorized) {
+      setShowMicPromptModal(true);
+    } else {
+      executeDictation();
     }
   };
 
@@ -2012,7 +2035,7 @@ export function ChatView({
 
             {/* Desktop & Tablet: Quick Context Category Chips (>= sm) + Action Tools on Right */}
             <div className="hidden sm:flex items-center justify-between gap-2 pb-1 px-1">
-              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none flex-1 min-w-0">
                 <span className={`font-mono text-[9px] uppercase font-bold shrink-0 mr-1 ${
                   isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
                 }`}>
@@ -2236,6 +2259,41 @@ export function ChatView({
               </div>
             )}
 
+            {micBlockedHelp && (
+              <div className="mx-2 mb-2 p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[11.5px] space-y-2 animate-in fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold flex items-center gap-1.5 text-amber-300">
+                    <span className="material-symbols-outlined text-[16px]">mic_off</span>
+                    <span>Microphone Permission Blocked in Browser</span>
+                  </span>
+                  <button type="button" onClick={() => setMicBlockedHelp(false)} className="p-0.5 hover:text-white cursor-pointer">
+                    <span className="material-symbols-outlined text-[14px]">close</span>
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  To enable hands-free voice dictation:
+                </p>
+                <ol className="list-decimal list-inside text-[10.5px] space-y-1 text-slate-300">
+                  <li>Click the <strong>🔒 lock / tune icon</strong> on the left side of your browser URL bar.</li>
+                  <li>Change <strong>Microphone</strong> from "Block" to <strong>"Allow"</strong>.</li>
+                  <li>Click Retry below to start voice dictation.</li>
+                </ol>
+                <div className="pt-1 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMicBlockedHelp(false);
+                      executeDictation();
+                    }}
+                    className="px-3 py-1.5 rounded-lg text-[10.5px] font-bold bg-[#ff7722] hover:bg-[#e06616] text-white flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">refresh</span>
+                    <span>Retry Voice Dictation</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Input Workspace & Submit Button (Isolated component for instantaneous typing) */}
             <ChatInputForm
               loading={loading}
@@ -2309,6 +2367,70 @@ export function ChatView({
                   className={`w-full py-2 px-3 rounded-lg text-[11px] text-center font-medium opacity-70 hover:opacity-100 transition-opacity cursor-pointer`}
                 >
                   Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* JUST-IN-TIME MICROPHONE PERMISSION MODAL */}
+        {showMicPromptModal && (
+          <div className="fixed inset-0 z-[10002] bg-black/80 flex items-center justify-center p-4 backdrop-blur-xs select-none animate-in fade-in duration-150">
+            <div className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 sm:p-6 space-y-4 ${
+              isDark ? 'bg-[#0f121e] border-[#242b42] text-white' : 'bg-white border-[#e2e8f0] text-[#0b1c30]'
+            }`}>
+              <div className="flex items-start gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#00288e] to-[#ff7722] flex items-center justify-center text-white shadow-md shrink-0">
+                  <span className="material-symbols-outlined text-[24px]">mic</span>
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-black tracking-tight">Enable Microphone for Voice Dictation</h3>
+                  <p className={`text-[11.5px] mt-0.5 leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    Dictate legal briefs, FIR details, or statutory queries hands-free.
+                  </p>
+                </div>
+              </div>
+
+              <div className={`p-3.5 rounded-xl border text-[11px] leading-relaxed space-y-2.5 ${
+                isDark ? 'bg-[#090b12] border-[#1f2438] text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+              }`}>
+                <div className="flex items-center gap-1.5 font-bold text-[#ff7722]">
+                  <span className="material-symbols-outlined text-[15px]">translate</span>
+                  <span>Indian Legal Terminology Supported</span>
+                </div>
+                <p>
+                  Optimized for <strong>Indian English (en-IN)</strong>, Hindi terms, and statutory vocabulary (BNS, IPC, FIR, Bail, CrPC, Affidavit).
+                </p>
+                <div className="flex items-center gap-1.5 font-bold text-emerald-400 pt-1">
+                  <span className="material-symbols-outlined text-[15px]">lock</span>
+                  <span>100% On-Device Privacy</span>
+                </div>
+                <p className="text-[10px] text-slate-400">
+                  Voice audio is processed live in your browser using the Web Speech API. No audio recordings or voice files are uploaded or stored.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowMicPromptModal(false)}
+                  className={`px-3 py-2 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
+                    isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-slate-300 border-[#2b334d]' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+                  }`}
+                >
+                  Type Manually Instead
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem('bharat_mic_permission_granted', 'true');
+                    setShowMicPromptModal(false);
+                    executeDictation();
+                  }}
+                  className="px-4 py-2 rounded-xl text-[11.5px] font-black bg-gradient-to-r from-[#00288e] to-[#ff7722] hover:opacity-90 text-white flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+                >
+                  <span className="material-symbols-outlined text-[16px]">mic</span>
+                  <span>Allow & Start Dictation</span>
                 </button>
               </div>
             </div>

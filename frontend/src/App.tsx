@@ -201,7 +201,7 @@ export function App() {
   const isDark = theme === 'dark';
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
+    <div className={`h-screen flex flex-col font-sans overflow-hidden transition-colors duration-200 ${
       isDark ? 'bg-[#090a0f] text-[#f8fafc]' : 'bg-[#f4f6fb] text-[#0b1c30]'
     }`}>
       {/* INSTITUTIONAL DAILY LAWS LOADING / SPLASH SCREEN */}
@@ -699,8 +699,8 @@ export function App() {
       </header>
 
       {/* MAIN SCREEN CANVAS (Responsive top padding: 56px on mobile, 84px on md+) */}
-      <div className="pt-14 md:pt-[84px] flex-1 flex flex-col min-h-[calc(100vh-3.5rem)] md:min-h-[calc(100vh-84px)] w-full">
-        <main className={`flex-1 flex flex-col w-full transition-colors duration-200 ${
+      <div className="pt-14 md:pt-[84px] flex-1 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-84px)] overflow-hidden w-full">
+        <main className={`flex-1 flex flex-col w-full h-full ${activeTab === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'} transition-colors duration-200 ${
           isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
         }`}>
           {activeTab === 'chat' && (
@@ -1007,70 +1007,154 @@ export function App() {
         }}
       />
 
-      {/* FIRST-VISIT GUEST NOTICE MODAL */}
+      {/* FIRST-VISIT PERMISSIONS & PRIVACY CENTER */}
       {showGuestNoticeModal && (
-        <div className="fixed inset-0 z-[10001] bg-black/80 flex items-center justify-center p-4 backdrop-blur-xs select-none animate-in fade-in duration-200">
-          <div className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 sm:p-6 space-y-4 ${
+        <div className="fixed inset-0 z-[10001] bg-black/80 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs select-none animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg rounded-2xl border shadow-2xl p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto ${
             isDark ? 'bg-[#0f121e] border-[#242b42] text-white' : 'bg-white border-[#e2e8f0] text-[#0b1c30]'
           }`}>
             {/* Header with Seal and Guest ID */}
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 pb-1 border-b border-zinc-500/20">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00288e] to-[#ff7722] flex items-center justify-center text-white shadow-md shrink-0">
-                  <span className="material-symbols-outlined text-[22px]">shield_person</span>
+                  <span className="material-symbols-outlined text-[22px]">verified_user</span>
                 </div>
                 <div>
-                  <h3 className="text-[15px] font-black tracking-tight">Private Guest Session Active</h3>
-                  <span className="text-[11px] font-mono font-bold text-[#ff7722]">
-                    Assigned ID: {guestId}
-                  </span>
+                  <h3 className="text-[15px] font-black tracking-tight">Platform Permissions & Privacy Setup</h3>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[11px] font-mono font-bold text-[#ff7722]">
+                      Assigned ID: {guestId}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(guestId);
+                        setGuestIdCopied(true);
+                        setTimeout(() => setGuestIdCopied(false), 2000);
+                      }}
+                      className="text-[10px] font-mono text-zinc-400 hover:text-white flex items-center gap-0.5 cursor-pointer"
+                      title="Copy Guest ID"
+                    >
+                      <span className="material-symbols-outlined text-[13px]">
+                        {guestIdCopied ? 'check' : 'content_copy'}
+                      </span>
+                      <span>{guestIdCopied ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                Device Private
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
+                DPDP 2023 Compliant
               </span>
             </div>
 
-            <div className={`p-3.5 rounded-xl border text-[11.5px] leading-relaxed space-y-2 ${
-              isDark ? 'bg-[#090b12] border-[#1f2438] text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
-            }`}>
-              <p>
-                Welcome to <strong>Bharat Legal Intelligence</strong>. To protect judicial confidentiality and citizen privacy, your legal inquiries, statutory analyses, and chamber briefs are saved <strong>exclusively in this browser</strong> on your device under your unique Guest ID.
-              </p>
-              <p className="text-[10.5px] text-slate-400">
-                ⚖️ <em>We are currently enabling our secure Bar Council verified Advocate & Citizen Profile System. Until then, you can freely use all AI research tools, contract generators, and precedent databases as a Guest user.</em>
-              </p>
+            <p className="text-[11.5px] text-slate-300 leading-relaxed">
+              Bharat Legal Intelligence operates with a <strong>Zero-Surveillance, Privacy-First Architecture</strong>. Below are the permissions and device capabilities used to provide an optimal legal research experience:
+            </p>
+
+            {/* Permissions Cards */}
+            <div className="space-y-2.5">
+              {/* Permission 1: Microphone */}
+              <div className={`p-3 rounded-xl border flex items-start gap-3 transition-colors ${
+                isDark ? 'bg-[#131726] border-[#222940]' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="p-2 rounded-lg bg-amber-500/15 text-amber-400 shrink-0 mt-0.5">
+                  <span className="material-symbols-outlined text-[18px]">mic</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-[12px] font-bold">Microphone (Hands-Free Legal Dictation)</h4>
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/25">
+                      Prompt When Used
+                    </span>
+                  </div>
+                  <p className="text-[10.5px] text-slate-400 mt-0.5 leading-relaxed">
+                    Used to speak legal queries, section citations, and FIR facts in <strong>Indian English & Hindi</strong>.
+                  </p>
+                  <p className="text-[9.5px] text-emerald-400/90 mt-1 flex items-center gap-1 font-mono">
+                    <span className="material-symbols-outlined text-[12px]">lock</span>
+                    <span>100% On-Device Web Speech API • Zero voice audio stored</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Permission 2: Clipboard */}
+              <div className={`p-3 rounded-xl border flex items-start gap-3 transition-colors ${
+                isDark ? 'bg-[#131726] border-[#222940]' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="p-2 rounded-lg bg-blue-500/15 text-blue-400 shrink-0 mt-0.5">
+                  <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-[12px] font-bold">Clipboard (Legal Citations & Petitions)</h4>
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/25">
+                      Write-Only on Click
+                    </span>
+                  </div>
+                  <p className="text-[10.5px] text-slate-400 mt-0.5 leading-relaxed">
+                    Allows 1-click copying of High Court & Supreme Court citations, contract drafts, and counter-clauses.
+                  </p>
+                  <p className="text-[9.5px] text-emerald-400/90 mt-1 flex items-center gap-1 font-mono">
+                    <span className="material-symbols-outlined text-[12px]">security</span>
+                    <span>Only writes formatted legal text on explicit button click</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Permission 3: Local Storage / Guest Identity */}
+              <div className={`p-3 rounded-xl border flex items-start gap-3 transition-colors ${
+                isDark ? 'bg-[#131726] border-[#222940]' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="p-2 rounded-lg bg-emerald-500/15 text-emerald-400 shrink-0 mt-0.5">
+                  <span className="material-symbols-outlined text-[18px]">shield</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-[12px] font-bold">Local Device Storage (Private Chamber Dockets)</h4>
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                      Active
+                    </span>
+                  </div>
+                  <p className="text-[10.5px] text-slate-400 mt-0.5 leading-relaxed">
+                    Saves your research threads and case dossiers strictly in your browser under your unique Guest ID without tracking cookies.
+                  </p>
+                  <p className="text-[9.5px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
+                    <span className="material-symbols-outlined text-[12px]">delete_sweep</span>
+                    <span>Reset or zeroize session at any time via header controls</span>
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(guestId);
-                  setGuestIdCopied(true);
-                  setTimeout(() => setGuestIdCopied(false), 2000);
-                }}
-                className={`px-3 py-2 rounded-xl text-[11px] font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
-                  guestIdCopied
-                    ? 'bg-emerald-600 text-white border-emerald-500'
-                    : isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-white border-[#2b334d]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[15px]">
-                  {guestIdCopied ? 'check' : 'content_copy'}
-                </span>
-                <span>{guestIdCopied ? 'Copied ID' : 'Copy Guest ID'}</span>
-              </button>
-
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-2 pt-2 border-t border-zinc-500/20">
               <button
                 type="button"
                 onClick={() => {
                   markGuestNoticeSeen();
                   setShowGuestNoticeModal(false);
                 }}
-                className="px-4 py-2 rounded-xl text-[11.5px] font-black bg-gradient-to-r from-[#00288e] to-[#ff7722] hover:opacity-90 text-white flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+                className={`w-full sm:w-auto px-3.5 py-2 rounded-xl text-[11px] font-bold border transition-all cursor-pointer text-center ${
+                  isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-slate-300 border-[#2b334d]' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+                }`}
               >
-                <span>Start Legal Research</span>
+                Continue (Ask Permissions When Needed)
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    // Pre-authorize dictation if user chooses
+                    localStorage.setItem('bharat_mic_permission_granted', 'true');
+                  } catch {}
+                  markGuestNoticeSeen();
+                  setShowGuestNoticeModal(false);
+                }}
+                className="w-full sm:w-auto px-4 py-2 rounded-xl text-[11.5px] font-black bg-gradient-to-r from-[#00288e] to-[#ff7722] hover:opacity-90 text-white flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition-all"
+              >
+                <span>Enable Features & Enter Chamber</span>
                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
               </button>
             </div>

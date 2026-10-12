@@ -32,7 +32,7 @@ app.add_middleware(NormalizePathMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 
 # 3. Sliding-window Rate Limiting Middleware (DoS and resource exhaustion defense)
-app.add_middleware(RateLimiterMiddleware, general_limit=120, heavy_limit=30, window_seconds=60)
+app.add_middleware(RateLimiterMiddleware, general_limit=240, heavy_limit=60, window_seconds=60)
 
 # 4. Strict CORS configuration (whitelisted origins & project-scoped Vercel domains)
 app.add_middleware(

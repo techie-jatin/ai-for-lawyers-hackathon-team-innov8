@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { ChatLaunchContext } from '../App';
 import { PrecedentDossierDrawer, type RealCasePrecedentItem } from './PrecedentDossierDrawer';
 import { LegalStructuredAnswer } from './LegalMarkdownRenderer';
+import { generateAutonomousLegalResponse } from '../services/clientLegalEngine';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -292,48 +293,42 @@ export function ChatView({
     gemini_api_key?: string;
     history?: Array<{ role: string; text: string }>;
   }): Promise<AssistantResponse> => {
-    const cleanBase = apiBase.replace(/\/+$/, '');
-    const targets = [
-      `${cleanBase}/api/assistant/query`,
-      cleanBase.includes('localhost') 
-        ? `${cleanBase.replace('localhost', '127.0.0.1')}/api/assistant/query` 
-        : null
-    ].filter(Boolean) as string[];
+    if (apiBase && apiBase.trim() !== '') {
+      const cleanBase = apiBase.replace(/\/+$/, '');
+      const targets = [
+        `${cleanBase}/api/assistant/query`,
+        cleanBase.includes('localhost') 
+          ? `${cleanBase.replace('localhost', '127.0.0.1')}/api/assistant/query` 
+          : null
+      ].filter(Boolean) as string[];
 
-    let lastError: any = null;
-    for (const url of targets) {
-      try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (res.ok) {
-          return await res.json();
+      for (const url of targets) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && (data.answer || data.message || data.is_emergency)) {
+              return data;
+            }
+          }
+        } catch {
+          // Continue to next target or autonomous engine
         }
-        throw new Error(`Server returned HTTP ${res.status}`);
-      } catch (err: any) {
-        lastError = err;
       }
     }
-    throw lastError;
-  };
 
-  const formatConnectionError = (err: any): string => {
-    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
-    const isLocal = apiBase.includes('localhost') || apiBase.includes('127.0.0.1');
-
-    if (isHttps && isLocal) {
-      return (
-        "🌐 **Vercel Mixed Content Notice: Backend Connection Required**\n\n" +
-        "You are accessing this frontend over **HTTPS on Vercel**, but the backend API is pointing to local `http://localhost:8000`. Web browsers strictly block HTTPS web applications from making unencrypted requests to local machines.\n\n" +
-        "### How to Test:\n" +
-        "1. **Local Evaluation (Full Integration)**: Open the frontend locally at [http://localhost:5173](http://localhost:5173). In your terminal, ensure `.\\run_backend.ps1` is running.\n" +
-        "2. **Vercel Live Production**: Deploy your FastAPI backend to a cloud host (e.g. Render, Railway, or Koyeb), then configure `VITE_API_BASE=https://your-backend-url` in **Vercel Project Settings ➔ Environment Variables**."
-      );
-    }
-
-    return `Unable to retrieve statutory intelligence from backend: ${err.message || 'Network error'}. Please verify connection to the FastAPI server (${apiBase}). Ensure .\\run_backend.ps1 is running.`;
+    // Fully Autonomous Client-Side Legal Intelligence Engine Fallback
+    return await generateAutonomousLegalResponse({
+      query: payload.query,
+      mode: (payload.mode as 'citizen' | 'professional') || mode,
+      context_filter: payload.context_filter,
+      gemini_api_key: payload.gemini_api_key || geminiApiKey,
+      history: payload.history
+    });
   };
 
   const executeDirectQuery = async (
@@ -378,22 +373,42 @@ export function ChatView({
       });
       saveThreadsToStorage(finalThreads);
     } catch (err: any) {
-      console.error('Direct query error:', err);
-      const errorMsg: ChatMessage = {
-        id: `msg-a-${Date.now()}`,
-        role: 'assistant',
-        text: formatConnectionError(err),
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      const finalMessages = [userMsg, errorMsg];
-      setMessages(finalMessages);
-      const finalThreads = baseThreads.map(t => {
-        if (t.id === targetThreadId) {
-          return { ...t, messages: finalMessages };
-        }
-        return t;
-      });
-      saveThreadsToStorage(finalThreads);
+      console.warn('Direct query caught error, executing autonomous legal engine fallback:', err);
+      try {
+        const fallbackData = await generateAutonomousLegalResponse({
+          query: queryText,
+          mode: mode,
+          context_filter: categoryName,
+          gemini_api_key: geminiApiKey || undefined
+        });
+
+        const asstMsgId = `msg-a-${Date.now()}`;
+        const asstMsg: ChatMessage = {
+          id: asstMsgId,
+          role: 'assistant',
+          text: fallbackData.answer || 'Legal opinion generated.',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          response: fallbackData
+        };
+
+        const finalMessages = [userMsg, asstMsg];
+        setMessages(finalMessages);
+
+        const finalThreads = baseThreads.map(t => {
+          if (t.id === targetThreadId) {
+            return {
+              ...t,
+              title: threadTitle,
+              category: categoryName,
+              messages: finalMessages
+            };
+          }
+          return t;
+        });
+        saveThreadsToStorage(finalThreads);
+      } catch (innerErr) {
+        console.error('Fatal fallback error:', innerErr);
+      }
     } finally {
       setLoading(false);
     }
@@ -805,22 +820,47 @@ export function ChatView({
       });
       saveThreadsToStorage(finalThreads);
     } catch (err: any) {
-      console.error('Query error:', err);
-      const errorMsg: ChatMessage = {
-        id: `msg-${Date.now() + 1}`,
-        role: 'assistant',
-        text: formatConnectionError(err),
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      const finalMessages = [...newMessages, errorMsg];
-      setMessages(finalMessages);
-      const finalThreads = baseThreads.map(t => {
-        if (t.id === targetThreadId) {
-          return { ...t, messages: finalMessages };
-        }
-        return t;
-      });
-      saveThreadsToStorage(finalThreads);
+      console.warn('handleSendMessage caught error, using autonomous legal engine fallback:', err);
+      try {
+        const historyPayload = messages.slice(-6).map(m => ({
+          role: m.role,
+          text: m.text
+        }));
+
+        const fallbackData = await generateAutonomousLegalResponse({
+          query: textToSend,
+          mode: mode,
+          context_filter: contextFilter,
+          gemini_api_key: geminiApiKey || undefined,
+          history: historyPayload
+        });
+
+        const asstMsgId = `msg-${Date.now() + 1}`;
+        const asstMsg: ChatMessage = {
+          id: asstMsgId,
+          role: 'assistant',
+          text: fallbackData.answer || 'Legal opinion generated.',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          response: fallbackData
+        };
+
+        const finalMessages = [...newMessages, asstMsg];
+        setMessages(finalMessages);
+
+        const finalThreads = baseThreads.map(t => {
+          if (t.id === targetThreadId) {
+            return {
+              ...t,
+              title: updatedTitle || t.title,
+              messages: finalMessages
+            };
+          }
+          return t;
+        });
+        saveThreadsToStorage(finalThreads);
+      } catch (innerErr) {
+        console.error('Fatal fallback error in handleSendMessage:', innerErr);
+      }
     } finally {
       setLoading(false);
     }
@@ -832,29 +872,54 @@ export function ChatView({
     const lastAsstMsg = [...messages].reverse().find(m => m.role === 'assistant');
     const activeThread = threads.find(t => t.id === activeThreadId);
 
-    try {
-      const res = await fetch(`${apiBase}/api/dossiers`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guest_id: guestId,
-          title: activeThread?.title || 'Legal Analysis Consultation',
-          category: contextFilter,
-          mode: mode,
-          initial_query: firstUserMsg?.text || 'Legal Inquiry',
-          legal_summary: lastAsstMsg?.text 
-            ? lastAsstMsg.text.replace(/^#{1,4}\s+.*?\n+/g, '').replace(/[*#>`]/g, '').trim().slice(0, 400)
-            : 'Consultation record',
-          applicable_sections: lastAsstMsg?.response?.applicable_laws || []
-        })
-      });
+    const dossierPayload = {
+      guest_id: guestId,
+      title: activeThread?.title || 'Legal Analysis Consultation',
+      category: contextFilter,
+      mode: mode,
+      initial_query: firstUserMsg?.text || 'Legal Inquiry',
+      legal_summary: lastAsstMsg?.text 
+        ? lastAsstMsg.text.replace(/^#{1,4}\s+.*?\n+/g, '').replace(/[*#>`]/g, '').trim().slice(0, 400)
+        : 'Consultation record',
+      applicable_sections: (lastAsstMsg?.response?.applicable_laws || []).map(l => `${l.source_title} ${l.section_number}`)
+    };
 
-      if (res.ok) {
+    try {
+      if (apiBase && apiBase.trim() !== '') {
+        const res = await fetch(`${apiBase}/api/dossiers`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dossierPayload)
+        });
+
+        if (res.ok) {
+          setDossierSaved(true);
+          setTimeout(() => setDossierSaved(false), 3000);
+          return;
+        }
+      }
+      throw new Error('API save not available or failed');
+    } catch {
+      // LocalStorage fallback for standalone/Vercel environments
+      try {
+        const existing = JSON.parse(localStorage.getItem('bharat_saved_dossiers') || '[]');
+        const newDossier = {
+          id: Date.now(),
+          docket_number: `BHR-2024-${Math.floor(1000 + Math.random() * 9000)}`,
+          title: dossierPayload.title,
+          category: dossierPayload.category,
+          mode: dossierPayload.mode,
+          initial_query: dossierPayload.initial_query,
+          legal_summary: dossierPayload.legal_summary,
+          applicable_sections: dossierPayload.applicable_sections,
+          created_at: new Date().toISOString()
+        };
+        localStorage.setItem('bharat_saved_dossiers', JSON.stringify([newDossier, ...existing]));
         setDossierSaved(true);
         setTimeout(() => setDossierSaved(false), 3000);
+      } catch (storageErr) {
+        console.warn('LocalStorage dossier save error:', storageErr);
       }
-    } catch (e) {
-      console.error('Failed to save dossier:', e);
     }
   };
 

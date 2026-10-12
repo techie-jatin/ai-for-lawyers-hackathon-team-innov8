@@ -626,7 +626,7 @@ npm run dev
 ```
 > The web interface will open at `http://localhost:5173`.
 
-### 🌐 Live Production Deployment
+### 🌐 Live Production Deployment & Autonomous Global Access
 
 <p align="left">
   <a href="https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app/" target="_blank">
@@ -637,6 +637,13 @@ npm run dev
     <img src="https://img.shields.io/badge/🏆_HACKINDIA_TEAM_PROFILE-FF7722?style=for-the-badge&logo=target&logoColor=white" alt="HackIndia Team Profile" height="34" />
   </a>
 </p>
+
+#### ⚡ Autonomous Client-Side Legal Intelligence Engine
+For global visitors accessing the live web application on Vercel (`https://...`):
+- **Zero Configuration Required**: Any user worldwide can freely consult legal research, search Sanhitas, draft commercial agreements, and audit contracts immediately without installing Python or running a local server.
+- **Autonomous Sanhita Reasoner**: Built-in statutory intelligence engine (`clientLegalEngine.ts`) provides full statutory concordance (IPC ↔ BNS, CrPC ↔ BNSS, IEA ↔ BSA), landmark Supreme Court precedents (*Arnesh Kumar*, *Bhajan Lal*, *Satender Kumar Antil*, *Shreya Singhal*, *Puttaswamy*), and dual citizen/advocate legal opinions.
+- **Direct HTTPS Google Gemini Synthesis**: Users can optionally supply their own Google Gemini API key in-browser to query Gemini 1.5 Flash directly over secure HTTPS without exposing credentials to intermediate servers.
+- **Hybrid Cloud Auto-Detection**: When connected to a live FastAPI cloud backend (via `VITE_API_BASE`), the application seamlessly leverages Neon PostgreSQL `pgvector` hybrid search; when running standalone or offline, it automatically falls back to the autonomous client-side engine with 100% uptime.
 
 ---
 

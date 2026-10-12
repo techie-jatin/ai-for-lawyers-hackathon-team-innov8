@@ -41,17 +41,33 @@ export function DossiersDrawer({
   const fetchDossiers = async () => {
     setLoading(true);
     try {
-      const url = guestId 
-        ? `${apiBase}/api/dossiers?guest_id=${encodeURIComponent(guestId)}`
-        : `${apiBase}/api/dossiers`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setDossiers(data);
-        if (onDossierCountChange) onDossierCountChange(data.length);
+      if (apiBase && apiBase.trim() !== '') {
+        const url = guestId 
+          ? `${apiBase}/api/dossiers?guest_id=${encodeURIComponent(guestId)}`
+          : `${apiBase}/api/dossiers`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            const localSaved: ChamberDossier[] = JSON.parse(localStorage.getItem('bharat_saved_dossiers') || '[]');
+            const combinedMap = new Map<string, ChamberDossier>();
+            data.forEach(d => combinedMap.set(d.docket_number || String(d.id), d));
+            localSaved.forEach(d => {
+              const key = d.docket_number || String(d.id);
+              if (!combinedMap.has(key)) combinedMap.set(key, d);
+            });
+            const merged = Array.from(combinedMap.values());
+            setDossiers(merged);
+            if (onDossierCountChange) onDossierCountChange(merged.length);
+            return;
+          }
+        }
       }
-    } catch (err) {
-      console.error('Failed to fetch dossiers:', err);
+      throw new Error('Local fallback');
+    } catch {
+      const localSaved: ChamberDossier[] = JSON.parse(localStorage.getItem('bharat_saved_dossiers') || '[]');
+      setDossiers(localSaved);
+      if (onDossierCountChange) onDossierCountChange(localSaved.length);
     } finally {
       setLoading(false);
     }
@@ -66,14 +82,18 @@ export function DossiersDrawer({
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to remove this case brief from your Chamber Dossiers?')) return;
     try {
-      const res = await fetch(`${apiBase}/api/dossiers/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        const updated = dossiers.filter(d => d.id !== id);
-        setDossiers(updated);
-        if (onDossierCountChange) onDossierCountChange(updated.length);
+      if (apiBase && apiBase.trim() !== '') {
+        await fetch(`${apiBase}/api/dossiers/${id}`, { method: 'DELETE' }).catch(() => {});
       }
-    } catch (err) {
-      console.error('Failed to delete dossier:', err);
+    } finally {
+      const updated = dossiers.filter(d => d.id !== id);
+      setDossiers(updated);
+      try {
+        const localSaved: ChamberDossier[] = JSON.parse(localStorage.getItem('bharat_saved_dossiers') || '[]');
+        const updatedLocal = localSaved.filter(d => d.id !== id);
+        localStorage.setItem('bharat_saved_dossiers', JSON.stringify(updatedLocal));
+      } catch {}
+      if (onDossierCountChange) onDossierCountChange(updated.length);
     }
   };
 

@@ -134,7 +134,7 @@ export function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Click-outside listener for mobile pages dropdown and guest menu
+  // Click-outside & Escape key listener for mobile pages dropdown and guest menu
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (pagesMenuRef.current && !pagesMenuRef.current.contains(event.target as Node)) {
@@ -144,8 +144,18 @@ export function App() {
         setIsGuestMenuOpen(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsPagesMenuOpen(false);
+        setIsGuestMenuOpen(false);
+      }
+    }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   useEffect(() => {
@@ -287,8 +297,8 @@ export function App() {
         </div>
       )}
 
-      {/* FIXED TOP HEADER (Exact 82px on sm+, 56px on mobile, z-[99] overflow-visible) */}
-      <header id="app-header" className={`fixed top-0 left-0 right-0 z-[99] backdrop-blur-md border-b shadow-md transition-colors duration-200 overflow-visible ${
+      {/* FIXED TOP HEADER (Exact 84px on sm+, 56px on mobile, z-[99] overflow-visible) */}
+      <header id="app-header" className={`no-print fixed top-0 left-0 right-0 z-[99] backdrop-blur-md border-b shadow-md transition-colors duration-200 overflow-visible ${
         isDark 
           ? 'bg-[#0d0f17]/95 border-[#1f2438]' 
           : 'bg-white/95 border-[#e2e8f0]'
@@ -296,30 +306,38 @@ export function App() {
         {/* Main Bar (h-14 / 56px across all viewports to minimize wasted vertical space) */}
         <div className="h-14 w-full px-[clamp(10px,1.8vw,32px)] flex items-center justify-between gap-[clamp(6px,1.2vw,24px)]">
           {/* ZONE 1: BRAND IDENTITY (Left, Fluid & Compact) */}
-          <div className="flex items-center gap-[clamp(6px,0.8vw,12px)] shrink-0 max-w-[28%]">
-            <img 
-              src="/logo.png" 
-              alt="भारत Legal Intelligence" 
-              className={`w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-lg object-contain shadow-xs p-0.5 border ${
-                isDark ? 'bg-[#131726] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
-              }`}
-            />
-            {/* Brand name text: HIDDEN on small screens (< sm) to free up header space */}
-            <div className="hidden sm:flex flex-col min-w-0">
-              <div className="flex items-center gap-1.5 whitespace-nowrap">
-                <span className="font-extrabold text-[13px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
-                <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight ${
-                  isDark ? 'text-white' : 'text-[#00288e]'
+          <div className="flex items-center gap-[clamp(6px,0.8vw,12px)] shrink-0 sm:max-w-[28%] min-w-0">
+            {/* Clickable Brand seal & title (Returns to Chat Assistant Home) */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('chat')}
+              className="flex items-center gap-[clamp(6px,0.8vw,10px)] text-left cursor-pointer group shrink-0 focus:outline-none"
+              title="Return to Bharat Legal Assistant Home"
+            >
+              <img 
+                src="/logo.png" 
+                alt="भारत Legal Intelligence" 
+                className={`w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-lg object-contain shadow-xs p-0.5 border group-hover:scale-105 transition-transform ${
+                  isDark ? 'bg-[#131726] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
+                }`}
+              />
+              {/* Brand name text: HIDDEN on small screens (< sm) to free up header space */}
+              <div className="hidden sm:flex flex-col min-w-0">
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="font-extrabold text-[13px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
+                  <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight ${
+                    isDark ? 'text-white' : 'text-[#00288e]'
+                  }`}>
+                    Legal Intelligence
+                  </span>
+                </div>
+                <span className={`text-[8.5px] font-medium leading-tight hidden lg:block truncate ${
+                  isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
                 }`}>
-                  Legal Intelligence
+                  Constitutional & Statutory Platform
                 </span>
               </div>
-              <span className={`text-[8.5px] font-medium leading-tight hidden md:block truncate ${
-                isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
-              }`}>
-                Constitutional & Statutory Platform
-              </span>
-            </div>
+            </button>
 
             {/* Mobile Small Screens (< sm / < 640px) Dedicated Pages Navigation Dropdown */}
             <div className="relative sm:hidden z-[100]" ref={pagesMenuRef}>
@@ -349,7 +367,7 @@ export function App() {
 
               {isPagesMenuOpen && (
                 <div 
-                  className={`absolute left-0 top-full mt-2 w-72 rounded-xl shadow-2xl border p-2 z-[9999] animate-in fade-in zoom-in-95 duration-150 ${
+                  className={`absolute left-0 top-full mt-2 w-72 max-w-[calc(100vw-24px)] rounded-xl shadow-2xl border p-2 z-[9999] animate-in fade-in zoom-in-95 duration-150 ${
                     isDark ? 'border-[#23283f] text-white' : 'border-[#e2e8f0] text-[#0b1c30]'
                   }`}
                   style={{ backgroundColor: isDark ? '#0f121e' : '#ffffff', opacity: 1, zIndex: 9999 }}
@@ -693,7 +711,7 @@ export function App() {
 
               {isGuestMenuOpen && (
                 <div 
-                  className={`absolute right-0 top-full mt-2 w-72 rounded-xl shadow-2xl border p-3 z-[9999] animate-in fade-in zoom-in-95 duration-150 ${
+                  className={`absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-24px)] rounded-xl shadow-2xl border p-3 z-[9999] animate-in fade-in zoom-in-95 duration-150 ${
                     isDark ? 'border-[#23283f] text-white' : 'border-[#e2e8f0] text-[#0b1c30]'
                   }`}
                   style={{ backgroundColor: isDark ? '#0f121e' : '#ffffff', opacity: 1, zIndex: 9999 }}
@@ -797,13 +815,13 @@ export function App() {
           </div>
         </div>
 
-        {/* Secondary Statutory Sub-Header (Ticker Bar - h-6.5 sm:h-7 / 26px, hidden on small mobile to maximize screen) */}
-        <div id="statutory-ticker" className={`h-6.5 sm:h-7 w-full border-t overflow-hidden transition-colors ${
+        {/* Secondary Statutory Sub-Header (Ticker Bar - h-7 / 28px, hidden on small mobile to maximize screen) */}
+        <div id="statutory-ticker" className={`hidden sm:block h-7 w-full border-t overflow-hidden transition-colors ${
           isDark 
             ? 'bg-[#06070a] border-[#1a1e2e] text-[#94a3b8]' 
             : 'bg-[#f8f9ff] border-[#e2e8f0] text-[#565e74]'
         }`}>
-          <div className="w-full h-full px-[clamp(10px,1.8vw,32px)] hidden sm:flex items-center justify-between text-[clamp(9.5px,0.7vw,11px)] font-mono">
+          <div className="w-full h-full px-[clamp(10px,1.8vw,32px)] flex items-center justify-between text-[clamp(9.5px,0.7vw,11px)] font-mono">
             <div className="flex items-center gap-2 truncate">
               <span className={`px-1.5 py-0.2 rounded font-bold uppercase tracking-wider text-[8.5px] 2xl:text-[9.5px] border shrink-0 ${
                 isDark 
@@ -830,8 +848,8 @@ export function App() {
         </div>
       </header>
 
-      {/* MAIN SCREEN CANVAS (Responsive top padding: 56px on mobile, 82px on sm+) */}
-      <div className="pt-14 sm:pt-[82px] flex-1 flex flex-col min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-82px)] w-full">
+      {/* MAIN SCREEN CANVAS (Responsive top padding: 56px on mobile, 84px on sm+) */}
+      <div className="pt-14 sm:pt-[84px] flex-1 flex flex-col min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-84px)] w-full">
         <main className={`flex-1 flex flex-col w-full transition-colors duration-200 ${
           isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
         }`}>

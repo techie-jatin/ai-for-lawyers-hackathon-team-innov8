@@ -78,6 +78,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
   const [selectedSourceId, setSelectedSourceId] = useState<string>('all');
   const [results, setResults] = useState<ProvisionItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
   // Dynamic Concordance & Gazette State
@@ -126,11 +127,13 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
 
   const loadInitialProvisions = async (sourceId?: string) => {
     setLoading(true);
+    setHasError(false);
     try {
       const url = sourceId && sourceId !== 'all' 
         ? `${apiBase}/api/search/provisions?source_id=${sourceId}&limit=50`
         : `${apiBase}/api/search/provisions?limit=50`;
       const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (Array.isArray(data)) {
         setResults(data);
@@ -139,6 +142,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
       }
     } catch (err) {
       console.error('Error fetching provisions:', err);
+      setHasError(true);
     } finally {
       setLoading(false);
     }
@@ -153,6 +157,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
     }
 
     setLoading(true);
+    setHasError(false);
     try {
       if (type === 'semantic') {
         const res = await fetch(`${apiBase}/api/search/semantic`, {
@@ -160,6 +165,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: q, top_k: 25 })
         });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setResults(data);
@@ -168,6 +174,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
         }
       } else {
         const res = await fetch(`${apiBase}/api/search/keyword?q=${encodeURIComponent(q)}&limit=25`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setResults(data);
@@ -177,6 +184,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
       }
     } catch (err) {
       console.error('Search error:', err);
+      setHasError(true);
     } finally {
       setLoading(false);
     }
@@ -422,6 +430,26 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
               <p className={`text-[13px] ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
                 Querying Neon Serverless PostgreSQL with pgvector embeddings...
               </p>
+            </div>
+          ) : hasError ? (
+            <div className={`p-6 sm:p-8 rounded-xl border text-center flex flex-col items-center gap-3 ${
+              isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0]'
+            }`}>
+              <span className="material-symbols-outlined text-[32px] text-rose-400">cloud_off</span>
+              <div>
+                <h3 className="text-[14px] font-bold text-rose-400">Unable to Connect to Legal Knowledge Base</h3>
+                <p className={`text-[12px] mt-1 max-w-md ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
+                  The statutory search engine could not reach the backend at <code className="font-mono text-[11px] opacity-80">{apiBase}</code>. Please verify your connection or restart the backend server.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => loadInitialProvisions(selectedSourceId)}
+                className="px-4 py-2 rounded-lg text-[12px] font-bold bg-[#00288e] hover:bg-[#1e40af] text-white cursor-pointer flex items-center gap-1.5 transition-colors shadow-xs"
+              >
+                <span className="material-symbols-outlined text-[15px]">refresh</span>
+                <span>Retry Connection</span>
+              </button>
             </div>
           ) : filteredResults.length === 0 ? (
             <div className={`p-6 sm:p-8 rounded-xl border text-center ${

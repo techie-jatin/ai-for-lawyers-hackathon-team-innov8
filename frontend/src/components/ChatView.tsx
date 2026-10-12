@@ -222,6 +222,7 @@ export function ChatView({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [dossierSaved, setDossierSaved] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [dictationNotice, setDictationNotice] = useState<string | null>(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [selectedPrecedent, setSelectedPrecedent] = useState<RealCasePrecedentItem | null>(null);
@@ -646,7 +647,8 @@ export function ChatView({
   const handleStartDictation = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
+      setDictationNotice('Voice dictation requires Chrome, Edge, or Safari with microphone access.');
+      setTimeout(() => setDictationNotice(null), 4500);
       return;
     }
     const recognition = new SpeechRecognition();
@@ -656,7 +658,13 @@ export function ChatView({
 
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
+    recognition.onerror = (e: any) => {
+      setIsListening(false);
+      if (e?.error === 'not-allowed') {
+        setDictationNotice('Microphone permission denied. Please allow microphone access in your browser settings.');
+        setTimeout(() => setDictationNotice(null), 4500);
+      }
+    };
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
@@ -664,7 +672,11 @@ export function ChatView({
       setIsListening(false);
     };
 
-    recognition.start();
+    try {
+      recognition.start();
+    } catch {
+      setIsListening(false);
+    }
   };
 
   // File Upload handler
@@ -2211,6 +2223,18 @@ export function ChatView({
                 </button>
               </div>
             </div>
+
+            {dictationNotice && (
+              <div className="mx-2 mb-2 p-2 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] flex items-center justify-between animate-in fade-in">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[15px]">info</span>
+                  <span>{dictationNotice}</span>
+                </div>
+                <button type="button" onClick={() => setDictationNotice(null)} className="p-0.5 hover:text-white cursor-pointer">
+                  <span className="material-symbols-outlined text-[13px]">close</span>
+                </button>
+              </div>
+            )}
 
             {/* Input Workspace & Submit Button (Isolated component for instantaneous typing) */}
             <ChatInputForm

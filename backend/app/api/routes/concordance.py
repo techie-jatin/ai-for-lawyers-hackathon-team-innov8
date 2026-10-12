@@ -48,6 +48,7 @@ def search_concordance(
         )
     return query.limit(limit).all()
 
+@router.get("", response_model=List[ConcordanceItem])
 @router.get("/all", response_model=List[ConcordanceItem])
 def get_all_concordance(
     limit: int = 100,

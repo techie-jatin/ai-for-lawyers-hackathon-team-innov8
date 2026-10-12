@@ -36,6 +36,7 @@ def serialize_precedent(p: RealCasePrecedent, full: bool = True) -> Dict[str, An
         })
     return data
 
+@router.get("")
 @router.get("/all")
 def get_all_precedents(
     category: Optional[str] = Query(None, description="Optional category filter"),

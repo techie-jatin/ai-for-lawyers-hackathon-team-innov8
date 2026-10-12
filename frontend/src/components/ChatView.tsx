@@ -225,6 +225,7 @@ export function ChatView({
     return active ? active.messages : [];
   });
   const [expandedSources, setExpandedSources] = useState<{ [key: string]: boolean }>({});
+  const [expandedPrecedents, setExpandedPrecedents] = useState<{ [msgId: string]: boolean }>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [dossierSaved, setDossierSaved] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -1842,140 +1843,169 @@ export function ChatView({
                           </div>
                         )}
 
-                        {/* Section 2.5: Similar Real-World Cases & How Courts Dealt With It */}
-                        {msg.response?.similar_cases && msg.response.similar_cases.length > 0 && (
-                          <div className={`p-4 rounded-xl border space-y-3.5 transition-all ${
-                            isDark
-                              ? 'bg-gradient-to-b from-[#131726] to-[#0f121e] border-amber-500/30 shadow-md'
-                              : 'bg-gradient-to-b from-[#fffcf5] to-[#f8f9fe] border-amber-300 shadow-sm'
-                          }`}>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-2xs">
-                                  <span className="material-symbols-outlined text-[18px]">balance</span>
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <h4 className={`text-[13px] font-bold tracking-tight ${
-                                      isDark ? 'text-white' : 'text-[#00288e]'
-                                    }`}>
-                                      Similar Real-World Cases & How Courts Dealt With It
-                                    </h4>
-                                    <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
-                                      Supreme Court
-                                    </span>
+                        {/* Section 2.5: Similar Real-World Cases & How Courts Dealt With It (Collapsed by default) */}
+                        {msg.response?.similar_cases && msg.response.similar_cases.length > 0 && (() => {
+                          const isExpanded = !!expandedPrecedents[msg.id];
+                          return (
+                            <div className={`rounded-xl border transition-all ${
+                              isDark
+                                ? 'bg-gradient-to-b from-[#131726] to-[#0f121e] border-amber-500/30'
+                                : 'bg-gradient-to-b from-[#fffcf5] to-[#f8f9fe] border-amber-300'
+                            }`}>
+                              {/* Sleek Accordion Trigger Header */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setExpandedPrecedents(prev => ({
+                                    ...prev,
+                                    [msg.id]: !prev[msg.id]
+                                  }));
+                                }}
+                                className="w-full p-3 sm:p-3.5 flex items-center justify-between gap-3 text-left transition-colors rounded-xl cursor-pointer hover:bg-amber-500/5"
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                                    <span className="material-symbols-outlined text-[17px] sm:text-[18px]">balance</span>
                                   </div>
-                                  <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                                    Real factual disputes, winning courtroom defense tactics & 2024 Sanhita mappings
-                                  </p>
-                                </div>
-                              </div>
-                              <span className="hidden sm:inline-flex items-center gap-1 font-mono text-[10px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                                {msg.response.similar_cases.length} Matched Precedents
-                              </span>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {msg.response.similar_cases.map((caseItem) => (
-                                <div
-                                  key={caseItem.id}
-                                  className={`p-3.5 rounded-xl border flex flex-col justify-between gap-3 transition-all ${
-                                    isDark
-                                      ? 'bg-[#181c2d] hover:bg-[#1e2338] border-[#2b334d] hover:border-amber-500/50'
-                                      : 'bg-white hover:bg-[#fafcff] border-[#e2e8f0] hover:border-amber-400 shadow-xs'
-                                  }`}
-                                >
-                                  <div className="space-y-2">
-                                    <div className="flex items-start justify-between gap-2">
-                                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold uppercase ${
-                                        isDark
-                                          ? 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
-                                          : 'bg-amber-50 text-amber-800 border border-amber-200'
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className={`text-[12.5px] sm:text-[13px] font-bold tracking-tight truncate ${
+                                        isDark ? 'text-white' : 'text-[#00288e]'
                                       }`}>
-                                        {caseItem.category.split(' ')[0]} • {caseItem.decision_year}
+                                        Similar Real-World Cases & How Courts Dealt With It
                                       </span>
-                                      <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                        {caseItem.bench}
+                                      <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                                        Supreme Court
                                       </span>
                                     </div>
-
-                                    <div>
-                                      <h5 className={`text-[13px] font-bold line-clamp-1 ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
-                                        {caseItem.title}
-                                      </h5>
-                                      <div className="text-[11px] font-mono text-amber-500 font-semibold line-clamp-1 mt-0.5">
-                                        {caseItem.citation}
-                                      </div>
-                                    </div>
-
-                                    <div className={`p-2.5 rounded-lg text-[11px] leading-relaxed border ${
-                                      isDark
-                                        ? 'bg-slate-950/60 border-slate-800 text-slate-300'
-                                        : 'bg-slate-50 border-slate-200 text-slate-700'
-                                    }`}>
-                                      <strong className="text-amber-500 block text-[10px] uppercase font-bold tracking-wider mb-0.5">
-                                        Factual Matrix (What occurred)
-                                      </strong>
-                                      <p className="line-clamp-2">
-                                        {caseItem.factual_matrix}
-                                      </p>
-                                    </div>
-
-                                    <div className={`p-2.5 rounded-lg text-[11px] leading-relaxed border ${
-                                      isDark
-                                        ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-300'
-                                        : 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
-                                    }`}>
-                                      <strong className="text-emerald-500 block text-[10px] uppercase font-bold tracking-wider mb-0.5">
-                                        Court Holding & Relief
-                                      </strong>
-                                      <p className="line-clamp-2">
-                                        {caseItem.court_holding}
-                                      </p>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-700/30">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const citeText = `${caseItem.title}, ${caseItem.citation} (${caseItem.decision_year})`;
-                                        navigator.clipboard.writeText(citeText);
-                                        setCopiedId(`case-${caseItem.id}`);
-                                        setTimeout(() => setCopiedId(null), 2000);
-                                      }}
-                                      className={`px-2 py-1 rounded text-[10px] font-semibold flex items-center gap-1 transition-colors cursor-pointer border ${
-                                        copiedId === `case-${caseItem.id}`
-                                          ? 'bg-emerald-600 text-white border-emerald-500'
-                                          : isDark
-                                          ? 'bg-[#141724] hover:bg-[#1f2438] text-slate-300 border-[#2b334d]'
-                                          : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
-                                      }`}
-                                    >
-                                      <span className="material-symbols-outlined text-[13px]">
-                                        {copiedId === `case-${caseItem.id}` ? 'done' : 'content_copy'}
-                                      </span>
-                                      <span>{copiedId === `case-${caseItem.id}` ? 'Copied' : 'Citation'}</span>
-                                    </button>
-
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedPrecedent(caseItem);
-                                        setIsPrecedentDrawerOpen(true);
-                                      }}
-                                      className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
-                                    >
-                                      <span className="material-symbols-outlined text-[14px]">visibility</span>
-                                      <span>Inspect Case Playbook</span>
-                                    </button>
+                                    <p className={`text-[11px] truncate mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                      {isExpanded 
+                                        ? 'Real factual disputes, winning courtroom defense tactics & 2024 Sanhita mappings'
+                                        : `${msg.response.similar_cases.length} matched landmark precedents • Click to view holdings & strategies`
+                                      }
+                                    </p>
                                   </div>
                                 </div>
-                              ))}
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="inline-flex items-center gap-1 font-mono text-[10px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 font-semibold">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                    {msg.response.similar_cases.length} Precedents
+                                  </span>
+                                  <span className={`material-symbols-outlined text-[20px] transition-transform duration-200 text-amber-500 ${
+                                    isExpanded ? 'rotate-180' : ''
+                                  }`}>
+                                    expand_more
+                                  </span>
+                                </div>
+                              </button>
+
+                              {/* Expanded Content */}
+                              {isExpanded && (
+                                <div className="p-3.5 sm:p-4 pt-0 space-y-3 border-t border-amber-500/20 mt-1 animate-in fade-in duration-200">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                                    {msg.response.similar_cases.map((caseItem) => (
+                                      <div
+                                        key={caseItem.id}
+                                        className={`p-3.5 rounded-xl border flex flex-col justify-between gap-3 transition-all ${
+                                          isDark
+                                            ? 'bg-[#181c2d] hover:bg-[#1e2338] border-[#2b334d] hover:border-amber-500/50'
+                                            : 'bg-white hover:bg-[#fafcff] border-[#e2e8f0] hover:border-amber-400 shadow-xs'
+                                        }`}
+                                      >
+                                        <div className="space-y-2">
+                                          <div className="flex items-start justify-between gap-2">
+                                            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold uppercase ${
+                                              isDark
+                                                ? 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
+                                                : 'bg-amber-50 text-amber-800 border border-amber-200'
+                                            }`}>
+                                              {caseItem.category.split(' ')[0]} • {caseItem.decision_year}
+                                            </span>
+                                            <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                              {caseItem.bench}
+                                            </span>
+                                          </div>
+
+                                          <div>
+                                            <h5 className={`text-[13px] font-bold line-clamp-1 ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
+                                              {caseItem.title}
+                                            </h5>
+                                            <div className="text-[11px] font-mono text-amber-500 font-semibold line-clamp-1 mt-0.5">
+                                              {caseItem.citation}
+                                            </div>
+                                          </div>
+
+                                          <div className={`p-2.5 rounded-lg text-[11px] leading-relaxed border ${
+                                            isDark
+                                              ? 'bg-slate-950/60 border-slate-800 text-slate-300'
+                                              : 'bg-slate-50 border-slate-200 text-slate-700'
+                                          }`}>
+                                            <strong className="text-amber-500 block text-[10px] uppercase font-bold tracking-wider mb-0.5">
+                                              Factual Matrix (What occurred)
+                                            </strong>
+                                            <p className="line-clamp-2">
+                                              {caseItem.factual_matrix}
+                                            </p>
+                                          </div>
+
+                                          <div className={`p-2.5 rounded-lg text-[11px] leading-relaxed border ${
+                                            isDark
+                                              ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-300'
+                                              : 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                                          }`}>
+                                            <strong className="text-emerald-500 block text-[10px] uppercase font-bold tracking-wider mb-0.5">
+                                              Court Holding & Relief
+                                            </strong>
+                                            <p className="line-clamp-2">
+                                              {caseItem.court_holding}
+                                            </p>
+                                          </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-700/30">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              const citeText = `${caseItem.title}, ${caseItem.citation} (${caseItem.decision_year})`;
+                                              navigator.clipboard.writeText(citeText);
+                                              setCopiedId(`case-${caseItem.id}`);
+                                              setTimeout(() => setCopiedId(null), 2000);
+                                            }}
+                                            className={`px-2 py-1 rounded text-[10px] font-semibold flex items-center gap-1 transition-colors cursor-pointer border ${
+                                              copiedId === `case-${caseItem.id}`
+                                                ? 'bg-emerald-600 text-white border-emerald-500'
+                                                : isDark
+                                                ? 'bg-[#141724] hover:bg-[#1f2438] text-slate-300 border-[#2b334d]'
+                                                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
+                                            }`}
+                                          >
+                                            <span className="material-symbols-outlined text-[13px]">
+                                              {copiedId === `case-${caseItem.id}` ? 'done' : 'content_copy'}
+                                            </span>
+                                            <span>{copiedId === `case-${caseItem.id}` ? 'Copied' : 'Citation'}</span>
+                                          </button>
+
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setSelectedPrecedent(caseItem);
+                                              setIsPrecedentDrawerOpen(true);
+                                            }}
+                                            className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                                          >
+                                            <span className="material-symbols-outlined text-[14px]">visibility</span>
+                                            <span>Inspect Case Playbook</span>
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        )}
+                          );
+                        })()}
 
                         {/* Section 3: Statutory Citation Card (Collapsible) */}
                         {msg.response?.applicable_laws && msg.response.applicable_laws.length > 0 && (

@@ -1260,22 +1260,20 @@ export function generateProvisionLexiconResponse(params: {
         `3. **Property Interference Challenge**: If the State seeks to take over endowments, plead that Article 26(d) permits regulation of administration "in accordance with law", but prohibits total displacement or supersession of denominational management.`;
     } else {
       answerText =
-        `### Plain Language Summary (Article 26, Constitution of India)\n\n` +
-        `Article 26 of the Constitution of India guarantees to every religious denomination or group the fundamental freedom to manage its own religious affairs.\n\n` +
-        `### What Article 26 Guarantees\n\n` +
-        `According to the official text of the Constitution:\n\n` +
-        `> "Subject to public order, morality and health, every religious denomination or any section thereof shall have the right—\n` +
-        `> (a) to establish and maintain institutions for religious and charitable purposes;\n` +
-        `> (b) to manage its own affairs in matters of religion;\n` +
-        `> (c) to own and acquire movable and immovable property; and\n` +
-        `> (d) to administer such property in accordance with law."\n\n` +
-        `### Key Protections for Citizens & Religious Communities\n\n` +
-        `- **Autonomy in Spiritual Beliefs**: The government cannot dictate how a religious community conducts its religious rituals, prayers, and sacred ceremonies.\n` +
-        `- **Right to Own & Administer Property**: Religious institutions have the right to own lands, temples, and charitable trusts, administered in accordance with legal rules.\n` +
-        `- **Only 3 Restrictions**: This freedom can only be regulated on grounds of public order, morality, and health.\n\n` +
-        `### Legal Help & Support\n\n` +
-        `- **NALSA Legal Aid Helpline**: Dial **15100** for free legal guidance.\n` +
-        `- **High Court Writ Jurisdiction**: If religious freedoms are arbitrarily restricted by state officials, a writ petition can be filed under Article 226.`;
+        `### Article 26: Fundamental Freedom to Manage Religious Affairs\n\n` +
+        `Under Article 26 of the Constitution of India, every religious denomination or sect enjoys the fundamental right to manage its own religious and institutional affairs without arbitrary state interference.\n\n` +
+        `### The 4 Core Freedoms Guaranteed by Article 26\n\n` +
+        `1. **Establishing Institutions**: Freedom to establish and maintain institutions for religious and charitable purposes.\n` +
+        `2. **Autonomy in Sacred Affairs**: Complete freedom to manage matters of religion, including ceremonies, rituals, and spiritual practices.\n` +
+        `3. **Ownership of Property**: Freedom to acquire and own both movable and immovable property (lands, endowments, funds).\n` +
+        `4. **Administration of Property**: Freedom to administer such property, subject to reasonable statutory laws.\n\n` +
+        `### Constitutional Boundaries: Only 3 Limitations\n\n` +
+        `These freedoms are subject to **only three constitutional boundaries**: **Public Order, Morality, and Health**. The State cannot regulate religious doctrines unless they violate these essential public standards.\n\n` +
+        `### The Landmark "Essential Religious Practices" Benchmark\n\n` +
+        `In the historic Constitution Bench decision in *Commissioner, Hindu Religious Endowments, Madras v. Sri Lakshmindra Thirtha Swamiar of Shirur Mutt* (AIR 1954 SC 282), the Supreme Court held that what constitutes an "essential part of a religion" is decided according to the doctrines and tenets of that religion itself.\n\n` +
+        `### Practical Citizen & Trust Guidance\n\n` +
+        `- **Protection of Temples, Mosques, Gurudwaras & Churches**: The State cannot arbitrarily take over denominational management or replace trust committees without strict legal due process.\n` +
+        `- **Legal Aid & High Court Remedies**: If administrative authorities infringe on your religious denomination's rights, you can file a Writ Petition under Article 226 before the High Court or call the National Legal Aid Helpline at **15100**.`;
     }
   } else if (target.section_number === 'Article 320') {
     domainTitle = 'Constitutional Law (Part XIV) • Functions of Public Service Commissions';
@@ -1335,16 +1333,17 @@ export function generateProvisionLexiconResponse(params: {
         `3. **Examine Exclusion Regulations**: In recruitment disputes, audit whether the executive claimed exemption under the Proviso to Article 320(3). If the relevant exemption regulation was not laid before the Legislature for 14 days under Article 320(5), challenge the executive's arbitrary bypass of the Commission.`;
     } else {
       answerText =
-        `### Plain Language Summary (Article 320, Constitution of India)\n\n` +
-        `Article 320 of the Constitution of India defines the constitutional duties and powers of the Union Public Service Commission (UPSC) and State Public Service Commissions (SPSCs).\n\n` +
-        `### Core Functions of Public Service Commissions\n\n` +
-        `- **Conducting Competitive Exams**: Conducting fair, merit-based examinations for recruitment to civil services and government posts across India.\n` +
-        `- **Advising on Civil Service Rules**: Advising the government on appointment methods, promotions, transfers, and civil service regulations.\n` +
-        `- **Disciplinary Matters**: Advising on disciplinary inquiries and penalties affecting civil servants.\n\n` +
-        `### Important Practical Takeaways for Citizens & Candidates\n\n` +
-        `- **Merit Protection**: The Commission acts as an independent constitutional watchdog ensuring appointments are made on merit rather than executive favoritism.\n` +
-        `- **Advisory Nature**: The Supreme Court in *State of U.P. v. Manbodhan Lal Srivastava* held that the government's consultation with the Commission is advisory in nature.\n` +
-        `- **Recruitment Redressal**: Candidates facing unfair examination practices can approach the Central Administrative Tribunal (CAT) or the High Court under Article 226.`;
+        `### Article 320: Functions & Role of Public Service Commissions (UPSC & State PSCs)\n\n` +
+        `Article 320 of the Constitution of India defines the constitutional duties, powers, and consultative role of the Union Public Service Commission (UPSC) and State Public Service Commissions (SPSCs).\n\n` +
+        `### Key Constitutional Functions\n\n` +
+        `1. **Conducting Merit Examinations**: Holding fair, merit-based competitive examinations for appointments to Union and State civil services.\n` +
+        `2. **Recruitment & Promotion Principles**: Mandatory consultation on methods of recruitment and principles to be followed in making appointments, promotions, and transfers across civil posts.\n` +
+        `3. **Disciplinary Advice**: Advising the government on disciplinary matters, inquiries, and penalties affecting civil servants.\n\n` +
+        `### The Authoritative Supreme Court Rule (*Manbodhan Lal Srivastava*)\n\n` +
+        `In the Constitution Bench landmark in *State of U.P. v. Manbodhan Lal Srivastava* (AIR 1957 SC 912), the Supreme Court ruled that the consultation requirement in Article 320(3) is **DIRECTORY and NOT MANDATORY**. Failure of the government to consult the Commission does not invalidate an otherwise lawful disciplinary order or give a public servant an automatic right to claim reinstatement.\n\n` +
+        `### Important Takeaways for Candidates & Civil Servants\n\n` +
+        `- **Merit Protection**: The Commission acts as an independent constitutional watchdog ensuring government jobs are awarded on merit rather than political favoritism.\n` +
+        `- **Redressal for Unfair Recruitment**: Job aspirants facing examination irregularities or arbitrary rule changes can approach the Central Administrative Tribunal (CAT) or the High Court under Article 226.`;
     }
   } else {
     // Other Statutory Provisions (Article 14, 19, 21, 226, 32, Section 138, etc.)
@@ -1412,15 +1411,16 @@ export function generateProvisionLexiconResponse(params: {
         `3. **Forum Selection**: Approach the designated trial forum or High Court having territorial and subject-matter jurisdiction.`;
     } else {
       answerText =
-        `### Plain Language Summary (${target.section_number}, ${target.source_title})\n\n` +
-        `Under Indian law, **${target.section_number}** of the **${target.source_title}** governs **${target.title}**.\n\n` +
-        `### What the Provision Specifically States\n\n` +
-        `> "${target.text_content.slice(0, 300)}..."\n\n` +
-        `### Practical Protection for Citizens\n\n` +
-        `- The law defines rights, duties, and safeguards clearly so that no person can be subjected to arbitrary action.\n` +
-        `- If your rights under this provision are violated, you have the right to approach the appropriate legal forum or free legal aid.\n\n` +
-        `### Emergency Helplines & Legal Aid\n\n` +
-        `- **National Legal Aid (NALSA)**: Dial **15100** (24/7 Free legal representation across India).\n` +
+        `### ${target.section_number}: ${target.title}\n\n` +
+        `Under Indian law, **${target.section_number}** of the **${target.source_title}** provides essential legal rights, standards, and protections regarding **${target.title}**.\n\n` +
+        `### Plain English Meaning & What the Law States\n\n` +
+        `> "${target.text_content.slice(0, 320)}..."\n\n` +
+        `### Your Practical Rights & Safeguards\n\n` +
+        `- **Defines Rights & Boundaries**: Clearly establishes lawful procedures so that no citizen or entity is subjected to arbitrary enforcement or unfair penalties.\n` +
+        `- **Due Process Safeguards**: Guarantees that any action taken by authorities or opposing parties must strictly satisfy the statutory ingredients of the law.\n` +
+        `- **Right to Legal Recourse**: If your rights under this provision are violated, you have the right to approach the competent court or seek free legal aid.\n\n` +
+        `### Helplines & Free Citizen Support\n\n` +
+        `- **National Legal Aid (NALSA)**: Dial **15100** (24/7 Toll-free free legal representation across India).\n` +
         `- **National Emergency**: Dial **112**.`;
     }
   }
@@ -2175,36 +2175,178 @@ export async function generateAutonomousLegalResponse(params: {
         break;
     }
   } else {
-    // Citizen Mode
-    answerText =
-      `### Plain Language Summary\n\n` +
-      `Under Indian law, your inquiry regarding **${primary.title}** is governed primarily by **${primary.section_number}** of the **${primary.source_title}**.\n\n` +
-      `The law provides clear definitions, sets penalties for unlawful conduct, and establishes non-negotiable protections so that citizens cannot be subjected to harassment or arbitrary action.\n\n` +
-      `### What the Law Specifically Mandates\n\n` +
-      `According to the official statutory provision:\n\n` +
-      `> "${primary.text_content.slice(0, 320)}..."\n\n` +
-      `**In simple terms**:\n` +
-      `- The law strictly prohibits the conduct described and requires formal statutory proof before any penalty or arrest can take place.\n` +
-      `- If you are an aggrieved victim, you have the right to register a formal police complaint or approach the court.\n` +
-      `- If you are facing police questioning, you are protected by constitutional guarantees of fair process.\n\n` +
-      concordanceSection +
-      `### Your Constitutional & Procedural Safeguards\n\n` +
-      `Whenever dealing with law enforcement or legal inquiries in India, you are protected by fundamental constitutional rights:\n\n` +
-      `- **Protection Against Arbitrary Arrest (Article 22 & Sec 35(3) BNSS)**: For offenses where punishment is up to 7 years, police cannot arrest you without issuing a formal Notice of Appearance first (*Arnesh Kumar* ruling).\n` +
-      `- **Right to Know Grounds of Arrest**: You must be informed immediately of the exact allegations against you in writing.\n` +
-      `- **Right to Legal Counsel**: You have the constitutional right to consult and be defended by a lawyer of your choice.\n` +
-      `- **24-Hour Magistrate Production**: Anyone detained must be presented before the nearest Judicial Magistrate within 24 hours.\n` +
-      `- **Free Legal Aid (Article 39A)**: If you cannot afford an advocate, the State is constitutionally bound to provide one free of cost through DLSA/NALSA.\n\n` +
-      `### Step-by-Step Citizen Action Plan\n\n` +
-      `1. **Preserve All Evidence**: Keep records, written notices, timestamps, and digital communications safely.\n` +
-      `2. **Filing a Complaint (Zero FIR)**: If filing a criminal complaint, visit your nearest police station. Under Section 173 of Bharatiya Nagarik Suraksha Sanhita (BNSS), police must register a 'Zero FIR' even if the offense occurred outside their territorial jurisdiction.\n` +
-      `3. **Online Complaints**: For online fraud or harassment, file an immediate complaint at the National Cyber Crime Reporting Portal (\`cybercrime.gov.in\`) or call **1930**.\n` +
-      `4. **Approach Free Legal Aid**: If facing legal action, contact your local District Legal Services Authority (DLSA) located inside the district court complex.\n\n` +
-      `### Official Government Helplines & Emergency Support\n\n` +
-      `- **National Emergency Number**: Dial **112** (Immediate police, ambulance, or fire dispatch).\n` +
-      `- **NALSA Legal Aid Helpline**: Dial **15100** (24/7 Toll-Free Free Legal Representation across India).\n` +
-      `- **National Cybercrime Helpline**: Dial **1930** (\`cybercrime.gov.in\` for online financial fraud & identity theft).\n` +
-      `- **Women Safety Helpline**: Dial **1091** or **181** (24/7 Domestic Violence & Women Protection).`;
+    // Citizen Mode (Intent & Domain Specific Intelligence)
+    switch (detectedDomain) {
+      case 'cyber_privacy':
+        answerText =
+          `### Immediate Action Protocol: Reporting Online & UPI Fraud\n\n` +
+          `If you have been scammed or lost money through UPI, net banking, or online impersonation, take immediate action:\n\n` +
+          `1. **Golden 24-Hour Recovery Window**: Call **1930** immediately (National Cyber Crime Helpline) or register a report at [cybercrime.gov.in](https://cybercrime.gov.in). Prompt reporting triggers the CFCFRMS banking freeze system to block fraudsters from siphoning funds.\n` +
+          `2. **Zero Liability under RBI Rules**: Under Reserve Bank of India (RBI) guidelines, if an unauthorized electronic banking fraud occurs through no fault of your own and you notify your bank within 3 working days, **your liability as a customer is ZERO**.\n` +
+          `3. **Applicable Laws**: Under **Section 66D of the IT Act** and **Section 318(4) of Bharatiya Nyaya Sanhita (BNS)**, cyber impersonation and cheating are cognizable criminal offenses punishable with up to 3 to 7 years imprisonment.\n\n` +
+          `### Step-by-Step Recovery Checklist\n\n` +
+          `- **Step 1 (Block & Ticket)**: Call your bank's fraud helpline immediately, block the affected UPI handle or card, and record your Dispute Ticket Number.\n` +
+          `- **Step 2 (Cyber Portal Filing)**: Lodge an official complaint on \`cybercrime.gov.in\` with transaction IDs and download the acknowledgement PDF.\n` +
+          `- **Step 3 (Preserve Electronic Evidence)**: Take clear screenshots of WhatsApp messages, fake payment receipts, caller numbers, and SMS alerts. Under **Section 63 BSA**, keep the original device intact without deleting chat logs.\n` +
+          `- **Step 4 (Escalate to RBI Ombudsman)**: If your bank fails to resolve your refund within 30 days, file an online complaint at [bankingombudsman.rbi.org.in](https://bankingombudsman.rbi.org.in).\n\n` +
+          `### Essential Helplines\n\n` +
+          `- **National Cybercrime Helpline**: Dial **1930** (24/7)\n` +
+          `- **National Emergency Helpline**: Dial **112**\n` +
+          `- **NALSA Free Legal Aid**: Dial **15100**`;
+        break;
+
+      case 'ni_act':
+        answerText =
+          `### Cheque Bounce (Section 138 NI Act): Legal Rights & Deadlines\n\n` +
+          `When a cheque issued to you is returned unpaid due to "insufficient funds" or "account closed", Indian law treats it as a serious quasi-criminal offense under **Section 138 of the Negotiable Instruments Act**.\n\n` +
+          `### Critical Statutory Deadlines (Strict 4-Step Timeline)\n\n` +
+          `1. **Cheque Presentation**: The cheque must have been presented to the bank within **3 months** of the date written on it.\n` +
+          `2. **Mandatory Demand Notice (30 Days)**: You must dispatch a formal written Legal Demand Notice to the drawer within **30 days** of receiving the Bank Return Memo.\n` +
+          `3. **15-Day Cure Window**: The drawer is legally given 15 days from the date they receive your notice to clear the payment.\n` +
+          `4. **Court Complaint (1 Month)**: If they fail to pay by the 16th day, you must file a formal complaint before the Judicial Magistrate within **1 month**.\n\n` +
+          `### Key Legal Protections for You\n\n` +
+          `- **Presumption of Debt (Section 139 NI Act)**: Under *Rangappa v. Sri Mohan* (AIR 2010 SC 1898), the court presumes the cheque was issued for a valid debt. The drawer has the legal burden to prove otherwise.\n` +
+          `- **Out-of-Court Settlement**: Offenses under Section 138 are compoundable at any stage. You can settle and withdraw the case as soon as you receive your funds.\n` +
+          `- **Company Cheques**: If the cheque was issued by a firm or private company, all active directors in charge of business are personally liable under Section 141 NI Act.\n\n` +
+          `### Citizen Action Plan\n\n` +
+          `- Preserve the original cheque and the original Bank Return Memo.\n` +
+          `- Send the 30-day notice via Registered Speed Post with Acknowledgement Due (RPAD) and keep the postal tracking receipt.\n` +
+          `- If you need free assistance, reach out to the District Legal Services Authority (DLSA) at **15100**.`;
+        break;
+
+      case 'consumer_protection':
+        answerText =
+          `### Consumer Protection Guide: How to Get Your Refund & Compensation\n\n` +
+          `If a company, builder, e-commerce platform, or service provider has delivered defective goods, failed to provide service, or refused a legitimate refund, you are protected under the **Consumer Protection Act, 2019**.\n\n` +
+          `### Your Rights Under Section 35 & Section 2(11) CPA\n\n` +
+          `- **Deficiency in Service**: Any defect, imperfection, delay, or shortcoming in quality or agreed timeline is unlawful.\n` +
+          `- **Unfair Trade Practice**: False representations, bait pricing, or refusal to issue tax invoices or refunds entitles you to compensation.\n` +
+          `- **No Advocate Mandatory**: You do **NOT** need an advocate to file a consumer complaint; citizens can file and argue their own case.\n` +
+          `- **File in Your Home District**: Under the 2019 Act, you can file your case where **you reside or work**, not where the company has its office.\n\n` +
+          `### Fast-Track Resolution Steps\n\n` +
+          `1. **Lodge Grievance with National Consumer Helpline (NCH)**: Call **1915** or visit [consumerhelpline.gov.in](https://consumerhelpline.gov.in). Over 80% of consumer grievances against major brands are resolved within 15–30 days via NCH.\n` +
+          `2. **Send 15-Day Demand Notice**: Email the company's Grievance Officer detailing the order ID, payment proof, and giving them 15 days to refund the amount with interest.\n` +
+          `3. **File Online on E-Daakhil Portal**: If they refuse, file your complaint online from home at [edaakhil.nic.in](https://edaakhil.nic.in) before the District Consumer Commission.\n` +
+          `4. **What You Can Claim**: Full refund, 9–12% annual interest, compensation for mental harassment, and litigation expenses under Section 39 CPA.\n\n` +
+          `### Useful Citizen Contacts\n\n` +
+          `- **National Consumer Helpline**: Dial **1915** (or WhatsApp 8800001915)\n` +
+          `- **NALSA Legal Aid Helpline**: Dial **15100**`;
+        break;
+
+      case 'family_matrimonial':
+        answerText =
+          `### Family Law Protections: Maintenance, Domestic Safety & Rights\n\n` +
+          `Family disputes involving separation, maintenance, domestic violence, or child custody in India are governed by compassionate statutory protections designed to protect dependent spouses and children.\n\n` +
+          `### Your Legal Protections & Rights\n\n` +
+          `- **Interim Maintenance (Section 144 BNSS / Section 24 HMA)**: Under the Supreme Court's landmark judgment in *Rajnesh v. Neha* (AIR 2021 SC 569), a dependent spouse and children are entitled to interim maintenance payable from the **date of filing** the application.\n` +
+          `- **Mandatory Income Disclosures**: Both spouses must file sworn Affidavits of Assets and Liabilities. Hiding income exposes the defaulter to adverse judicial orders and perjury.\n` +
+          `- **Domestic Violence Protections (DV Act, 2005)**: Under Section 12 of the DV Act, an aggrieved woman has the right to emergency protection orders, residence orders (right to live in the matrimonial home), and monetary support.\n` +
+          `- **Child Welfare is Paramount**: Custody is decided based strictly on the best interests and emotional welfare of the child, not parental financial superiority.\n\n` +
+          `### Practical Citizen Pathways\n\n` +
+          `1. **Free Legal Counsel (DLSA/NALSA)**: Visit your District Court's Legal Services Authority or call **15100** for a free appointed family advocate.\n` +
+          `2. **Court-Annexed Mediation**: All Family Courts mandatorily offer confidential mediation to explore amicable settlements, permanent alimony, or visitation terms without aggressive litigation.\n` +
+          `3. **Emergency Support**: For immediate domestic violence intervention, dial **181** (Women Helpline) or **112**.\n\n` +
+          `### Official Support Helplines\n\n` +
+          `- **National Women Helpline**: Dial **181** or **1091** (24/7)\n` +
+          `- **National Legal Aid (NALSA)**: Dial **15100** (Free legal aid)\n` +
+          `- **Emergency Police**: Dial **112**`;
+        break;
+
+      case 'commercial_contract':
+        answerText =
+          `### Contractual Rights & Recovering Unpaid Dues or Security Deposits\n\n` +
+          `Whether dealing with a broken business agreement, unpaid freelancer dues, or a landlord withholding a security deposit, your rights are governed by the **Indian Contract Act, 1872**.\n\n` +
+          `### What the Law Mandates (Section 73 & Section 74)\n\n` +
+          `- **Compensation for Breach**: Under Section 73, any party who breaches a contract is legally bound to compensate the other party for all natural losses resulting from the breach.\n` +
+          `- **Unlawful Forfeiture**: Under *Kailash Nath Associates v. DDA* (AIR 2015 SC 2260), parties cannot arbitrarily forfeit earnest money or deposits without proving actual damages or contractual justification.\n` +
+          `- **Specific Performance**: Under Section 10 of the Specific Relief Act (2018 amendment), courts can compel parties to specifically fulfill their contractual promises rather than merely paying damages.\n\n` +
+          `### Practical Step-by-Step Action Plan\n\n` +
+          `1. **Send Formal 15-Day Demand Notice**: Issue a clear written notice detailing the contract terms, the specific breach, and demanding repayment or performance within 15 days.\n` +
+          `2. **Pre-Institution Mediation**: Under Section 12A of the Commercial Courts Act, 2015, parties can resolve commercial contract disputes quickly through structured mediation without lengthy courtroom trials.\n` +
+          `3. **Summary Suit (Order 37 CPC)**: For liquidated debts or unpaid invoices, a summary suit can be filed in civil court where the debtor must obtain leave from the judge before they can even contest the debt.\n` +
+          `4. **Free Legal Support**: Contact NALSA at **15100** if you need assistance drafting a formal legal notice.`;
+        break;
+
+      case 'civil_injunction':
+        answerText =
+          `### Property Protection: How to Stop Unlawful Eviction or Trespass\n\n` +
+          `If you are facing threats of unlawful eviction, property encroachment, or demolition without due process, Indian civil law provides immediate emergency injunctive relief.\n\n` +
+          `### Emergency Temporary Injunction (Stay Order)\n\n` +
+          `Under **Order 39 Rules 1 & 2 of the Code of Civil Procedure (CPC)** and the Supreme Court's ruling in *Dalpat Kumar v. Prahlad Singh* (AIR 1993 SC 276), you can obtain an immediate court order restraining the other party if you satisfy three criteria:\n\n` +
+          `1. **Prima Facie Case**: You have lawful possession, registered lease, or title documents.\n` +
+          `2. **Balance of Convenience**: The mischief or disruption caused by evicting or disturbing you is greater than leaving the status quo intact.\n` +
+          `3. **Irreparable Injury**: The harm caused (such as loss of shelter or demolition) cannot be undone by mere money.\n\n` +
+          `### Citizen Defense Strategy\n\n` +
+          `- **Lodging a Caveat (Section 148A CPC)**: If you suspect the opposing party might approach the court behind your back for an ex-parte order, file a Caveat in civil court to guarantee you are notified before any order is made.\n` +
+          `- **Preserve Property Evidence**: Keep electricity bills, rent receipts, mutation records, and photographs showing continuous peaceful possession.\n` +
+          `- **NALSA Legal Aid**: Dial **15100** for free representation if you cannot afford a private civil lawyer.`;
+        break;
+
+      case 'arbitration':
+        answerText =
+          `### Resolving Commercial Disputes via Arbitration\n\n` +
+          `Under the **Arbitration and Conciliation Act, 1996**, business partners and contracting parties can resolve disputes outside traditional courts through private, binding arbitration.\n\n` +
+          `### How It Works for You\n\n` +
+          `- **Binding Agreement**: If your contract contains an arbitration clause, civil court lawsuits are barred and parties must submit disputes to an arbitrator.\n` +
+          `- **Emergency Interim Protection (Section 9)**: Before or during arbitration, you can approach the Commercial Court or High Court under Section 9 for urgent preservation of assets or interim restraining orders.\n` +
+          `- **Expedited Timeline**: Under Section 29A, arbitral tribunals must deliver the arbitral award within 12 months.\n` +
+          `- **Minimal Court Interference**: Courts will not overturn arbitral awards unless there is patent illegality or violation of public policy (*Vidya Drolia* & *Saw Pipes*).\n\n` +
+          `### Citizen & Business Next Steps\n\n` +
+          `- Review your contract's dispute resolution clause for the designated seat and rules.\n` +
+          `- Issue a formal Section 21 Notice invoking arbitration.\n` +
+          `- For free guidance on ADR options, contact NALSA at **15100**.`;
+        break;
+
+      case 'corporate_ibc':
+        answerText =
+          `### Corporate Insolvency & Debt Recovery Framework (IBC)\n\n` +
+          `If a company has defaulted on debts owed to you or if you are dealing with corporate insolvency, the **Insolvency and Bankruptcy Code, 2016 (IBC)** governs proceedings before the National Company Law Tribunal (NCLT).\n\n` +
+          `### Key Rules for Creditors & Businesses\n\n` +
+          `- **Default Threshold (Section 4 IBC)**: Initiation of Corporate Insolvency Resolution Process (CIRP) requires an undisputed debt default of at least **₹1 Crore**.\n` +
+          `- **Operational Creditors (Section 8 & 9)**: Suppliers and vendors must first serve a mandatory Form 3 statutory demand notice giving 10 days to pay or demonstrate a pre-existing dispute.\n` +
+          `- **Financial Creditors (Section 7)**: Banks and financial creditors can approach NCLT directly with record of default certified by NeSL (*Swiss Ribbons*, AIR 2019 SC 739).\n` +
+          `- **Moratorium Protection (Section 14)**: Once CIRP is admitted, an absolute legal freeze stops all recovery suits against the corporate debtor.\n\n` +
+          `### Immediate Action Checklist\n\n` +
+          `- Verify if the debt exceeds ₹1 Crore and obtain NeSL certificate or bank default records.\n` +
+          `- For operational debts, issue the Section 8 demand notice via registered post.\n` +
+          `- Check NCLT causelists at [nclt.gov.in](https://nclt.gov.in).`;
+        break;
+
+      case 'constitutional_writ':
+        answerText =
+          `### Your Constitutional Rights & Protection Against Arbitrary State Action\n\n` +
+          `The Constitution of India is the supreme law of the land, safeguarding every citizen against unfair, discriminatory, or unlawful action by government officials or public authorities.\n\n` +
+          `### Fundamental Freedoms Protecting You\n\n` +
+          `- **Article 14 (Equality Before Law)**: Protects against arbitrary government discrimination, favoritism, or unequal treatment.\n` +
+          `- **Article 19 (Fundamental Freedoms)**: Protects freedom of speech, expression, peaceful assembly, movement, and lawful trade or occupation.\n` +
+          `- **Article 21 (Life & Personal Liberty)**: Protects personal liberty, privacy (*Puttaswamy* benchmark), and procedural fairness (*Maneka Gandhi* benchmark).\n` +
+          `- **Article 26 (Religious Freedoms)**: Protects religious denominations and institutions in managing their affairs (*Shirur Mutt* benchmark).\n` +
+          `- **Article 320 (Public Service Commissions)**: Guarantees merit-based public recruitment advisory standards (*Manbodhan Lal* benchmark).\n\n` +
+          `### How You Can Enforce Your Rights (Writ Petitions)\n\n` +
+          `- **High Court Writ Jurisdiction (Article 226)**: If any government department, municipality, university, or police authority acts arbitrarily, you can file a Writ Petition before your State High Court.\n` +
+          `- **Writs Available**: **Mandamus** (ordering an official to perform their statutory duty), **Certiorari** (quashing an illegal order), **Habeas Corpus** (releasing someone unlawfully detained), and **Prohibition**.\n` +
+          `- **Free Constitutional Legal Aid**: Under Article 39A, citizens who cannot afford high court counsel are entitled to free legal aid through NALSA (**15100**).`;
+        break;
+
+      case 'criminal_defense':
+      default:
+        answerText =
+          `### Your Legal Rights Against Police Questioning, Harassment & Arrest\n\n` +
+          `Whenever dealing with police inquiries, complaints, or criminal allegations in India, you are protected by fundamental constitutional and procedural safeguards under the **Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)**.\n\n` +
+          `### Non-Negotiable Rights Every Citizen Must Know\n\n` +
+          `1. **Notice of Appearance First (Section 35(3) BNSS)**: For any offense where maximum punishment is up to 7 years, police **cannot arrest you** without first issuing a formal written Notice of Appearance (*Arnesh Kumar v. State of Bihar*). If you comply with the notice, arrest is forbidden.\n` +
+          `2. **Right to Know Grounds of Arrest (Article 22(1))**: Police must inform you immediately in writing of the exact sections and allegations against you.\n` +
+          `3. **D.K. Basu Arrest Memo**: The arresting officer must prepare an arrest memo countersigned by a family member or respected neighbor, and must wear visible name tags.\n` +
+          `4. **Right to Legal Counsel**: You have the constitutional right to consult and have an advocate present during interrogation (Section 38 BNSS).\n` +
+          `5. **Magistrate Production within 24 Hours**: You must be produced before the nearest Judicial Magistrate within 24 hours of detention.\n` +
+          `6. **Zero FIR Mandate (Section 173 BNSS)**: If you are an aggrieved victim filing a complaint, police cannot turn you away for lack of territorial jurisdiction; they must register a 'Zero FIR' immediately.\n\n` +
+          `### Practical Next Steps for Your Protection\n\n` +
+          `- **Anticipatory Bail (Section 482 BNSS)**: If you apprehend arrest in a non-bailable case, apply for Anticipatory Bail before the Sessions Court or High Court (*Sushila Aggarwal* benchmark).\n` +
+          `- **Quashing Frivolous FIR (Section 528 BNSS)**: If the complaint is fabricated or purely a civil dispute, file a petition before the High Court to quash the proceedings under *Bhajan Lal* guidelines.\n` +
+          `- **Free Legal Aid Helpline**: Dial **15100** (NALSA) to receive an appointed defense advocate free of charge.\n` +
+          `- **National Emergency**: Dial **112** for immediate police oversight.`;
+        break;
+    }
   }
 
   // Build Applicable Laws payload

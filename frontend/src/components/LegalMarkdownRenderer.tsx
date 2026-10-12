@@ -431,7 +431,7 @@ function splitIntoLegalSections(text: string): LegalSection[] {
   // If no markdown headers were found at all, wrap entire content as the summary section
   if (sections.length === 0 && text.trim()) {
     sections.push({
-      title: 'Executive Legal Summary',
+      title: 'Legal Overview',
       icon: 'gavel',
       isSummary: true,
       blocks: parseBlocks(text)
@@ -481,9 +481,7 @@ export const LegalStructuredAnswer: React.FC<{
             <h3 className={`text-[13.5px] font-bold tracking-tight ${
               isDark ? 'text-white' : 'text-[#00288e]'
             }`}>
-              {summarySection.title.toLowerCase().includes('summary') 
-                ? summarySection.title 
-                : 'Executive Legal Summary'}
+              {summarySection.title || (mode === 'professional' ? 'Executive Legal Analysis' : 'Key Legal Overview')}
             </h3>
           </div>
           <span className={`font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
@@ -491,7 +489,7 @@ export const LegalStructuredAnswer: React.FC<{
               ? 'bg-[#181c2d] text-amber-300 border-amber-500/30' 
               : 'bg-white text-[#00288e] border-[#bfdbfe]'
           }`}>
-            {mode === 'professional' ? 'Advocate Counsel Brief' : 'Citizen Plain Language'}
+            {mode === 'professional' ? 'Advocate Counsel Brief' : 'Citizen Legal Guide'}
           </span>
         </div>
 

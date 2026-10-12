@@ -100,7 +100,7 @@ export function App() {
   const guestMenuRef = useRef<HTMLDivElement>(null);
 
   const [activeTab, setActiveTab] = useState<'chat' | 'contracts' | 'search' | 'info'>('chat');
-  const [mode, setMode] = useState<'citizen' | 'professional'>('professional');
+  const [mode, setMode] = useState<'citizen' | 'professional'>('citizen');
   const [dossierCount, setDossierCount] = useState<number>(0);
   const [isDossiersOpen, setIsDossiersOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

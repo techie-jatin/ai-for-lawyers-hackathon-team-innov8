@@ -304,14 +304,14 @@ export function App() {
           : 'bg-white/95 border-[#e2e8f0]'
       }`}>
         {/* Main Bar (h-14 / 56px across all viewports to minimize wasted vertical space) */}
-        <div className="h-14 w-full px-[clamp(10px,1.8vw,32px)] flex items-center justify-between gap-[clamp(6px,1.2vw,24px)]">
+        <div className="h-14 w-full px-2 sm:px-4 md:px-6 flex items-center justify-between gap-1.5 sm:gap-3">
           {/* ZONE 1: BRAND IDENTITY (Left, Fluid & Compact) */}
-          <div className="flex items-center gap-[clamp(6px,0.8vw,12px)] shrink-0 sm:max-w-[28%] min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 sm:max-w-[28%] min-w-0">
             {/* Clickable Brand seal & title (Returns to Chat Assistant Home) */}
             <button
               type="button"
               onClick={() => setActiveTab('chat')}
-              className="flex items-center gap-[clamp(6px,0.8vw,10px)] text-left cursor-pointer group shrink-0 focus:outline-none"
+              className="flex items-center gap-1.5 sm:gap-2 text-left cursor-pointer group shrink-0 focus:outline-none"
               title="Return to Bharat Legal Assistant Home"
             >
               <img 
@@ -344,7 +344,7 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setIsPagesMenuOpen(prev => !prev)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition-all cursor-pointer shadow-xs ${
+                className={`h-8 flex items-center gap-1 min-[380px]:gap-1.5 px-2 min-[380px]:px-2.5 rounded-lg border text-[11px] font-bold transition-all cursor-pointer shadow-xs shrink-0 ${
                   isDark 
                     ? 'bg-[#131624] text-white border-[#23283f] hover:bg-[#1a1f33]' 
                     : 'bg-[#eff4ff] text-[#00288e] border-[#dce9ff] hover:bg-[#e5eeff]'
@@ -354,13 +354,13 @@ export function App() {
                 aria-expanded={isPagesMenuOpen}
                 title="Navigate Platform Pages"
               >
-                <span className="material-symbols-outlined text-[16px] text-[#ff7722]">
+                <span className="material-symbols-outlined text-[15px] min-[380px]:text-[16px] text-[#ff7722] shrink-0">
                   {activeTab === 'chat' ? 'chat' : activeTab === 'contracts' ? 'edit_document' : activeTab === 'search' ? 'account_balance' : 'fact_check'}
                 </span>
-                <span className="font-semibold tracking-tight">
+                <span className="font-semibold tracking-tight truncate max-w-[56px] min-[380px]:max-w-none">
                   {activeTab === 'chat' ? 'Chat' : activeTab === 'contracts' ? 'Contracts' : activeTab === 'search' ? 'Search' : 'Hub'}
                 </span>
-                <span className={`material-symbols-outlined text-[15px] transition-transform duration-200 ${isPagesMenuOpen ? 'rotate-180' : ''}`}>
+                <span className={`material-symbols-outlined text-[14px] min-[380px]:text-[15px] shrink-0 transition-transform duration-200 ${isPagesMenuOpen ? 'rotate-180' : ''}`}>
                   expand_more
                 </span>
               </button>
@@ -635,7 +635,7 @@ export function App() {
           </div>
 
           {/* ZONE 3: UTILITY CONTROLS (Right, Fluid & Flexible) */}
-          <div className="flex items-center justify-end gap-[clamp(6px,0.8vw,14px)] shrink-0">
+          <div className="flex items-center justify-end gap-1 min-[380px]:gap-1.5 sm:gap-2 shrink-0">
             {/* Neon pgvector Telemetry Pill (Large Desktop >= xl / 1280px+) */}
             <div className={`hidden xl:flex items-center gap-[clamp(4px,0.4vw,8px)] px-[clamp(8px,0.7vw,12px)] py-0.5 xl:py-1 rounded-full text-[clamp(9.5px,0.72vw,11px)] font-mono border shadow-2xs whitespace-nowrap ${
               isDark 
@@ -676,35 +676,43 @@ export function App() {
               </button>
             </div>
 
-            {/* Compact Mode Switch Icon (< sm) */}
+            {/* Compact Mode Switch Icon + Badge (< sm) */}
             <button
               type="button"
               onClick={() => setMode(mode === 'citizen' ? 'professional' : 'citizen')}
-              className={`sm:hidden w-8 h-8 rounded-lg border text-[10px] font-mono font-bold flex items-center justify-center cursor-pointer shadow-2xs ${
-                isDark ? 'bg-[#131624] border-[#23283f] text-white' : 'bg-[#eff4ff] border-[#dce9ff] text-[#00288e]'
+              className={`sm:hidden h-8 px-1.5 min-[380px]:px-2 rounded-lg border text-[10.5px] font-bold flex items-center justify-center gap-1 cursor-pointer shadow-2xs shrink-0 transition-colors ${
+                isDark ? 'bg-[#131624] border-[#23283f] text-white hover:bg-[#1a1f33]' : 'bg-[#eff4ff] border-[#dce9ff] text-[#00288e] hover:bg-[#e5eeff]'
               }`}
-              title={`Switch Mode (Current: ${mode})`}
+              title={`Switch Persona Mode (Currently: ${mode === 'professional' ? 'Advocate' : 'Citizen'})`}
+              aria-label="Switch Persona Mode"
             >
-              {mode === 'citizen' ? 'CU' : 'AC'}
+              <span className={`material-symbols-outlined text-[13px] ${mode === 'professional' ? 'text-emerald-400' : 'text-[#ff7722]'}`}>
+                {mode === 'professional' ? 'gavel' : 'person'}
+              </span>
+              <span className="font-mono text-[9.5px] uppercase tracking-wide">
+                {mode === 'professional' ? 'Adv' : 'Cit'}
+              </span>
             </button>
 
             {/* GUEST SESSION IDENTITY PILL & MENU */}
-            <div className="relative" ref={guestMenuRef}>
+            <div className="relative shrink-0" ref={guestMenuRef}>
               <button
                 type="button"
                 onClick={() => setIsGuestMenuOpen(!isGuestMenuOpen)}
-                className={`flex items-center gap-1.5 px-[clamp(8px,0.7vw,12px)] py-1 xl:py-1.5 rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-mono border transition-all cursor-pointer shadow-2xs whitespace-nowrap ${
+                className={`h-8 flex items-center gap-1 min-[380px]:gap-1.5 px-1.5 min-[380px]:px-2.5 rounded-lg sm:rounded-full text-[10px] min-[380px]:text-[10.5px] sm:text-[clamp(9.5px,0.72vw,11.5px)] font-mono border transition-all cursor-pointer shadow-2xs whitespace-nowrap ${
                   isDark 
                     ? 'bg-[#131624] text-[#cbd5e1] border-[#23283f] hover:border-[#ff7722]/50 hover:text-white' 
                     : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:border-[#00288e]/40 hover:bg-[#e5eeff]'
                 }`}
                 title={`Guest Session #${guestId} • Click for session details`}
+                aria-label="Guest Session Details"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#ff7722] animate-pulse shrink-0"></span>
-                <span className="material-symbols-outlined text-[14px] 2xl:text-[16px] text-[#ff7722] shrink-0">shield_person</span>
+                <span className="material-symbols-outlined text-[13px] sm:text-[14px] 2xl:text-[16px] text-[#ff7722] shrink-0">shield_person</span>
                 <span className="font-bold hidden md:inline">Guest</span>
-                <span className="font-extrabold text-[#ff7722]">{guestId.slice(0, 8)}</span>
-                <span className={`material-symbols-outlined text-[13px] transition-transform duration-200 ${isGuestMenuOpen ? 'rotate-180' : ''}`}>
+                <span className="font-extrabold text-[#ff7722] hidden min-[360px]:inline">{guestId.slice(0, 8)}</span>
+                <span className="font-extrabold text-[#ff7722] min-[360px]:hidden">ID</span>
+                <span className={`material-symbols-outlined text-[12px] sm:text-[13px] shrink-0 transition-transform duration-200 ${isGuestMenuOpen ? 'rotate-180' : ''}`}>
                   expand_more
                 </span>
               </button>
@@ -777,7 +785,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto px-[clamp(8px,0.7vw,14px)] sm:py-0.5 xl:py-1 rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap ${
+              className={`h-8 w-8 sm:w-auto px-0 sm:px-2.5 rounded-lg sm:rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap shrink-0 flex items-center justify-center ${
                 isDark 
                   ? 'bg-[#131624] hover:bg-[#1a1f33] text-amber-300 border-[#23283f] hover:border-amber-400/40' 
                   : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#00288e] border-[#dce9ff] hover:border-[#00288e]/30'
@@ -797,16 +805,17 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsDossiersOpen(true)}
-              className={`flex items-center gap-1.5 px-[clamp(8px,0.8vw,14px)] py-1 xl:py-1.5 rounded-xl text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
+              className={`h-8 flex items-center gap-1 min-[380px]:gap-1.5 px-1.5 min-[380px]:px-2.5 sm:px-3 rounded-lg sm:rounded-xl text-[10.5px] sm:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] text-[#e2e8f0] border-[#23283f] hover:bg-[#1a1f33]' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
               }`}
               title="Open Chamber Dossiers Repository"
+              aria-label="Open Chamber Dossiers Repository"
             >
-              <span className="material-symbols-outlined text-[15px] 2xl:text-[18px] text-[#60a5fa] shrink-0">folder_special</span>
+              <span className="material-symbols-outlined text-[14px] sm:text-[15px] 2xl:text-[18px] text-[#60a5fa] shrink-0">folder_special</span>
               <span className="hidden sm:inline font-bold">Dossiers</span>
-              <span className={`px-2 py-0.5 rounded-full font-mono text-[9px] 2xl:text-[10px] font-extrabold shadow-xs ${
+              <span className={`px-1.5 py-0.2 rounded-full font-mono text-[8.5px] sm:text-[9px] 2xl:text-[10px] font-extrabold shadow-xs ${
                 isDark ? 'bg-white text-black' : 'bg-[#00288e] text-white'
               }`}>
                 {dossierCount}

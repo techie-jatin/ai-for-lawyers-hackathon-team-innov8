@@ -133,6 +133,18 @@ export function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
   // Click-outside & Escape key listener for menus
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -300,32 +312,32 @@ export function App() {
           : 'bg-white/95 border-[#e2e8f0]'
       }`}>
         {/* Main Bar (h-14 / 56px across all viewports to minimize wasted vertical space) */}
-        <div className="h-14 w-full px-2 sm:px-4 md:px-6 flex items-center justify-between gap-1.5 sm:gap-3">
+        <div className="h-14 w-full px-2.5 sm:px-4 md:px-6 flex items-center justify-between gap-2 sm:gap-3">
           {/* ZONE 1: BRAND IDENTITY (Left, Fluid & Compact) */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 sm:max-w-[28%] min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
             {/* Clickable Brand seal & title (Returns to Chat Assistant Home) */}
             <button
               type="button"
               onClick={() => { setActiveTab('chat'); setIsMobileMenuOpen(false); }}
-              className="flex items-center gap-1.5 sm:gap-2 text-left cursor-pointer group shrink-0 focus:outline-none"
+              className="flex items-center gap-2 text-left cursor-pointer group shrink-0 focus:outline-none"
               title="Return to Bharat Legal Assistant Home"
             >
               <img 
                 src="/logo.png" 
                 alt="भारत Legal Intelligence" 
                 className={`w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-lg object-contain shadow-xs p-0.5 border group-hover:scale-105 transition-transform ${
-                  isDark ? 'bg-[#131726] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
+                  isDark ? 'bg-[#131624] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
                 }`}
               />
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1 whitespace-nowrap">
-                  <span className="font-extrabold text-[13px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
-                  <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight ${
+                  <span className="font-extrabold text-[13.5px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
+                  <span className={`font-extrabold text-[13.5px] sm:text-[14px] tracking-tight ${
                     isDark ? 'text-white' : 'text-[#00288e]'
                   }`}>
                     Legal
                   </span>
-                  <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight hidden min-[400px]:inline ${
+                  <span className={`font-extrabold text-[13.5px] sm:text-[14px] tracking-tight hidden min-[380px]:inline ${
                     isDark ? 'text-white' : 'text-[#00288e]'
                   }`}>
                     Intelligence
@@ -340,33 +352,8 @@ export function App() {
             </button>
           </div>
 
-          {/* ZONE 2A: MOBILE ACTIVE MODULE INDICATOR (< sm / < 640px) */}
-          <div className="sm:hidden flex items-center justify-center flex-1 min-w-0 px-1">
-            <button
-              type="button"
-              onClick={() => setIsMobileMenuOpen(true)}
-              className={`h-8 flex items-center gap-1 px-2 rounded-lg border text-[11px] font-bold transition-all cursor-pointer shadow-xs max-w-[130px] truncate ${
-                isDark 
-                  ? 'bg-[#131624] text-white border-[#23283f] hover:bg-[#1a1f33]' 
-                  : 'bg-[#eff4ff] text-[#00288e] border-[#dce9ff] hover:bg-[#e5eeff]'
-              }`}
-              title="Open Chamber Navigation Menu"
-              aria-label="Open Chamber Navigation Menu"
-            >
-              <span className="material-symbols-outlined text-[14px] text-[#ff7722] shrink-0">
-                {activeTab === 'chat' ? 'chat' : activeTab === 'contracts' ? 'edit_document' : activeTab === 'search' ? 'account_balance' : 'fact_check'}
-              </span>
-              <span className="font-semibold tracking-tight truncate">
-                {activeTab === 'chat' ? 'Chat' : activeTab === 'contracts' ? 'Contracts' : activeTab === 'search' ? 'Search' : 'Validator'}
-              </span>
-              <span className="material-symbols-outlined text-[13px] text-zinc-400 shrink-0">
-                expand_more
-              </span>
-            </button>
-          </div>
-
-          {/* ZONE 2: PRIMARY NAVIGATION (Center, Fluid 4-Column Proportional Flex Grid) */}
-          <div className="hidden sm:flex items-center justify-center flex-1 min-w-0 px-1 sm:px-2">
+          {/* ZONE 2: PRIMARY NAVIGATION (Center, Visible on md+ / 768px+) */}
+          <div className="hidden md:flex items-center justify-center flex-1 min-w-0 px-1 sm:px-2">
             {/* Desktop Full Navigation Tabs (>= lg / 1024px+): Fluid 4-Column Grid, Equal 25% Share Each */}
             <nav className={`hidden lg:flex items-center w-full max-w-[clamp(440px,46vw,660px)] gap-1 p-0.5 rounded-lg border shadow-2xs ${
               isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
@@ -428,7 +415,7 @@ export function App() {
               </button>
             </nav>
 
-            {/* Medium Screens Compact Segmented Bar (sm to lg: 640px - 1023px) */}
+            {/* Medium Screens Compact Segmented Bar (md to lg: 768px - 1023px) */}
             <nav className={`flex lg:hidden items-center gap-0.5 p-0.5 rounded-lg border ${
               isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
             }`}>
@@ -503,8 +490,8 @@ export function App() {
               <span className="font-semibold inline 2xl:hidden">Neon pgvector: {totalProvisions} Provisions</span>
             </div>
 
-            {/* Citizen vs Advocate Mode Segmented Control (Desktop >= sm) */}
-            <div className={`hidden sm:flex items-center p-0.5 2xl:p-1 rounded-full border shadow-2xs whitespace-nowrap ${
+            {/* Citizen vs Advocate Mode Segmented Control (Visible on md+ / 768px+) */}
+            <div className={`hidden md:flex items-center p-0.5 2xl:p-1 rounded-full border shadow-2xs whitespace-nowrap ${
               isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
             }`}>
               <button
@@ -532,8 +519,8 @@ export function App() {
               </button>
             </div>
 
-            {/* GUEST SESSION IDENTITY PILL & MENU (Desktop >= sm) */}
-            <div className="hidden sm:block relative shrink-0" ref={guestMenuRef}>
+            {/* GUEST SESSION IDENTITY PILL & MENU (Desktop >= lg / 1024px+) */}
+            <div className="hidden lg:block relative shrink-0" ref={guestMenuRef}>
               <button
                 type="button"
                 onClick={() => setIsGuestMenuOpen(!isGuestMenuOpen)}
@@ -547,7 +534,7 @@ export function App() {
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#ff7722] animate-pulse shrink-0"></span>
                 <span className="material-symbols-outlined text-[14px] 2xl:text-[16px] text-[#ff7722] shrink-0">shield_person</span>
-                <span className="font-bold hidden md:inline">Guest</span>
+                <span className="font-bold hidden xl:inline">Guest</span>
                 <span className="font-extrabold text-[#ff7722]">{guestId.slice(0, 8)}</span>
                 <span className={`material-symbols-outlined text-[13px] shrink-0 transition-transform duration-200 ${isGuestMenuOpen ? 'rotate-180' : ''}`}>
                   expand_more
@@ -618,11 +605,11 @@ export function App() {
               )}
             </div>
 
-            {/* THEME TOGGLE SWITCH (Desktop >= sm) */}
+            {/* THEME TOGGLE SWITCH (Visible on md+ / 768px+) */}
             <button
               type="button"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`hidden sm:flex items-center justify-center h-8 px-2.5 rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
+              className={`hidden md:flex items-center justify-center h-8 px-2 sm:px-2.5 rounded-lg md:rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] hover:bg-[#1a1f33] text-amber-300 border-[#23283f] hover:border-amber-400/40' 
                   : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#00288e] border-[#dce9ff] hover:border-[#00288e]/30'
@@ -633,16 +620,16 @@ export function App() {
               <span className="material-symbols-outlined text-[15px] sm:text-[16px] 2xl:text-[18px]">
                 {isDark ? 'light_mode' : 'dark_mode'}
               </span>
-              <span className="hidden md:inline font-mono text-[clamp(9.5px,0.72vw,11px)] ml-1 font-bold">
+              <span className="hidden xl:inline font-mono text-[clamp(9.5px,0.72vw,11px)] ml-1 font-bold">
                 {isDark ? 'Light' : 'Dark'}
               </span>
             </button>
 
-            {/* Chamber Dossiers Action Button (Available on BOTH Mobile and Desktop!) */}
+            {/* Chamber Dossiers Action Button (Available across ALL screens) */}
             <button
               type="button"
               onClick={() => setIsDossiersOpen(true)}
-              className={`h-8 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl text-[10.5px] sm:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
+              className={`h-8 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] text-[#e2e8f0] border-[#23283f] hover:bg-[#1a1f33]' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
@@ -659,11 +646,11 @@ export function App() {
               </span>
             </button>
 
-            {/* Mobile Chamber Menu Hamburger Trigger (< sm ONLY) */}
+            {/* Mobile Chamber Menu Hamburger Trigger (< md ONLY) */}
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(prev => !prev)}
-              className={`sm:hidden h-8 w-8 rounded-lg border flex items-center justify-center cursor-pointer shadow-2xs shrink-0 transition-all ${
+              className={`md:hidden h-8 w-8 rounded-lg border flex items-center justify-center cursor-pointer shadow-2xs shrink-0 transition-all ${
                 isMobileMenuOpen
                   ? isDark ? 'bg-white text-black border-white' : 'bg-[#00288e] text-white border-[#00288e]'
                   : isDark ? 'bg-[#131624] text-white border-[#23283f] hover:bg-[#1a1f33]' : 'bg-[#eff4ff] text-[#00288e] border-[#dce9ff] hover:bg-[#e5eeff]'
@@ -678,243 +665,8 @@ export function App() {
           </div>
         </div>
 
-        {/* MOBILE CHAMBER HUB SLIDE-OVER DRAWER (< sm / < 640px) */}
-        {isMobileMenuOpen && (
-          <div className="sm:hidden fixed inset-0 z-[1000] flex justify-end animate-in fade-in duration-200">
-            {/* Backdrop Blur Overlay */}
-            <div 
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity cursor-pointer"
-              onClick={() => setIsMobileMenuOpen(false)}
-              aria-hidden="true"
-            />
-
-            {/* Slide-out Drawer Panel */}
-            <div 
-              className={`relative w-[85%] max-w-[340px] h-full shadow-2xl flex flex-col z-[1001] border-l animate-in slide-in-from-right duration-200 overflow-y-auto ${
-                isDark ? 'bg-[#0d0f17] border-[#1f2438] text-white' : 'bg-white border-[#e2e8f0] text-[#0b1c30]'
-              }`}
-              style={{ backgroundColor: isDark ? '#0d0f17' : '#ffffff' }}
-            >
-              {/* Drawer Top Header */}
-              <div className="p-4 border-b border-zinc-700/20 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <img src="/logo.png" alt="Logo" className="w-6 h-6 rounded-md object-contain" />
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1 font-extrabold text-[13px] tracking-tight">
-                      <span className="text-[#ff7722]">भारत</span>
-                      <span className={isDark ? 'text-white' : 'text-[#00288e]'}>Chamber Hub</span>
-                    </div>
-                    <span className="text-[9px] font-mono text-zinc-400">Controls & Navigation</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center border cursor-pointer ${
-                    isDark ? 'bg-[#181c2d] border-[#242b42] text-zinc-400 hover:text-white' : 'bg-slate-100 border-slate-200 text-slate-600 hover:text-black'
-                  }`}
-                  aria-label="Close menu"
-                >
-                  <span className="material-symbols-outlined text-[18px]">close</span>
-                </button>
-              </div>
-
-              {/* Drawer Body Content */}
-              <div className="p-4 flex flex-col gap-4">
-                {/* 1. Platform Modules */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                      Platform Modules
-                    </span>
-                    <span className="text-[9px] font-mono text-[#ff7722] font-semibold">4 Modules</span>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    {[
-                      { id: 'chat', label: 'Chat Assistant', icon: 'chat', desc: 'Constitutional AI & Precedents' },
-                      { id: 'contracts', label: 'AI Contract Studio', icon: 'edit_document', desc: 'Drafting & Redline Risk Audit' },
-                      { id: 'search', label: 'Statute Search', icon: 'account_balance', desc: '59+ Acts, BNS Concordance' },
-                      { id: 'info', label: 'Validator Hub', icon: 'fact_check', desc: 'Truth Audit & Hash Verification' },
-                    ].map(tab => (
-                      <button
-                        key={tab.id}
-                        type="button"
-                        onClick={() => {
-                          setActiveTab(tab.id as any);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className={`w-full p-2.5 rounded-xl border flex items-center justify-between text-left transition-all cursor-pointer ${
-                          activeTab === tab.id
-                            ? isDark
-                              ? 'bg-white text-black font-bold border-white shadow-md'
-                              : 'bg-[#00288e] text-white font-bold border-[#00288e] shadow-md'
-                            : isDark
-                              ? 'bg-[#131624] text-zinc-300 border-[#23283f] hover:bg-[#1a1f33]'
-                              : 'bg-[#f8f9ff] text-[#334155] border-[#e2e8f0] hover:bg-[#eff4ff]'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className={`material-symbols-outlined text-[18px] shrink-0 ${
-                            activeTab === tab.id ? (isDark ? 'text-black' : 'text-white') : 'text-[#ff7722]'
-                          }`}>
-                            {tab.icon}
-                          </span>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[12px] font-bold leading-snug truncate">{tab.label}</span>
-                            <span className={`text-[9px] truncate ${
-                              activeTab === tab.id ? (isDark ? 'text-black/70' : 'text-white/80') : 'text-zinc-400'
-                            }`}>
-                              {tab.desc}
-                            </span>
-                          </div>
-                        </div>
-                        {activeTab === tab.id && (
-                          <span className="material-symbols-outlined text-[16px] shrink-0">check_circle</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 2. Legal Persona Mode */}
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 block">
-                    Legal Persona Mode
-                  </span>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setMode('citizen')}
-                      className={`p-2.5 rounded-xl border flex flex-col gap-1 text-left cursor-pointer transition-all ${
-                        mode === 'citizen'
-                          ? isDark ? 'bg-[#ff7722]/15 border-[#ff7722] text-[#ff7722] font-bold' : 'bg-orange-50 border-[#ff7722] text-[#ff7722] font-bold'
-                          : isDark ? 'bg-[#131624] border-[#23283f] text-zinc-400' : 'bg-slate-50 border-slate-200 text-slate-600'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="material-symbols-outlined text-[16px]">person</span>
-                        {mode === 'citizen' && <span className="material-symbols-outlined text-[14px]">check</span>}
-                      </div>
-                      <span className="text-[11px] font-bold">Citizen</span>
-                      <span className="text-[8.5px] leading-tight opacity-75">Everyday rights & plain terms</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setMode('professional')}
-                      className={`p-2.5 rounded-xl border flex flex-col gap-1 text-left cursor-pointer transition-all ${
-                        mode === 'professional'
-                          ? isDark ? 'bg-emerald-950/40 border-emerald-500 text-emerald-400 font-bold' : 'bg-emerald-50 border-emerald-600 text-emerald-800 font-bold'
-                          : isDark ? 'bg-[#131624] border-[#23283f] text-zinc-400' : 'bg-slate-50 border-slate-200 text-slate-600'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="material-symbols-outlined text-[16px]">gavel</span>
-                        {mode === 'professional' && <span className="material-symbols-outlined text-[14px]">check</span>}
-                      </div>
-                      <span className="text-[11px] font-bold">Advocate</span>
-                      <span className="text-[8.5px] leading-tight opacity-75">Court citations & sections</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* 3. Theme Toggle */}
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 block">
-                    Appearance & Theme
-                  </span>
-                  <div className={`p-1 rounded-xl border flex items-center ${
-                    isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
-                  }`}>
-                    <button
-                      type="button"
-                      onClick={() => setTheme('dark')}
-                      className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
-                        isDark ? 'bg-white text-black shadow-xs' : 'text-zinc-500 hover:text-black'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[15px]">dark_mode</span>
-                      <span>Dark</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTheme('light')}
-                      className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
-                        !isDark ? 'bg-[#00288e] text-white shadow-xs' : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[15px]">light_mode</span>
-                      <span>Light</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* 4. Guest Session Identity */}
-                <div className={`p-3 rounded-xl border ${
-                  isDark ? 'bg-[#131624]/60 border-[#23283f]' : 'bg-slate-50 border-slate-200'
-                }`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[15px] text-[#ff7722]">shield_person</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Guest Session</span>
-                    </div>
-                    <span className="text-[8.5px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
-                      Private
-                    </span>
-                  </div>
-
-                  <div className={`p-1.5 px-2 rounded-lg font-mono text-[10px] flex items-center justify-between gap-1 mb-2 border ${
-                    isDark ? 'bg-[#090b12] border-[#1f2438] text-amber-300' : 'bg-white border-slate-200 text-[#00288e]'
-                  }`}>
-                    <span className="font-bold select-all truncate">{guestId}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(guestId);
-                        setGuestIdCopied(true);
-                        setTimeout(() => setGuestIdCopied(false), 2000);
-                      }}
-                      className="p-1 rounded cursor-pointer text-slate-400 hover:text-white"
-                      title="Copy Guest ID"
-                    >
-                      <span className="material-symbols-outlined text-[14px]">
-                        {guestIdCopied ? 'check' : 'content_copy'}
-                      </span>
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (confirm('Start a fresh session? This will create a new Guest ID and clean chat workspace.')) {
-                        resetGuestId();
-                        window.location.reload();
-                      }
-                    }}
-                    className={`w-full py-1.5 rounded-lg text-[10.5px] font-bold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
-                      isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-rose-300 border-rose-900/40' : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[13px]">refresh</span>
-                    <span>Start Fresh Session</span>
-                  </button>
-                </div>
-
-                {/* 5. System Status */}
-                <div className="flex items-center justify-between px-1 text-[9.5px] font-mono text-zinc-400">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Neon pgvector: Active</span>
-                  </span>
-                  <span>{totalProvisions} Provisions</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Secondary Statutory Sub-Header (Ticker Bar - h-7 / 28px, hidden on small mobile to maximize screen) */}
-        <div id="statutory-ticker" className={`hidden sm:block h-7 w-full border-t overflow-hidden transition-colors ${
+        <div id="statutory-ticker" className={`hidden md:block h-7 w-full border-t overflow-hidden transition-colors ${
           isDark 
             ? 'bg-[#06070a] border-[#1a1e2e] text-[#94a3b8]' 
             : 'bg-[#f8f9ff] border-[#e2e8f0] text-[#565e74]'
@@ -946,8 +698,8 @@ export function App() {
         </div>
       </header>
 
-      {/* MAIN SCREEN CANVAS (Responsive top padding: 56px on mobile, 84px on sm+) */}
-      <div className="pt-14 sm:pt-[84px] flex-1 flex flex-col min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-84px)] w-full">
+      {/* MAIN SCREEN CANVAS (Responsive top padding: 56px on mobile, 84px on md+) */}
+      <div className="pt-14 md:pt-[84px] flex-1 flex flex-col min-h-[calc(100vh-3.5rem)] md:min-h-[calc(100vh-84px)] w-full">
         <main className={`flex-1 flex flex-col w-full transition-colors duration-200 ${
           isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
         }`}>
@@ -997,6 +749,241 @@ export function App() {
           )}
         </main>
       </div>
+
+      {/* MOBILE CHAMBER HUB SLIDE-OVER DRAWER (< md / < 768px, Rendered outside header to prevent backdrop-blur containment clipping) */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-[10000] flex justify-end animate-in fade-in duration-200">
+          {/* Backdrop Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity cursor-pointer"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Slide-out Drawer Panel */}
+          <div 
+            className={`relative w-[85%] max-w-[340px] h-full shadow-2xl flex flex-col z-[10001] border-l animate-in slide-in-from-right duration-200 overflow-y-auto ${
+              isDark ? 'bg-[#0d0f17] border-[#1f2438] text-white' : 'bg-white border-[#e2e8f0] text-[#0b1c30]'
+            }`}
+            style={{ backgroundColor: isDark ? '#0d0f17' : '#ffffff' }}
+          >
+            {/* Drawer Top Header */}
+            <div className="p-4 border-b border-zinc-700/20 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                <img src="/logo.png" alt="Logo" className="w-6 h-6 rounded-md object-contain" />
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1 font-extrabold text-[13px] tracking-tight">
+                    <span className="text-[#ff7722]">भारत</span>
+                    <span className={isDark ? 'text-white' : 'text-[#00288e]'}>Chamber Hub</span>
+                  </div>
+                  <span className="text-[9px] font-mono text-zinc-400">Controls & Navigation</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center border cursor-pointer ${
+                  isDark ? 'bg-[#181c2d] border-[#242b42] text-zinc-400 hover:text-white' : 'bg-slate-100 border-slate-200 text-slate-600 hover:text-black'
+                }`}
+                aria-label="Close menu"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+
+            {/* Drawer Body Content */}
+            <div className="p-4 flex flex-col gap-4 flex-1">
+              {/* 1. Platform Modules */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Platform Modules
+                  </span>
+                  <span className="text-[9px] font-mono text-[#ff7722] font-semibold">4 Modules</span>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {[
+                    { id: 'chat', label: 'Chat Assistant', icon: 'chat', desc: 'Constitutional AI & Precedents' },
+                    { id: 'contracts', label: 'AI Contract Studio', icon: 'edit_document', desc: 'Drafting & Redline Risk Audit' },
+                    { id: 'search', label: 'Statute Search', icon: 'account_balance', desc: '59+ Acts, BNS Concordance' },
+                    { id: 'info', label: 'Validator Hub', icon: 'fact_check', desc: 'Truth Audit & Hash Verification' },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveTab(tab.id as any);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-full p-2.5 rounded-xl border flex items-center justify-between text-left transition-all cursor-pointer ${
+                        activeTab === tab.id
+                          ? isDark
+                            ? 'bg-white text-black font-bold border-white shadow-md'
+                            : 'bg-[#00288e] text-white font-bold border-[#00288e] shadow-md'
+                          : isDark
+                            ? 'bg-[#131624] text-zinc-300 border-[#23283f] hover:bg-[#1a1f33]'
+                            : 'bg-[#f8f9ff] text-[#334155] border-[#e2e8f0] hover:bg-[#eff4ff]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className={`material-symbols-outlined text-[18px] shrink-0 ${
+                          activeTab === tab.id ? (isDark ? 'text-black' : 'text-white') : 'text-[#ff7722]'
+                        }`}>
+                          {tab.icon}
+                        </span>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[12px] font-bold leading-snug truncate">{tab.label}</span>
+                          <span className={`text-[9px] truncate ${
+                            activeTab === tab.id ? (isDark ? 'text-black/70' : 'text-white/80') : 'text-zinc-400'
+                          }`}>
+                            {tab.desc}
+                          </span>
+                        </div>
+                      </div>
+                      {activeTab === tab.id && (
+                        <span className="material-symbols-outlined text-[16px] shrink-0">check_circle</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2. Legal Persona Mode */}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 block">
+                  Legal Persona Mode
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMode('citizen')}
+                    className={`p-2.5 rounded-xl border flex flex-col gap-1 text-left cursor-pointer transition-all ${
+                      mode === 'citizen'
+                        ? isDark ? 'bg-[#ff7722]/15 border-[#ff7722] text-[#ff7722] font-bold' : 'bg-orange-50 border-[#ff7722] text-[#ff7722] font-bold'
+                        : isDark ? 'bg-[#131624] border-[#23283f] text-zinc-400' : 'bg-slate-50 border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="material-symbols-outlined text-[16px]">person</span>
+                      {mode === 'citizen' && <span className="material-symbols-outlined text-[14px]">check</span>}
+                    </div>
+                    <span className="text-[11px] font-bold">Citizen</span>
+                    <span className="text-[8.5px] leading-tight opacity-75">Everyday rights & plain terms</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setMode('professional')}
+                    className={`p-2.5 rounded-xl border flex flex-col gap-1 text-left cursor-pointer transition-all ${
+                      mode === 'professional'
+                        ? isDark ? 'bg-emerald-950/40 border-emerald-500 text-emerald-400 font-bold' : 'bg-emerald-50 border-emerald-600 text-emerald-800 font-bold'
+                        : isDark ? 'bg-[#131624] border-[#23283f] text-zinc-400' : 'bg-slate-50 border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="material-symbols-outlined text-[16px]">gavel</span>
+                      {mode === 'professional' && <span className="material-symbols-outlined text-[14px]">check</span>}
+                    </div>
+                    <span className="text-[11px] font-bold">Advocate</span>
+                    <span className="text-[8.5px] leading-tight opacity-75">Court citations & sections</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 3. Theme Toggle */}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 block">
+                  Appearance & Theme
+                </span>
+                <div className={`p-1 rounded-xl border flex items-center ${
+                  isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-[#eff4ff] border-[#dce9ff]'
+                }`}>
+                  <button
+                    type="button"
+                    onClick={() => setTheme('dark')}
+                    className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                      isDark ? 'bg-white text-black shadow-xs' : 'text-zinc-500 hover:text-black'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[15px]">dark_mode</span>
+                    <span>Dark</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheme('light')}
+                    className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                      !isDark ? 'bg-[#00288e] text-white shadow-xs' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[15px]">light_mode</span>
+                    <span>Light</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 4. Guest Session Identity */}
+              <div className={`p-3 rounded-xl border ${
+                isDark ? 'bg-[#131624]/60 border-[#23283f]' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[15px] text-[#ff7722]">shield_person</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Guest Session</span>
+                  </div>
+                  <span className="text-[8.5px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                    Private
+                  </span>
+                </div>
+
+                <div className={`p-1.5 px-2 rounded-lg font-mono text-[10px] flex items-center justify-between gap-1 mb-2 border ${
+                  isDark ? 'bg-[#090b12] border-[#1f2438] text-amber-300' : 'bg-white border-slate-200 text-[#00288e]'
+                }`}>
+                  <span className="font-bold select-all truncate">{guestId}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(guestId);
+                      setGuestIdCopied(true);
+                      setTimeout(() => setGuestIdCopied(false), 2000);
+                    }}
+                    className="p-1 rounded cursor-pointer text-slate-400 hover:text-white"
+                    title="Copy Guest ID"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      {guestIdCopied ? 'check' : 'content_copy'}
+                    </span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm('Start a fresh session? This will create a new Guest ID and clean chat workspace.')) {
+                      resetGuestId();
+                      window.location.reload();
+                    }
+                  }}
+                  className={`w-full py-1.5 px-2 rounded-lg text-[10.5px] font-bold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                    isDark ? 'bg-[#181c2d] hover:bg-[#20253d] text-rose-300 border-rose-900/40' : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[13px]">refresh</span>
+                  <span>Start Fresh Session</span>
+                </button>
+              </div>
+
+              {/* 5. System Status */}
+              <div className="flex items-center justify-between px-1 text-[9.5px] font-mono text-zinc-400 mt-auto pt-2">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Neon pgvector: Active</span>
+                </span>
+                <span>{totalProvisions} Provisions</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chamber Dossiers Slide-Over Drawer */}
       <DossiersDrawer

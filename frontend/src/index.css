@@ -256,7 +256,8 @@ code {
     max-height: none !important;
   }
 
-  /* Hide entire website chrome, navigation, interactive controls, and docks */
+  /* Hide entire website root, chrome, navigation, interactive controls, and docks */
+  #root,
   #app-header,
   #statutory-ticker,
   header,
@@ -268,6 +269,10 @@ code {
   #floating-input-dock {
     display: none !important;
     visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* Hide legacy chat scrollable canvas during printing */

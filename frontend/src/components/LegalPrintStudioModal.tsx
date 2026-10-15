@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Printer, 
   X, 
@@ -91,7 +92,16 @@ export function LegalPrintStudioModal({
   onOptionsChange,
   onTriggerPrint
 }: LegalPrintStudioModalProps) {
-  if (!isOpen) return null;
+  const [activeMobileTab, setActiveMobileTab] = useState<'options' | 'preview'>('options');
+
+  // Dismiss on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const exchanges = useMemo(() => groupMessagesIntoExchanges(messages), [messages]);
 
@@ -126,56 +136,92 @@ export function LegalPrintStudioModal({
     onTriggerPrint();
   };
 
-  return (
-    <div className="no-print fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div 
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="no-print fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-3 md:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+    >
       <div 
-        className={`w-full max-w-6xl h-[92vh] max-h-[900px] rounded-2xl shadow-2xl flex flex-col overflow-hidden border ${
+        className={`w-full h-full sm:h-[94vh] sm:max-h-[920px] max-w-6xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border ${
           isDark ? 'bg-[#0f121d] border-[#252c48] text-white' : 'bg-white border-slate-200 text-slate-900'
         }`}
       >
         {/* MODAL HEADER */}
-        <header className={`px-5 py-4 border-b flex items-center justify-between shrink-0 ${
+        <header className={`px-4 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between shrink-0 ${
           isDark ? 'bg-[#141827] border-[#22283f]' : 'bg-slate-50 border-slate-200'
         }`}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
-              <Printer className="w-5 h-5 text-amber-500" />
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+              <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-[16px] sm:text-[17px] font-bold tracking-tight">
-                  Court-Ready Legal Print & PDF Export Studio
+                <h2 className="text-[14px] sm:text-[17px] font-bold tracking-tight truncate">
+                  <span className="sm:hidden">Legal Print Studio</span>
+                  <span className="hidden sm:inline">Court-Ready Legal Print & PDF Export Studio</span>
                 </h2>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
                   Judicial Standard
                 </span>
               </div>
-              <p className={`text-[12px] ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
-                Configure chamber memorandum parameters, selection scope, and formal letterhead before export
+              <p className={`text-[11px] sm:text-[12px] truncate ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
+                Configure chamber memorandum parameters, selection scope, and formal letterhead
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                isDark ? 'hover:bg-zinc-800 text-zinc-400 hover:text-white' : 'hover:bg-slate-200 text-slate-500 hover:text-slate-900'
+              className={`p-1.5 sm:p-2 rounded-xl transition-colors cursor-pointer border ${
+                isDark ? 'bg-zinc-800/60 hover:bg-zinc-800 text-zinc-300 hover:text-white border-zinc-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 border-slate-300'
               }`}
-              title="Close Print Studio"
+              title="Close Print Studio (Esc)"
+              aria-label="Close Print Studio"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </header>
 
-        {/* MODAL BODY (DUAL PANEL) */}
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        {/* MOBILE RESPONSIVE SEGMENTED TAB SWITCHER (< md) */}
+        <div className="md:hidden flex border-b shrink-0 px-3 py-2 gap-2 bg-slate-100/60 dark:bg-[#111422] border-slate-200 dark:border-[#22283f]">
+          <button
+            type="button"
+            onClick={() => setActiveMobileTab('options')}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              activeMobileTab === 'options'
+                ? 'bg-amber-500 text-black shadow-xs font-black'
+                : isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>1. Parameters & Scope</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveMobileTab('preview')}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              activeMobileTab === 'preview'
+                ? 'bg-amber-500 text-black shadow-xs font-black'
+                : isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>2. A4 Live Preview ({printableExchanges.length})</span>
+          </button>
+        </div>
+
+        {/* MODAL BODY (DUAL PANEL ON MD+, TABBED ON MOBILE) */}
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
           {/* LEFT PANEL: CONFIGURATION CONTROLS */}
-          <div className={`w-full md:w-[380px] lg:w-[420px] p-5 overflow-y-auto space-y-6 shrink-0 border-r ${
+          <div className={`w-full md:w-[380px] lg:w-[420px] p-4 sm:p-5 overflow-y-auto space-y-6 shrink-0 md:border-r ${
             isDark ? 'bg-[#0f121d] border-[#22283f]' : 'bg-white border-slate-200'
-          }`}>
+          } ${activeMobileTab === 'options' ? 'block' : 'hidden md:block'}`}>
             
             {/* SCOPE SELECTOR */}
             <div className="space-y-3">
@@ -506,9 +552,9 @@ export function LegalPrintStudioModal({
           </div>
 
           {/* RIGHT PANEL: LIVE WYSIWYG A4 PREVIEW CANVAS */}
-          <div className={`flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col items-center justify-start ${
+          <div className={`flex-1 p-3 sm:p-6 overflow-y-auto flex flex-col items-center justify-start ${
             isDark ? 'bg-[#090b12]' : 'bg-slate-200/70'
-          }`}>
+          } ${activeMobileTab === 'preview' ? 'flex' : 'hidden md:flex'}`}>
             <div className="w-full flex items-center justify-between mb-3 max-w-[620px] text-[11px] font-mono text-zinc-400">
               <span className="flex items-center gap-1.5">
                 <Eye className="w-3.5 h-3.5 text-amber-500" />
@@ -683,19 +729,22 @@ export function LegalPrintStudioModal({
         </div>
 
         {/* MODAL FOOTER ACTION BAR */}
-        <footer className={`px-6 py-4 border-t flex items-center justify-between shrink-0 ${
+        <footer className={`px-4 sm:px-6 py-3 sm:py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 ${
           isDark ? 'bg-[#141827] border-[#22283f]' : 'bg-slate-50 border-slate-200'
         }`}>
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>Ready for High Court & Chamber Filing • {printableExchanges.length} exchange(s) queued</span>
+          <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-zinc-400 w-full sm:w-auto justify-between sm:justify-start">
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>High Court Standard</span>
+            </div>
+            <span className="text-amber-500 font-bold">• {printableExchanges.length} exchange(s) queued</span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               type="button"
               onClick={onClose}
-              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
+              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer text-center ${
                 isDark ? 'border-zinc-700 hover:bg-zinc-800 text-zinc-300' : 'border-slate-300 hover:bg-slate-200 text-slate-700'
               }`}
             >
@@ -706,15 +755,16 @@ export function LegalPrintStudioModal({
               type="button"
               onClick={handlePrintClick}
               disabled={printableExchanges.length === 0}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#ff7722] hover:bg-[#ff8833] text-black transition-all flex items-center gap-2 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-2 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold bg-[#ff7722] hover:bg-[#ff8833] text-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-black"
             >
-              <Printer className="w-4 h-4 text-black" />
+              <Printer className="w-4 h-4 text-black shrink-0" />
               <span>Print / Save as PDF ({options.paperSize.toUpperCase()})</span>
             </button>
           </div>
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -750,11 +800,11 @@ export function CourtReadyPrintCanvas({
     return exchanges;
   }, [exchanges, options.scope, options.selectedTurnIndices]);
 
-  if (printableExchanges.length === 0) return null;
+  if (printableExchanges.length === 0 || typeof document === 'undefined') return null;
 
   const isMonochrome = options.colorProfile === 'monochrome';
 
-  return (
+  return createPortal(
     <div 
       id="court-ready-print-canvas" 
       className={`hidden print:block w-full text-black bg-white ${isMonochrome ? 'monochrome-court-filing' : 'court-royal-navy'}`}
@@ -948,6 +998,7 @@ export function CourtReadyPrintCanvas({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

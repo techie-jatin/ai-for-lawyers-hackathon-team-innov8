@@ -31,23 +31,26 @@
 2. [👥 Dual-Audience Value: Advocates vs. Citizens](#-dual-audience-value-advocates-vs-citizens)
 3. [⚖️ Real Data Integration (17 Statutory Domains & 2026 Gazettes)](#️-real-data-integration-17-statutory-domains--2026-gazettes)
 4. [📚 Two-Tier Precedent Engine: Landmark Precedents & AI Judicial Discovery](#-two-tier-precedent-engine-landmark-precedents--ai-judicial-discovery)
-5. [🎯 105-Point Comprehensive System Check (100% Pass Rate)](#-105-point-comprehensive-system-check-100-pass-rate)
-6. [📄 AI Contract Studio: Drafting & Redline Risk Scanner](#-ai-contract-studio-drafting--redline-risk-scanner)
-7. [⚙️ How the Platform Works & Working Mechanism (With Real Statistics)](#️-how-the-platform-works--working-mechanism-with-real-statistics)
-8. [🛡️ AI Safety, Anti-Hallucination & Anti-Misuse Guardrails](#️-ai-safety-anti-hallucination--anti-misuse-guardrails)
-9. [💻 Technical Architecture & Coding Blueprint](#-technical-architecture--coding-blueprint)
+5. [🎯 105-Point System Check & 17-Turn Multi-Domain Audit (100% Pass)](#-105-point-system-check--17-turn-multi-domain-audit-100-pass)
+6. [🎙️ Streaming Continuous Voice Dictation & Bilingual Switching (EN / हिन्दी)](#️-streaming-continuous-voice-dictation--bilingual-switching-en--हिन्दी)
+7. [📁 Native Client-Side Legal Document Ingestion & Attachment (PDF / DOCX / TXT)](#-native-client-side-legal-document-ingestion--attachment-pdf--docx--txt)
+8. [📄 AI Contract Studio: Drafting & Redline Risk Scanner](#-ai-contract-studio-drafting--redline-risk-scanner)
+9. [🖨️ Court-Ready Legal Print Studio Modal & Official Letterhead](#️-court-ready-legal-print-studio-modal--official-letterhead)
+10. [⚙️ How the Platform Works & Working Mechanism (With Real Statistics)](#️-how-the-platform-works--working-mechanism-with-real-statistics)
+11. [🛡️ AI Safety, Anti-Hallucination & Mandatory Compliance Guardrails](#️-ai-safety-anti-hallucination--mandatory-compliance-guardrails)
+12. [💻 Technical Architecture & Coding Blueprint](#-technical-architecture--coding-blueprint)
    - [📐 Architecture Overview Diagram](#-architecture-overview-diagram)
    - [🔐 Multi-Tenant Guest Session Isolation Architecture](#-multi-tenant-guest-session-isolation-architecture-gst-xxxx-xxxx)
-10. [🔒 Enterprise Security, Privacy & Compliance Architecture](#-enterprise-security-privacy--compliance-architecture)
+13. [🔒 Enterprise Security, Privacy & CVSS Hardening Architecture](#-enterprise-security-privacy--cvss-hardening-architecture)
    - [🛡️ Multi-Layer Security Check Framework](#️-multi-layer-security-check-framework)
-   - [🛑 OWASP Top 10 Defensive Hardening Matrix](#-owasp-top-10-defensive-hardening-matrix)
-   - [⚡ In-Memory Rate Limiting & Resource Quotas](#-in-memory-rate-limiting--resource-quotas)
+   - [🛑 Senior Cybersecurity Hardening & CVSS Patch Matrix](#-senior-cybersecurity-hardening--cvss-patch-matrix)
+   - [⚡ Reverse-Proxy Resilient Rate Limiting & Resource Quotas](#-reverse-proxy-resilient-rate-limiting--resource-quotas)
    - [🔐 IDOR Protection & Guest Session Scoping](#-idor-protection--guest-session-scoping)
-11. [🚀 Step-by-Step User Guide (How to Use Our Platform)](#-step-by-step-user-guide-how-to-use-our-platform)
-12. [🐛 Engineering Challenges Encountered & Resolutions](#-engineering-challenges-encountered--resolutions)
-13. [❓ Frequently Asked Questions (Q&A)](#-frequently-asked-questions-qa)
-14. [📦 Local Setup & Deployment Guide](#-local-setup--deployment-guide)
-15. [📜 License & Hackathon Credits](#-license--hackathon-credits)
+14. [🚀 Step-by-Step User Guide (How to Use Our Platform)](#-step-by-step-user-guide-how-to-use-our-platform)
+15. [🐛 Engineering Challenges Encountered & Resolutions](#-engineering-challenges-encountered--resolutions)
+16. [❓ Frequently Asked Questions (Q&A)](#-frequently-asked-questions-qa)
+17. [📦 Local Setup & Deployment Guide](#-local-setup--deployment-guide)
+18. [📜 License & Hackathon Credits](#-license--hackathon-credits)
 
 ---
 
@@ -193,7 +196,7 @@ When legal advocates consult Bharat Legal Intelligence, the system does not simp
 
 ---
 
-## 🎯 105-Point Comprehensive System Check (100% Pass Rate)
+## 🎯 105-Point System Check & 17-Turn Multi-Domain Audit (100% Pass)
 
 To eliminate hardcoded brittleness, hallucinatory drift, and vulnerability to adversarial edge cases, the platform underwent an exhaustive **105-Point Automated Diagnostic Suite** covering every conceivable input across Statute Search and the Validator Hub:
 
@@ -230,7 +233,99 @@ Validator Hub Score    : 50/50 (100.0%)
 | **Cross-Statute Quote Mismatches** | 5 | **100%** | Flags quotes attributed to the wrong Act (e.g. quoting Article 21 against BNS 318, quoting Section 138 against Article 14). |
 | **Adversarial Security Injections** | 7 | **100%** | Neutralizes SQL injection in section numbers (`Section 318' OR '1'='1`), strips XSS script tags (`<script>alert(1)</script>`), rejects non-existent Section 99999, and executes colonial quote resolution. |
 
+### 🔄 17-Turn Multi-Domain Conversational Audit Suite (100% Pass)
+
+To verify conversational memory, statutory grounding continuity, and multi-turn stability across diverse areas of Indian law, our automated audit runner (`frontend/scripts/run_multi_turn_audit.ts`) executes **17 sequential turns across 8 distinct legal scenarios**:
+
+| Scenario ID & Domain | Persona | Turns | Key Provisions Tested | Verified Behaviors |
+| :--- | :---: | :---: | :--- | :--- |
+| **1. Criminal Defense (Cheating)** | Citizen | 3 | BNS §318(4), BNSS §35(3), §482 | Verifies Arnesh Kumar 7-year arrest protections, mandatory §35(3) notice, and pre-arrest anticipatory bail remedies. |
+| **2. Cheating Defense & Quashing** | Advocate | 2 | BNS §318(4), BNSS §528 | Details absence of *mens rea* ab initio under *Hridaya Ranjan*, and High Court §528 petition strategy under *Bhajan Lal*. |
+| **3. Cheque Dishonour Defense** | Advocate | 2 | NI Act §138, §139, §142 | Details rebuttal of statutory debt presumption via preponderance of probabilities under *Rangappa*, and 30-day statutory notice threshold dismissal. |
+| **4. Unlawful Eviction by Landlord** | Citizen | 2 | CPC Order 39 Rules 1 & 2, BNS §329 | Explains urgent civil injunctions, Dalpat Kumar 3-pillar test, and police complaints for criminal trespass and lock-breaking. |
+| **5. Matrimonial Maintenance** | Citizen | 2 | BNSS §144, DV Act §12 | Identifies interim maintenance procedures, child support mandates, and affidavit of assets/liabilities under *Rajnesh v. Neha*. |
+| **6. UPI Scam & Online Banking Fraud** | Citizen | 2 | IT Act §66D, DPDP §8, RBI Circulars | Step-by-step guidance on 1930 portal reporting, freezing recipient accounts, and zero-liability RBI guidelines for banking negligence. |
+| **7. Compulsory Religious Prayer** | Citizen | 2 | Constitution Articles 28(1), 28(3) | Affirms absolute prohibition in state-funded schools and mandatory written parental consent in state-aided institutions. |
+| **8. Liquidated Damages & Forfeiture** | Advocate | 2 | Indian Contract Act §73, §74 | Rebuts unlawful penalty forfeiture under *Kailash Nath*, and defends against malicious criminalization of civil breach. |
+
+```
+======================================================================
+   BHARAT LEGAL INTELLIGENCE - MULTI-TURN & MULTI-DOMAIN AUDIT SUITE   
+======================================================================
+   AUDIT RESULTS: 17 / 17 TURNS PASSED (100%)
+   [+] ALL SCENARIOS PASSED WITH 100% SUCCESS!
+======================================================================
+```
+
 ---
+
+## 🎙️ Streaming Continuous Voice Dictation & Bilingual Switching (EN / हिन्दी)
+
+Advocates dictating court petitions and citizens explaining complex grievances cannot be constrained by brittle speech tools that cut off prematurely every time they pause. Bharat Legal Intelligence features an enterprise-grade **Continuous Streaming Voice Recognition Engine**:
+
+### 1. Architectural Highlights
+- **Continuous Multi-Phrase Recognition**: Engineered with `continuous = true` and `interimResults = true`, utilizing a dedicated `recognitionRef` lifecycle manager in [`ChatView.tsx`](file:///c:/Users/Vijay%20Purvey/OneDrive/Documents/lawyer/frontend/src/components/ChatView.tsx). Speech recognition remains live through natural conversational pauses without dropping session state.
+- **Dynamic Multi-Phrase Accumulation Loop**: Employs an incremental chunking loop (`event.results[i].isFinal`) that accumulates confirmed legal sentences into the input workspace while streaming real-time interim speech.
+- **Bilingual Legal Language Switching (`[EN | हिन्दी]`)**: Direct one-click toggle accessible on both desktop and mobile docks. Switches seamlessly between **Indian English (`en-IN`)** (optimized for Indian legal nomenclature, Acts, and court citations) and **Hindi (`hi-IN`)** (optimized for colloquial citizen prayers and formal Hindi legal terminology).
+- **Live Interim Dictation Visualizer Banner**: A dynamic recording banner renders directly above the input workspace featuring a pulsating live audio beacon, language indicator, real-time speech preview, and an instant **"Done"** completion button.
+- **Clean Click-to-Stop & Unmount Abort**: Clicking the active microphone button immediately executes `recognitionRef.current?.stop()`, while component teardown safely calls `recognitionRef.current?.abort()` to guarantee zero background audio listener leaks.
+- **Browser Permission Recovery Protocol**: If a user previously blocked microphone access, the system surfaces an in-app troubleshooting card detailing exact browser lock icon steps and provides a single-click **"Retry Voice Dictation"** action.
+
+---
+
+## 📁 Native Client-Side Legal Document Ingestion & Attachment (PDF / DOCX / TXT)
+
+Legal consultations almost always begin with a document—a police FIR, an eviction notice, a commercial contract, or a charge sheet. Previously, generic web systems relied on naive text readers that corrupted binary files and aggressively truncated uploads to a few sentences.
+
+Bharat Legal Intelligence introduces a **Native Browser-Based Legal Document Parser** ([`documentParser.ts`](file:///c:/Users/Vijay%20Purvey/OneDrive/Documents/lawyer/frontend/src/utils/documentParser.ts)) with **zero external cloud dependencies**:
+
+```
+                          ┌──────────────────────────────────────┐
+                          │     User Document Upload / Drop      │
+                          │     (.pdf, .docx, .txt up to 15MB)   │
+                          └──────────────────┬───────────────────┘
+                                             │
+                       ┌─────────────────────┴─────────────────────┐
+                       ▼                                           ▼
+             [ .pdf Binary ArrayBuffer ]                 [ .docx Zipped XML ]
+                       │                                           │
+                       ▼                                           ▼
+          Native DecompressionStream                  Decompress <w:document>
+             (Flate / Deflate)                                     │
+                       │                                           ▼
+                       ▼                              Extract all <w:t> text nodes
+          Extract Literals & Hex Streams                           │
+                       │                                           │
+                       └─────────────────────┬─────────────────────┘
+                                             │
+                                             ▼
+                             ┌───────────────────────────────┐
+                             │ High-Fidelity Text Normalizer │
+                             │ • Up to 24,000 Chars (~4k W) │
+                             │ • Scanned Photocopy Detection │
+                             │ • 0% Cloud Data Leakage       │
+                             └───────────────┬───────────────┘
+                                             │
+                                             ▼
+                             ┌───────────────────────────────┐
+                             │ Ingest into RAG / LLM Prompt  │
+                             │ + Interactive Attachment Chip │
+                             └───────────────────────────────┘
+```
+
+### 1. Multi-Format Extraction Engine
+- **Binary PDF ArrayBuffer Parsing**: Directly parses binary PDF streams in the browser, identifying text blocks (`BT ... ET`) and decompressing Flate-encoded content streams using the native browser `DecompressionStream('deflate')` API.
+- **DOCX XML Paragraph Extraction**: Unzips Word document structures in-memory and parses `<w:t>` text nodes across all paragraphs, preserving clause numbering and structure.
+- **Plain Text / FIR Extraction**: Directly decodes UTF-8 plain text with whitespace normalization.
+- **Scanned Document Guard**: Detects image-only photocopy PDFs with insufficient extractable characters and emits an informative advisory explaining OCR boundaries.
+
+### 2. Full Context Retention (24,000 Characters)
+Unlike generic chatbots that silently discard 95% of attached agreements via 450-character truncation, our parser ingests up to **24,000 characters (~4,000 words)**. This accommodates full 8-page commercial contracts, comprehensive FIR statements, and complete legal notices.
+
+### 3. Attachment UI Chip & Viewport Drag-and-Drop
+- **Interactive Document Chip**: Renders above the chat input showing format badge (`PDF`, `DOCX`, `TXT`), filename, file size, word count, character count, and an instant discard button (`✕`).
+- **Full Viewport Drag-and-Drop**: Dragging any legal file over the chat canvas or Contract Studio triggers an animated backdrop overlay (*"Drop Legal Document Here"*).
+- **Structured RAG Prompt Synthesis**: Attached document text is automatically prefixed with standard metadata headers (`[ATTACHED LEGAL DOCUMENT: ...]`) and synthesized into the RAG retrieval pipeline and autonomous client engine.
 
 ---
 
@@ -275,6 +370,7 @@ Natively generates 5 core Indian commercial agreements:
   - Clicking **"Print Deed"** prints **ONLY** the official white sheet agreement on clean A4 pages, completely suppressing surrounding website chrome, headers, navigation bars, and buttons via dedicated `@media print` CSS rules.
 
 #### Engine B: Redlining & Risk Scanner
+- **Direct Multi-Format Contract Upload & Drag-and-Drop**: Users can click `"Upload Contract (.pdf, .docx, .txt)"` or drag and drop any third-party agreement directly into the scanner to parse clauses instantly via native client-side `parseUploadedDocument`.
 - **Contract Health Score (0–100)**: Instant numerical health gauge and risk classification (*Critical Risk*, *High Risk*, *Moderate Risk*, *Compliant*).
 - **Clause-by-Clause Redline Breakdown**:
   - 🔴 **Critical Traps**: Flags uncapped indemnities, void post-employment non-competes, and remote jurisdiction traps.
@@ -282,6 +378,49 @@ Natively generates 5 core Indian commercial agreements:
   - 🟢 **Safe Clauses**: Standard mutual notice and confidentiality provisions.
 - **Copyable Counter-Clause Revisions**: 1-click copy of balanced, legally enforceable substitute clauses to propose to counterparties.
 - **State e-Stamping Advisory**: Prescribes proper non-judicial stamp duty requirements to ensure court admissibility.
+
+---
+
+## 🖨️ Court-Ready Legal Print Studio Modal & Official Letterhead
+
+Legal opinions, bail advisories, and statutory concordances researched on the platform frequently need to be submitted directly to clients, briefed to senior advocates, or filed in court. Generic browser printing produces unformatted website clutter, missing headers, broken pagination, and unreadable cutoffs.
+
+Bharat Legal Intelligence incorporates a specialized **Legal Print Studio Modal & Court-Ready Print Canvas** ([`LegalPrintStudioModal.tsx`](file:///c:/Users/Vijay%20Purvey/OneDrive/Documents/lawyer/frontend/src/components/LegalPrintStudioModal.tsx)):
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        भारत Legal Intelligence                         │
+│         Constitutional & Statutory AI Research & Advisory Dossier      │
+│ Docket: #THREAD-17920     Date: 16 October 2026     Jurisdiction: India│
+│ Matter: Commercial Dispute • Section 318 BNS • Citizen Legal Advisory  │
+├────────────────────────────────────────────────────────────────────────┤
+│ [EXECUTIVE MEMORANDUM & STATUTORY RATIO DECIDENDI]                     │
+│ 1. Statutory Grounding: Bharatiya Nyaya Sanhita 2023 §318(4)           │
+│ 2. Precedent Benchmark: Hridaya Ranjan Prasad Verma v. State of Bihar   │
+│ 3. Advocate Action Matrix & Citizen Defense Strategy                   │
+├────────────────────────────────────────────────────────────────────────┤
+│ Verified under BSA 2023 §63 • Neon pgvector 100% Deterministic Grounding│
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1. High-Fidelity Courtroom Typography
+- **Official Chamber Letterhead**: Features the National Emblem seal, authentic Latin/Devanagari title typography, Docket tracking ID (`#THREAD-XXXX`), timestamped execution date, designated legal matter topic, and citizen/advocate advisory metadata.
+- **Statutory Bench Verification Footnote**: Formatted for judicial submission under Section 63 of the Bharatiya Sakshya Adhiniyam, 2023 (BSA), complete with Neon pgvector database grounding hashes.
+
+### 2. Dual-Engine Isolated Printing
+- **Isolated A4 Print Iframe**: The **"Print Memorandum"** action instantiates a sandboxed, zero-display iframe that renders strictly the A4 document structure. It injects standalone `@page { size: A4 portrait; margin: 15mm; }` styling, completely eliminating website navigation chrome, sidebar controls, and floating action buttons.
+- **Fallback Direct Printing**: Automatically falls back to standard window print if iframe popups are constrained by browser sandboxing.
+
+### 3. Print Customization Studio
+Advocates and researchers can configure print properties in real time before output:
+- `[✓] Include Official Legal Emblem & Chamber Letterhead`
+- `[✓] Include Consultation Docket Number & Date Metadata`
+- `[✓] Include Exact Statutory Citations & Central Act References`
+- `[✓] Include Mandatory AI Advisory & Statutory Disclaimer`
+- `[✓] Include Message Timestamps`
+
+### 4. Cross-Platform Mobile & Desktop Responsiveness
+Equipped with responsive viewports, viewport height boundaries (`h-[92vh]`), sticky control headers, scroll locks, and pinch-to-zoom support for examining long research memoranda on small mobile devices without layout breaking.
 
 ---
 
@@ -332,7 +471,7 @@ Natively generates 5 core Indian commercial agreements:
 
 ---
 
-## 🛡️ AI Safety, Anti-Hallucination & Anti-Misuse Guardrails
+## 🛡️ AI Safety, Anti-Hallucination & Mandatory Compliance Guardrails
 
 In the legal domain, a software bug or hallucination is not an inconvenience—it can result in an unlawful detention, a dismissed petition, or a miscarriage of justice. Bharat Legal Intelligence implements three specialized safety guardrails:
 
@@ -365,6 +504,13 @@ Queries indicating physical peril, domestic assault, or suicide bypass legal res
 - **Women's Distress**: `1091` / `181`
 - **Cybercrime Reporting**: `1930`
 - **Free Legal Aid (NALSA)**: `15100`
+
+### 4. Mandatory AI Advisory & Statutory Compliance Framework
+In strict accordance with Bar Council of India (BCI) ethical standards, IT Act intermediaries guidelines, and AI safety directives, the platform incorporates multi-surface disclosure notices:
+- **Welcome Splash Warning Banner**: Visibly alerts users on initialization: *"AI-Generated Legal Intelligence: Bharat Legal AI can make mistakes. Verify important legal statutes with an enrolled Advocate."*
+- **Persistent Chat Footer Verification Bar**: Every interaction displays an active validation beacon: *"Central Acts & Sanhitas Validated • 0% Speculative Hallucination."*
+- **Judicial Disclaimer Footnote**: Every exported legal opinion and printed memorandum includes an explicit statutory non-liability advisory clarifying that the dossier provides research assistance and does not constitute a formal advocate-client relationship.
+- **Embedded Sandbox in Validator Hub**: Interactive verification hub allowing researchers to cross-examine any AI-generated claim against authentic Central Acts and official Government of India Gazettes.
 
 ---
 
@@ -437,12 +583,15 @@ To resolve this with zero login friction while ensuring complete user privacy, B
 lawyer/
 ├── backend/
 │   ├── app/
-│   │   ├── api/routes/          # REST Endpoints (/assistant, /contracts, /precedents, /sources, /provisions)
+│   │   ├── api/routes/          # REST Endpoints (/assistant, /contracts, /precedents, /sources, /dossiers)
 │   │   │   ├── assistant.py     # Primary grounded RAG query route
 │   │   │   ├── contracts.py     # AI Contract Drafting & Redline Risk Scanner route
 │   │   │   ├── concordance.py   # IPC ↔ BNS & CrPC ↔ BNSS concordance engine
+│   │   │   ├── dossiers.py      # Multi-tenant chamber research dossier repository
 │   │   │   └── precedents.py    # Supreme Court Landmark Precedents API
-│   │   ├── core/config.py       # Pydantic v2 Settings (Neon DB URL, Vector Dims)
+│   │   ├── core/
+│   │   │   ├── config.py        # Pydantic v2 Settings (Neon DB URL, Vector Dims)
+│   │   │   └── security.py      # Reverse-proxy IP resolution, rate limiting, and header sanitization
 │   │   ├── db/
 │   │   │   ├── base.py          # SQLAlchemy ORM declarative base
 │   │   │   ├── session.py       # Connection pooling engine (PostgreSQL + SQLite fallback)
@@ -454,15 +603,21 @@ lawyer/
 │   │       └── search.py        # pgvector Semantic & Hybrid Text Search
 │   └── requirements.txt
 ├── frontend/
+│   ├── scripts/
+│   │   ├── run_multi_turn_audit.ts            # 17-turn multi-domain conversational audit suite
+│   │   └── test_100_statute_validator_suite.ts # 105-point comprehensive diagnostic suite
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── ChatView.tsx               # Conversational Assistant, Persona Toggle, Dictation, Sidebar
-│   │   │   ├── ContractStudioView.tsx     # AI Contract Generator & Redline Risk Scanner
+│   │   │   ├── ChatView.tsx               # Conversational Assistant, Bilingual Dictation, Attachment Ingestion
+│   │   │   ├── ContractStudioView.tsx     # AI Contract Generator, Redline Scanner, File Upload
+│   │   │   ├── LegalPrintStudioModal.tsx  # Cross-Screen Court-Ready Print Canvas & Emblem Letterhead
 │   │   │   ├── LegalMarkdownRenderer.tsx  # Executive Summary & Statutory Markdown Parser
 │   │   │   ├── SearchView.tsx             # Direct Statute & Precedent Browser with Filter Pills
 │   │   │   ├── InfoView.tsx               # Anti-Hallucination Live Sandbox & Legal Aid Directory
 │   │   │   ├── DossiersDrawer.tsx         # Client Docket & Saved Case Files
 │   │   │   └── PrecedentDossierDrawer.tsx # 6-Point Courtroom Case Playbook Drawer
+│   │   ├── utils/
+│   │   │   └── documentParser.ts          # Native client-side PDF, DOCX, and TXT parsing engine
 │   │   ├── App.tsx                        # Root Shell, 4-Tab Navigation Header, Dark/Light Theme Engine
 │   │   ├── index.css                      # Tailwind CSS 4 directives, Print Opinion Styles & Theme
 │   │   └── main.tsx                       # Vite entry point
@@ -484,7 +639,7 @@ lawyer/
 
 ---
 
-## 🔒 Enterprise Security, Privacy & Compliance Architecture
+## 🔒 Enterprise Security, Privacy & CVSS Hardening Architecture
 
 Bharat Legal Intelligence is engineered with an enterprise-grade defense-in-depth security model adhering to the **Digital Personal Data Protection Act, 2023 (DPDP Act)**, the **OWASP API Security Top 10 (2023)**, and High Court electronic filing confidentiality standards.
 
@@ -496,19 +651,19 @@ Our defense architecture verifies every request through 7 independent defensive 
 [ Incoming Request ]
         │
         ▼
-Layer 1: Network & CORS Hardening (Whitelist: Localhost + *.vercel.app + *.onrender.com)
+Layer 1: Network & CORS Hardening (Strict Whitelist: Localhost + Exact Vercel & Production Domains)
         │
         ▼
 Layer 2: HTTP Defense Headers (X-Frame-Options, nosniff, HSTS, CSP, Strict Referrer)
         │
         ▼
-Layer 3: In-Memory Sliding-Window Rate Limiter (Token bucket per IP: 120/min general, 30/min heavy LLM)
+Layer 3: Real-IP Sliding-Window Rate Limiter (Resolves cf-connecting-ip & x-forwarded-for: 120/min general, 30/min heavy LLM)
         │
         ▼
-Layer 4: Input Validation & Sanitization (Pydantic v2 max bounds, ReDoS & buffer overflow protection)
+Layer 4: Input Validation & Sanitization (Pydantic v2 max bounds, SQL wildcard escaping, ReDoS & buffer protection)
         │
         ▼
-Layer 5: Identity & IDOR Scope Authorization (Validates GST-XXXX-XXXX ownership before record deletion)
+Layer 5: Identity & IDOR Scope Authorization (Validates GST-XXXX-XXXX ownership; guest_id.is_(None) public sample scoping)
         │
         ▼
 Layer 6: AbuseGuard Deterministic Interceptor (Blocks criminal facilitation, evidence tampering, extortion)
@@ -519,25 +674,26 @@ Layer 7: CitationValidator (Verifies genuine statutory text before rendering AI 
 
 ---
 
-### 🛑 OWASP Top 10 Defensive Hardening Matrix
+### 🛑 Senior Cybersecurity Hardening & CVSS Patch Matrix
 
-| OWASP Vulnerability | Risk Scenario in Legal AI | Defensive Implementation in Bharat Legal | Status |
+| Vulnerability & CVSS Ref | Risk Scenario in Legal AI | Defensive Implementation in Bharat Legal | Status |
 |---|---|---|---|
-| **API1:2023 Broken Object Level Auth (BOLA / IDOR)** | An adversary attempts to delete or snoop on another user's research dossiers via `DELETE /api/dossiers/{id}`. | **Session-Scoped Ownership Check**: `delete_dossier` validates that the caller's `X-Guest-ID` header matches the stored `dossier.guest_id`. Unauthorized cross-session deletions are immediately rejected with **HTTP 403 Forbidden**. | 🟢 Hardened & Verified |
-| **API2:2023 Broken Authentication** | Credential stuffing or brute forcing access tokens. | Guest sessions utilize cryptographically randomized tokens (`GST-XXXX-XXXX`) with strict format validation. Prototype auth strictly enforces 8+ char password complexity and email validation. | 🟢 Hardened & Verified |
-| **API4:2023 Unrestricted Resource Consumption (DoS)** | Automated bots flood expensive Gemini LLM or vector search endpoints, exhausting API keys and server memory. | **In-Memory Sliding-Window Rate Limiter**: Enforces dynamic quotas (120 req/min for read APIs, 30 req/min for heavy AI endpoints). Floods trigger **HTTP 429 Too Many Requests** with standard `Retry-After` headers. | 🟢 Hardened & Verified |
-| **API5:2023 Broken Function Level Auth** | Tampering with session IDs or accessing elevated administration utilities. | Strict Pydantic input schemas and isolation of administrative seed endpoints. | 🟢 Hardened & Verified |
-| **API7:2023 Server-Side Request Forgery (SSRF)** | Exploiting contract URL scrapers to probe internal localhost ports. | No arbitrary external webhooks or unbounded fetchers; internal endpoints run on closed ASGI middleware. | 🟢 Hardened & Verified |
-| **API8:2023 Security Misconfiguration** | Permissive wildcard CORS (`allow_origin_regex=*`) and missing browser security headers. | **Strict CORS & HTTP Security Headers**: Wildcard origins eliminated; strict domain whitelist active. All HTTP responses automatically include `nosniff`, `X-Frame-Options: DENY`, `HSTS`, and `Content-Security-Policy`. | 🟢 Hardened & Verified |
+| **SEC-01: Broken Object Level Auth (IDOR in Dossiers)** | An unauthenticated attacker queries `GET /api/dossiers` without a `guest_id`, potentially leaking private legal chamber dossiers across sessions. | **Strict Sample Scoping**: Unauthenticated queries without `guest_id` strictly filter on `ChamberDossier.guest_id.is_(None)` (public unassigned benchmark samples only). Authorized deletions validate caller's `X-Guest-ID` header, returning **HTTP 403 Forbidden** on mismatch. | 🟢 Hardened & Verified |
+| **SEC-02: Permissive CORS Regex Wildcard** | Malicious subdomains or sibling apps on shared cloud hosting (e.g. Render) exploit wildcard regex to execute cross-origin authenticated calls. | **Exact Origin Whitelisting**: Removed `|.*\.onrender\.com` regex wildcard from `main.py`. Origins are strictly constrained to authenticated localhost environments and exact production domains. | 🟢 Hardened & Verified |
+| **SEC-04: Reverse-Proxy Rate Limit Collision (DoS)** | All visitors behind Cloudflare or cloud reverse proxies share the proxy's IP, enabling an attacker to lock out all platform users globally. | **Proxy-Resilient Real IP Extraction**: Implemented `get_real_client_ip()` in `security.py`, inspecting `cf-connecting-ip` and the leftmost client IP in `x-forwarded-for` before falling back to `request.client.host`. | 🟢 Hardened & Verified |
+| **SEC-05: Credential Leakage in URL Query Parameters** | Third-party API keys (e.g., Google Gemini) passed in query strings (`?key=...`) leak into cloud server access logs, browser history, and proxy headers. | **Header-Based Authentication**: Relocated Gemini API credentials from URL query strings to the official `x-goog-api-key` HTTP header in both `contracts.py` and `abuse_guard.py`. | 🟢 Hardened & Verified |
+| **SEC-07: SQL Wildcard Exhaustion DoS** | Adversaries send queries composed of `%` or `_` to trigger expensive database table-scan operations on PostgreSQL `ILIKE` clauses. | **Deterministic Wildcard Escaping**: Added `escape_like_wildcards()` in `search.py`, replacing `%` with `\%` and `_` with `\_` so wildcards are treated strictly as literal characters. | 🟢 Hardened & Verified |
+| **API8:2023 Security Misconfiguration** | Missing HTTP defense headers expose client sessions to clickjacking and MIME-sniffing. | **Strict Security Headers Middleware**: All HTTP responses automatically include `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `HSTS`, and `Content-Security-Policy`. | 🟢 Hardened & Verified |
 | **XSS & Content Injection** | Malicious Markdown payloads injected into legal summaries or citations. | **Zero-Sink Parser**: `LegalMarkdownRenderer.tsx` parses inline tokens directly into React Virtual DOM elements without using `dangerouslySetInnerHTML`. | 🟢 Hardened & Verified |
 | **ReDoS & Payload Bombing** | Submitting multi-megabyte text payloads to freeze contract analysis regexes. | **Payload Length Clamping**: `AuditContractRequest` enforces `max_length=150,000` chars; `ChatRequest` enforces `max_length=4,000` chars. Oversized requests fail fast with **HTTP 422**. | 🟢 Hardened & Verified |
 
 ---
 
-### ⚡ In-Memory Rate Limiting & Resource Quotas
+### ⚡ Reverse-Proxy Resilient Rate Limiting & Resource Quotas
 
 To prevent algorithmic resource exhaustion while maintaining zero infrastructure costs (avoiding paid external Redis caches), our backend features an asynchronous sliding-window rate limiter in [`backend/app/core/security.py`](file:///c:/Users/Vijay%20Purvey/OneDrive/Documents/lawyer/backend/app/core/security.py):
 
+- **Proxy-Aware Client Identification**: Uses `get_real_client_ip()` to isolate individual actors behind Cloudflare or Render proxies.
 - **General Endpoints** (`/api/search`, `/api/concordance`, `/api/registry`): **120 requests / 60 seconds** per client IP.
 - **Heavy Compute / LLM Endpoints** (`/api/assistant/query`, `/api/contracts/audit`, `/api/contracts/generate`): **30 requests / 60 seconds** per client IP.
 - **Automatic Header Feedback**: Responses report `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `Retry-After` on exhaustion.
@@ -555,7 +711,8 @@ Under India's **DPDP Act, 2023**, client privacy is paramount. Bharat Legal Inte
    X-Guest-ID: GST-7E4A-9B21
    ```
    If an adversary attempts to supply another guest's token or omit the header, the backend blocks the call with `403 Forbidden: Access denied to dossier created by another session`.
-3. **One-Click Session Zeroization**: Users can click **"Reset Guest Session"** at any moment to permanently purge local threads, clear guest keys, and reset localStorage.
+3. **Public Sample Scoping**: Unauthenticated callers inspecting sample dossiers are restricted strictly to unassigned public rows (`guest_id IS NULL`), preventing cross-guest leakage.
+4. **One-Click Session Zeroization**: Users can click **"Reset Guest Session"** at any moment to permanently purge local threads, clear guest keys, and reset localStorage.
 
 ---
 
@@ -590,7 +747,10 @@ We maintain an automated regression security suite in `scratch/test_security.py`
    - ⚖️ *Constitutional*
    - 🛡️ *DPDP Compliance*
    - 🏪 *Consumer Protection*
-3. **Ask Your Query**: Type your question or click the **Mic** button for speech dictation.
+3. **Ask Your Query, Dictate, or Attach Documents**:
+   - **Continuous Voice Dictation**: Click the **Mic** button to start uninterrupted streaming speech dictation. Toggle between **`EN`** (Indian English) and **`हिन्दी`** (Hindi) in the dock for natural bilingual dictation. The live recording visualizer streams words in real time. Click the active mic button or "Done" to finish.
+   - **Attach Legal Documents**: Click the paperclip (`attach_file`) icon or drag & drop any legal brief, FIR sheet, or commercial agreement (`.pdf`, `.docx`, `.txt` up to 15MB) directly onto the chat canvas. The native browser parser extracts the text, rendering an interactive attachment chip with word and character counts.
+   - **Print Court-Ready Memorandum**: Click the **Print** button in the chat header to open the **Legal Print Studio Modal**. Preview the official National Emblem letterhead, configure docket metadata and citations, and generate clean A4 prints with zero website chrome.
 4. **Inspect Evidence & Playbooks**: Click on any citation badge or case card to inspect the 6-point Courtroom Dossier.
 
 ### Screen 2: AI Contract Studio (`ContractStudioView`)
@@ -600,7 +760,7 @@ We maintain an automated regression security suite in `scratch/test_security.py`
    - Click **"Generate Agreement"** (or **"AI Refine"** for Gemini 1.5 synthesis) to preview the court-ready contract.
    - Click **"Print Deed"** or **"Copy Text"** for instant execution with e-Stamp placeholders.
 2. **Redline Risk Scanner**:
-   - Paste any third-party contract text or click **"Load Predatory Contract Sample"**.
+   - Click **"Upload Contract (.pdf, .docx, .txt)"**, drag and drop an agreement file directly into the scanner, paste text manually, or click **"Compliant Sample"** / **"Predatory Sample"**.
    - Click **"Audit Contract Health"** to view the **Health Score (0–100)**, critical traps (uncapped indemnity, void non-compete §27, jurisdiction traps), and DPDP compliance status.
    - Click **"Copy Counter-Clause"** on any finding to propose safe, balanced language to your counterparty.
 

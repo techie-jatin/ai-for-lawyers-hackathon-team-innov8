@@ -111,6 +111,25 @@ class AbuseGuard:
             ),
             "title": "Financial Fraud & Forgery Blocked",
             "statutory_warning": "Under Section 318, 336, and 340 of Bharatiya Nyaya Sanhita, 2023, forgery of valuable security, identity documents, and criminal cheating are cognizable offences subject to up to 7 years imprisonment."
+        },
+        # 5. Prompt Injection, Jailbreaking & Platform Exploitation
+        {
+            "category": "PROMPT_INJECTION_AND_JAILBREAK",
+            "regex": (
+                r"\b(?:ignore\s+(?:all\s+)?(?:previous|prior|above)\s+instructions|system\s+prompt|disregard\s+(?:all\s+)?instructions)\b|"
+                r"\b(?:you\s+are\s+now\s+(?:dan|unrestricted|free\s+from|a\s+developer|a\s+coder|codebot|chatgpt))\b|"
+                r"\b(?:act\s+as\s+(?:dan|chatgpt|an\s+unrestricted\s+ai|a\s+coder|a\s+software\s+engineer))\b|"
+                r"\b(?:pretend\s+(?:you\s+have\s+no\s+rules|you\s+are\s+not\s+a\s+lawyer|there\s+are\s+no\s+laws))\b"
+            ),
+            "title": "Adversarial Prompt Override Blocked",
+            "statutory_warning": (
+                "This platform operates strictly under the legal and ethical framework of Indian Jurisprudence. "
+                "System prompts, boundary firewalls, and statutory guardrails are immutable."
+            ),
+            "lawful_alternative": (
+                "Please submit queries regarding Indian statutory provisions, constitutional protections, "
+                "or legitimate courtroom and citizen legal disputes."
+            )
         }
     ]
 

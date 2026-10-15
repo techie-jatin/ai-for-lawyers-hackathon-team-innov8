@@ -2678,6 +2678,167 @@ export function generateProvisionLexiconResponse(params: {
 }
 
 // =====================================================================
+// DOMAIN BOUNDARY & OFF-TOPIC INTENT FIREWALL
+// Preserves compute & prevents platform drift while guaranteeing zero
+// false positives for legitimate legal, cyber, IP, and employment inquiries.
+// =====================================================================
+export interface OffTopicAssessment {
+  isOffTopic: boolean;
+  category: 'CODING_AND_DEV' | 'ACADEMIC_HOMEWORK' | 'CULINARY_AND_LIFESTYLE' | 'CREATIVE_AND_FICTION' | 'CASUAL_CHITCHAT';
+  categoryLabel: string;
+  reason: string;
+  suggestedLegalPivots: string[];
+}
+
+export const LEGAL_SAFE_HARBOR_REGEX = /\b(legal|law|laws|statute|statutes|statutory|act|section|article|order|rule|court|courts|police|fir|bail|quash|quashing|suit|lawsuit|complaint|notice|summons|warrant|judgment|precedent|jurisprudence|criminal|civil|tort|injunction|arbitration|dispute|offen[cs]e|penalty|punishment|fine|jail|imprisonment|rights|fundamental|constitution|constitutional|consumer|deficiency|refund|rera|builder|possession|gratuity|employment|employer|employee|terminated|termination|fired|wages|labor|labour|severance|hacked|cyber\w*|scam|fraud|phishing|cheated|forgery|theft|robbery|murder|assault|divorce|maintenance|alimony|custody|domestic\s*violence|dowry|498a|bns|bnss|bsa|ipc|crpc|cpc|dpdp|privacy|copyright|trademark|patent|intellectual\s*property|infringement|breach|contract|agreement|nda|non-disclosure|confidentiality|liability|liable|sued?|attorney|advocate|lawyer|magistrate|tribunal|nalsa)\b/i;
+
+export function detectOffTopicQuery(query: string): OffTopicAssessment | null {
+  const qTrim = query.trim();
+  const qLower = qTrim.toLowerCase();
+
+  // 1. Mandatory Safe Harbor Check: If any legal, dispute, contractual or rights term is present, NEVER block
+  if (LEGAL_SAFE_HARBOR_REGEX.test(qLower)) {
+    return null;
+  }
+
+  // 2. Category: Software Development, Coding, Scripting & Debugging
+  const isCodingRequest =
+    /\b(?:write|create|generate|give\s+me|provide|show\s+me|build)\b.*?\b(?:python|javascript|typescript|js|ts|c\+\+|cpp|c\#|java|html|css|sql|rust|php|bash|react|vue|node|ruby|go|swift|kotlin|tailwind)\b.*?\b(?:code|script|function|component|program|query|class|algorithm|app|regex|navbar|button|card|modal|dropdown|form)\b/i.test(qLower) ||
+    /\b(?:write|create|generate|give\s+me|provide|show\s+me|build)\b.*?\b(?:code|script|function|component|program|query|class|algorithm|app|regex|navbar|button|card|modal|dropdown|form)\b.*?\b(?:in|with|using|for)\s+(?:python|javascript|typescript|js|ts|c\+\+|cpp|c\#|java|html|css|sql|rust|php|bash|react|vue|node|ruby|go|swift|kotlin|tailwind)\b/i.test(qLower) ||
+    /\b(?:write|give\s+me|show\s+me)\s+(?:an?\s+)?sql\s+query\b/i.test(qLower) ||
+    /\b(?:debug|fix\s+(?:the\s+)?bug\s+in|optimize\s+this|refactor)\b.*?\b(?:code|function|script|loop|regex|css|sql|component)\b/i.test(qLower) ||
+    /\bhow\s+to\s+(?:sort|reverse|iterate|parse|filter|map|reduce)\s+(?:an?\s+)?(?:array|list|string|json|csv|dictionary|object)\s+in\s+[a-z\+\#]+/i.test(qLower) ||
+    /\bwrite\s+(?:a\s+)?(?:regex|regular\s+expression)\s+to\b/i.test(qLower) ||
+    /```(?:python|javascript|typescript|cpp|c\+\+|java|html|css|bash|sql|rust|php)\b[\s\S]*?```/i.test(qTrim);
+
+  if (isCodingRequest) {
+    return {
+      isOffTopic: true,
+      category: 'CODING_AND_DEV',
+      categoryLabel: 'Software Development & Code Generation',
+      reason: 'This inquiry requests non-legal software code generation, which falls outside the statutory and judicial mission of Bharat Legal Intelligence.',
+      suggestedLegalPivots: [
+        'Under the Copyright Act 1957, who owns the intellectual property and copyright of software code written without a written contract?',
+        'What are the civil and criminal liabilities under Section 43 & Section 66 of the Information Technology Act for unauthorized data scraping or database extraction?',
+        'Can an employer legally terminate a software developer for contributing to open-source software outside office hours?',
+        'How to draft and serve a formal demand notice for unpaid freelance software engineering dues under the Indian Contract Act?'
+      ]
+    };
+  }
+
+  // 3. Category: Academic, Mathematics & Science Homework
+  const isAcademicRequest =
+    /\b(?:solve|calculate|evaluate)\s+(?:this|the|an?|the\s+following)?\s*(?:equation|integral|derivative|algebra|polynomial|limits?|matrix|math\s+problem|arithmetic)\b/i.test(qLower) ||
+    /\bwrite\s+(?:an?\s+)?(?:essay|speech|paragraph|composition)\s+on\s+(?!law|constitution|justice|crime|rights|court|police|democracy|parliament)\b/i.test(qLower) ||
+    /\bwhat\s+is\s+the\s+(?:chemical\s+formula|molecular\s+weight|atomic\s+mass|chemical\s+reaction)\s+of\b/i.test(qLower) ||
+    /\bexplain\s+(?:how\s+)?(?:photosynthesis|mitosis|osmosis|plate\s+tectonics|gravity|quantum\s+physics|thermodynamics)\b/i.test(qLower);
+
+  if (isAcademicRequest) {
+    return {
+      isOffTopic: true,
+      category: 'ACADEMIC_HOMEWORK',
+      categoryLabel: 'Academic, Science & Mathematics Problem Solving',
+      reason: 'This inquiry requests general academic homework or scientific problem solving rather than statutory legal analysis.',
+      suggestedLegalPivots: [
+        'Under the RTI Act 2005 (CBSE v. Aditya Bandopadhyay), can students demand certified copies of evaluated answer sheets?',
+        'What are the fundamental rights of students against compulsory religious prayer under Article 28 of the Constitution?',
+        'What legal remedies exist before the High Court under Article 226 for arbitrary cancellation of examination results or university paper leaks?'
+      ]
+    };
+  }
+
+  // 4. Category: Culinary, Travel & Lifestyle
+  const isLifestyleRequest =
+    /\b(?:recipe\s+(?:for|of)|how\s+to\s+(?:cook|bake|make|prepare))\b.*?\b(?:cake|cookies?|chicken|biryani|paneer|pasta|pizza|soup|bread|curry|dal|rice|tea|coffee|dish|meal)\b/i.test(qLower) ||
+    /\b(?:plan|create|give\s+me)\s+(?:a\s+)?(?:[0-9]+[\s-]*day\s+)?(?:travel\s+)?(?:itinerary|trip|vacation|holiday|tour)\b/i.test(qLower) ||
+    /\bbest\s+(?:places|hotels|restaurants|cafes|attractions)\s+to\s+visit\s+in\b/i.test(qLower);
+
+  if (isLifestyleRequest) {
+    return {
+      isOffTopic: true,
+      category: 'CULINARY_AND_LIFESTYLE',
+      categoryLabel: 'Culinary, Travel & Lifestyle Planning',
+      reason: 'This inquiry requests non-legal lifestyle, culinary, or itinerary assistance.',
+      suggestedLegalPivots: [
+        'What are consumer rights under the Consumer Protection Act 2019 if a travel agency or airline cancels flight bookings without refund?',
+        'What are the statutory standards and legal liabilities for adulterated food or foreign matter under the Food Safety and Standards Act (FSSAI)?',
+        'Can a hotel refuse check-in to unmarried adult couples with valid ID under Indian law?'
+      ]
+    };
+  }
+
+  // 5. Category: Creative Fiction & General Trivia
+  const isCreativeRequest =
+    /\bwrite\s+(?:a\s+)?(?:\w+\s+)?(?:poem|love\s+story|fairy\s+tale|song|rap|lyrics|joke|fictional\s+story)\b/i.test(qLower) ||
+    /\bwho\s+won\s+the\s+(?:fifa|world\s+cup|ipl|super\s+bowl|oscar|grammy|champions\s+league)\b/i.test(qLower);
+
+  if (isCreativeRequest) {
+    return {
+      isOffTopic: true,
+      category: 'CREATIVE_AND_FICTION',
+      categoryLabel: 'Creative Fiction & General Entertainment Trivia',
+      reason: 'This inquiry requests creative fiction or non-legal entertainment trivia.',
+      suggestedLegalPivots: [
+        'How does Indian Copyright Law protect original literary, dramatic, and musical works under Section 13 and 14 of the Copyright Act, 1957?',
+        'What constitutes criminal defamation under Section 356 BNS (formerly Section 499 IPC) in published literary or online content?'
+      ]
+    };
+  }
+
+  // 6. Category: Casual Chit-Chat & Small Talk Greetings (Zero-overhead introduction)
+  const isCasualChitchat =
+    /^(?:hi|hello|hey|yo|sup|what\'s\s+up|how\s+are\s+you|who\s+are\s+you|namaste|good\s+(?:morning|afternoon|evening))\??$/i.test(qTrim);
+
+  if (isCasualChitchat) {
+    return {
+      isOffTopic: true,
+      category: 'CASUAL_CHITCHAT',
+      categoryLabel: 'Chamber Introduction & System Navigation',
+      reason: 'Greeting acknowledged. Bharat Legal Intelligence is ready to analyze your legal controversy or statutory research.',
+      suggestedLegalPivots: [
+        'Inquire about arrest safeguards under Section 35(3) BNSS and landmark Arnesh Kumar guidelines.',
+        'Explore quashing petitions under Section 528 BNSS (formerly Section 482 CrPC) against malicious FIRs.',
+        'Consult on cheque dishonour defense and presumption rebuttal under Section 138 & 139 of the Negotiable Instruments Act.',
+        'Analyze consumer rights, delayed possession under RERA, or matrimonial maintenance under Rajnesh v. Neha.'
+      ]
+    };
+  }
+
+  return null;
+}
+
+export function formatOffTopicRedirectResponse(assessment: OffTopicAssessment): string {
+  if (assessment.category === 'CASUAL_CHITCHAT') {
+    return (
+      `### भारत Legal Intelligence • National Statutory Chamber\n\n` +
+      `Welcome to **भारत Legal Intelligence**, India's premier autonomous legal intelligence and statutory concordance engine. ` +
+      `This platform is engineered to deliver evidence-grounded legal guidance to **Citizens** and courtroom-ready litigation briefs to **Advocates**.\n\n` +
+      `### What You Can Research Here\n\n` +
+      `- **Modern Sanhitas (2024)**: Bharatiya Nyaya Sanhita (BNS), Bharatiya Nagarik Suraksha Sanhita (BNSS), and Bharatiya Sakshya Adhiniyam (BSA).\n` +
+      `- **Constitutional Protections**: Fundamental Rights (Articles 14, 19, 21, 22), High Court Writs (Article 226), and Supreme Court Jurisprudence.\n` +
+      `- **Dispute Verticals**: Criminal Defense, Cheque Dishonour (§138 NI Act), Real Estate (RERA), Consumer Protection, Family Maintenance, Cyber Fraud & DPDP Act.\n\n` +
+      `### Recommended Consultation Inquiries to Try\n\n` +
+      assessment.suggestedLegalPivots.map((p, i) => `${i + 1}. **${p}**`).join('\n') +
+      `\n\nType your factual dispute, police issue, or legal query above to begin.`
+    );
+  }
+
+  return (
+    `### भारत Legal Intelligence • Chamber Scope & Jurisdiction Notice\n\n` +
+    `**भारत Legal Intelligence** is an autonomous statutory AI engine engineered exclusively for **Indian Law, Constitutional Jurisprudence, and Courtroom Strategy**.\n\n` +
+    `### Scope Assessment: Non-Legal Request Identified\n\n` +
+    `- **Detected Inquiry Class**: ${assessment.categoryLabel}\n` +
+    `- **Chamber Finding**: ${assessment.reason}\n` +
+    `- **Platform Policy**: To preserve computing bandwidth, maintain zero latency, and uphold 100% judicial precision for citizens and advocates with active legal cases, this platform does not function as a general-purpose coding bot, homework solver, or consumer assistant.\n\n` +
+    `### Did Your Request Involve an Indian Legal or Regulatory Issue?\n\n` +
+    `If your project or situation has a statutory, contractual, or dispute dimension, please rephrase your query around governing Indian laws:\n\n` +
+    assessment.suggestedLegalPivots.map((p, i) => `${i + 1}. *"${p}"*`).join('\n') +
+    `\n\n### How to Proceed\n\n` +
+    `Please submit an inquiry regarding your legal rights, an active dispute, police notice, contract breach, or statutory section in the box above.`
+  );
+}
+
+// =====================================================================
 // CLIENT LEGAL INTELLIGENCE ENGINE (AUTONOMOUS / PROGRESSIVE)
 // =====================================================================
 export async function generateAutonomousLegalResponse(params: {
@@ -2690,6 +2851,34 @@ export async function generateAutonomousLegalResponse(params: {
   const { query, mode, context_filter, gemini_api_key, history } = params;
   const effectiveQuery = resolveContextualQuery(query, history);
   const qLower = effectiveQuery.toLowerCase();
+
+  // 0. High-Speed Deterministic Boundary & Off-Topic Firewall (< 2ms, zero token cost)
+  const offTopicCheck = detectOffTopicQuery(effectiveQuery);
+  if (offTopicCheck) {
+    const redirectAnswer = formatOffTopicRedirectResponse(offTopicCheck);
+    return {
+      is_emergency: false,
+      mode: mode,
+      query: query,
+      answer: redirectAnswer,
+      applicable_laws: [],
+      similar_cases: [],
+      citation_validation: {
+        total_citations: 0,
+        valid_citations: 0,
+        trust_score: 1.0,
+        all_verified: true,
+        citations: []
+      },
+      trust_score: 1.0,
+      ai_engine: 'भारत Legal Intelligence (Chamber Boundary Guardrail)',
+      limitations: 'Inquiry classified outside the statutory domain of Indian Law. Please submit inquiries regarding Indian statutory provisions, constitutional rights, or active legal controversies.',
+      auto_detected_domain: `Chamber Scope Notice • ${offTopicCheck.categoryLabel}`,
+      detected_archetype: 'DISPUTE_CONSULTATION',
+      domain_switched: false,
+      original_filter: context_filter
+    };
+  }
 
   // 1. Immediate Safety / Emergency Triage Protocol (for actual physical danger/distress, not statutory legal enquiry)
   const isLegalEnquiry =

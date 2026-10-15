@@ -48,7 +48,14 @@ def get_all_dossiers(
     effective_guest_id = guest_id or x_guest_id
     query = db.query(ChamberDossier)
     if effective_guest_id:
+        if not validate_guest_id_format(effective_guest_id):
+            raise HTTPException(status_code=400, detail="Invalid guest_id format. Must match GST-XXXX-XXXX.")
         query = query.filter(ChamberDossier.guest_id == effective_guest_id)
+    else:
+        # Defense against IDOR: Requests without a session ID can only view public unassigned samples,
+        # never private research dossiers created by users.
+        query = query.filter(ChamberDossier.guest_id.is_(None))
+
     return query.order_by(ChamberDossier.id.desc()).all()
 
 @router.post("", response_model=DossierResponse)

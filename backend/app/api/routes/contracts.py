@@ -299,10 +299,17 @@ def draft_contract(req: DraftContractRequest) -> Dict[str, Any]:
             f"3. Include execution block with witness signatures and e-Stamp duty guidance for {req.governing_state}.\n\n"
             f"BASE AGREEMENT DRAFT:\n{base_contract}"
         )
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         try:
             payload = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode("utf-8")
-            http_req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+            http_req = urllib.request.Request(
+                url,
+                data=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "x-goog-api-key": api_key
+                }
+            )
             with urllib.request.urlopen(http_req, timeout=8.0) as resp:
                 if resp.status == 200:
                     data = json.loads(resp.read().decode("utf-8"))

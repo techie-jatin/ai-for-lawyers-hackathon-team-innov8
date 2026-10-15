@@ -10,6 +10,10 @@ from app.models.legal import LegalProvision, LegalSource
 
 router = APIRouter()
 
+def escape_like_wildcards(val: str) -> str:
+    """Escapes SQL LIKE wildcards (% and _) to prevent un-indexed full-table scan DoS."""
+    return val.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
 class SearchQuery(BaseModel):
     query: str
     top_k: int = 5
@@ -181,7 +185,8 @@ def keyword_search(
         primary_results.extend(sec_candidates)
 
     # Priority 2: Substring / keyword matches across provision and statute title
-    search_pattern = f"%{q_clean}%"
+    safe_q = escape_like_wildcards(q_clean)
+    search_pattern = f"%{safe_q}%"
     substring_candidates = base_query.filter(
         or_(
             LegalProvision.section_number.ilike(search_pattern),

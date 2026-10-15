@@ -241,10 +241,10 @@ class AbuseGuard:
         }
 
         for model_name in models_to_try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
             try:
                 with httpx.Client(timeout=4.0) as client:
-                    resp = client.post(url, json=payload)
+                    resp = client.post(url, json=payload, headers={"x-goog-api-key": api_key})
                     if resp.status_code == 200:
                         data = resp.json()
                         candidates = data.get("candidates", [])

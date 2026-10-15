@@ -55,6 +55,30 @@ class SecurityHeadersMiddleware:
         await self.app(scope, receive, send_with_security_headers)
 
 
+def get_real_client_ip(scope: Scope) -> str:
+    """
+    Extracts the true originating client IP address, handling reverse proxies
+    (Cloudflare, Render, AWS ALB) via standard trusted proxy headers.
+    """
+    headers = dict(scope.get("headers", []))
+    
+    # 1. Cloudflare Connecting IP
+    cf_ip = headers.get(b"cf-connecting-ip")
+    if cf_ip:
+        return cf_ip.decode("latin1").strip()
+        
+    # 2. X-Forwarded-For (leftmost entry is the client IP)
+    x_forwarded_for = headers.get(b"x-forwarded-for")
+    if x_forwarded_for:
+        ips = [ip.strip() for ip in x_forwarded_for.decode("latin1").split(",")]
+        if ips and ips[0]:
+            return ips[0]
+            
+    # 3. Direct socket client fallback
+    client = scope.get("client")
+    return client[0] if client else "127.0.0.1"
+
+
 class RateLimiterMiddleware:
     """
     In-memory Sliding Window Rate Limiter.
@@ -104,8 +128,7 @@ class RateLimiterMiddleware:
             await self.app(scope, receive, send)
             return
 
-        client = scope.get("client")
-        client_ip = client[0] if client else "127.0.0.1"
+        client_ip = get_real_client_ip(scope)
         now = time.time()
         self._cleanup_old_entries(now)
 

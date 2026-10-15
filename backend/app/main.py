@@ -45,7 +45,7 @@ app.add_middleware(
         "https://ai-for-lawyers-hackathon-team-innov-tau.vercel.app",
         "https://ai-for-lawyers-hackathon-team-innov8.vercel.app",
     ],
-    allow_origin_regex=r"^https:\/\/(ai-for-lawyers-hackathon-team-innov[a-zA-Z0-9_-]*\.vercel\.app|.*\.onrender\.com)$",
+    allow_origin_regex=r"^https:\/\/ai-for-lawyers-hackathon-team-innov[a-zA-Z0-9_-]*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],

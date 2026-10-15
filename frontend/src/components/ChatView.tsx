@@ -5,6 +5,7 @@ import { PrecedentDossierDrawer, type RealCasePrecedentItem } from './PrecedentD
 import { LegalStructuredAnswer } from './LegalMarkdownRenderer';
 import { generateAutonomousLegalResponse, extractActiveCaseMemory } from '../services/clientLegalEngine';
 import { LegalPrintStudioModal, CourtReadyPrintCanvas, groupMessagesIntoExchanges, type PrintStudioOptions } from './LegalPrintStudioModal';
+import { parseUploadedDocument, type ParsedDocumentResult } from '../utils/documentParser';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -556,6 +557,16 @@ export function ChatView({
   const [isContextDropdownOpen, setIsContextDropdownOpen] = useState(false);
   const contextDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Voice Dictation Streaming & Bilingual Support State
+  const recognitionRef = useRef<any>(null);
+  const [speechLang, setSpeechLang] = useState<'en-IN' | 'hi-IN'>('en-IN');
+  const [interimTranscript, setInterimTranscript] = useState<string>('');
+
+  // High-Fidelity Document Attachment & Drag-and-Drop State
+  const [attachedDoc, setAttachedDoc] = useState<ParsedDocumentResult | null>(null);
+  const [isParsingDoc, setIsParsingDoc] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+
   // Dynamic Quick Prompts Persona Tab (defaults to active mode)
   const [promptPersonaTab, setPromptPersonaTab] = useState<'citizen' | 'professional'>(mode);
   useEffect(() => {
@@ -1037,7 +1048,16 @@ export function ChatView({
     }
   };
 
-  // Core Voice Dictation Execution
+  // Clean up active speech recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch {}
+      }
+    };
+  }, []);
+
+  // Core Voice Dictation Execution with Continuous Streaming & Multi-Phrase Accumulation
   const executeDictation = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -1045,44 +1065,72 @@ export function ChatView({
       setTimeout(() => setDictationNotice(null), 4500);
       return;
     }
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-IN';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      setMicBlockedHelp(false);
-      setDictationNotice(null);
-    };
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = (e: any) => {
-      setIsListening(false);
-      if (e?.error === 'not-allowed') {
-        setMicBlockedHelp(true);
-      } else {
-        setDictationNotice(`Speech recognition notice: ${e?.error || 'ended'}`);
-        setTimeout(() => setDictationNotice(null), 4000);
-      }
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setExternalInput(transcript);
-      setIsListening(false);
-    };
 
     try {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch {}
+      }
+
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      recognition.lang = speechLang;
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setMicBlockedHelp(false);
+        setDictationNotice(null);
+        setInterimTranscript('');
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        setInterimTranscript('');
+      };
+
+      recognition.onerror = (e: any) => {
+        if (e?.error === 'not-allowed') {
+          setMicBlockedHelp(true);
+          setIsListening(false);
+        } else if (e?.error !== 'no-speech') {
+          setDictationNotice(`Speech recognition notice: ${e?.error || 'ended'}`);
+          setTimeout(() => setDictationNotice(null), 4000);
+          setIsListening(false);
+        }
+      };
+
+      recognition.onresult = (event: any) => {
+        let interim = '';
+        let finalChunk = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalChunk += event.results[i][0].transcript + ' ';
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+        if (finalChunk.trim()) {
+          setExternalInput(finalChunk.trim());
+        }
+        setInterimTranscript(interim);
+      };
+
       recognition.start();
-    } catch {
+    } catch (err) {
+      console.error('Speech recognition initialization error:', err);
       setIsListening(false);
     }
   };
 
-  // Voice Dictation Trigger with Just-in-Time Permission Prompting
+  // Voice Dictation Trigger with Clean Click-to-Stop & Permission Prompting
   const handleStartDictation = () => {
     if (isListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+      }
       setIsListening(false);
+      setInterimTranscript('');
       return;
     }
 
@@ -1094,29 +1142,50 @@ export function ChatView({
     }
   };
 
-  // File Upload handler
+  // High-Fidelity Multi-Format Document Ingestion Handler (PDF, DOCX, TXT)
+  const handleProcessFile = async (file: File) => {
+    setIsParsingDoc(true);
+    setDictationNotice(null);
+    try {
+      const parsed = await parseUploadedDocument(file);
+      if (parsed.isScannedOrEmpty && parsed.warning) {
+        setDictationNotice(parsed.warning);
+        setTimeout(() => setDictationNotice(null), 8000);
+      }
+      setAttachedDoc(parsed);
+    } catch (err: any) {
+      console.error('File parsing error:', err);
+      setDictationNotice('Failed to extract document text. Please ensure the file is not password-protected.');
+      setTimeout(() => setDictationNotice(null), 5000);
+    } finally {
+      setIsParsingDoc(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      if (content) {
-        setExternalInput(`[Document Attached: ${file.name}]:\n${content.slice(0, 450)}...`);
-      }
-    };
-    reader.readAsText(file);
+    if (file) handleProcessFile(file);
   };
 
   const handleSendMessage = async (queryText?: string) => {
     const textToSend = queryText || '';
     if (!textToSend.trim() || loading) return;
 
+    // Synthesize structured document payload if attached
+    let synthesizedQuery = textToSend;
+    let userDisplayText = textToSend;
+    if (attachedDoc && attachedDoc.text) {
+      synthesizedQuery = `[ATTACHED LEGAL DOCUMENT: ${attachedDoc.fileName} (${attachedDoc.formattedSize}, ~${attachedDoc.wordCount} words)]\n${attachedDoc.text}\n\n[USER INQUIRY / PRAYER]:\n${textToSend}`;
+      userDisplayText = `[Attached: 📄 ${attachedDoc.fileName} (${attachedDoc.formattedSize})]\n\n${textToSend}`;
+    }
+    setAttachedDoc(null);
+
     const userMsgId = `msg-${Date.now()}`;
     const userMsg: ChatMessage = {
       id: userMsgId,
       role: 'user',
-      text: textToSend,
+      text: userDisplayText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -1168,7 +1237,7 @@ export function ChatView({
           ];
 
       const data = await sendAssistantQuery({
-        query: textToSend,
+        query: synthesizedQuery,
         mode: mode,
         context_filter: contextFilter,
         gemini_api_key: geminiApiKey || undefined,
@@ -1209,7 +1278,7 @@ export function ChatView({
             ];
 
         const fallbackData = await generateAutonomousLegalResponse({
-          query: textToSend,
+          query: synthesizedQuery,
           mode: mode,
           context_filter: contextFilter,
           gemini_api_key: geminiApiKey || undefined,
@@ -1695,9 +1764,36 @@ export function ChatView({
       </aside>
 
       {/* MAIN CHAT CANVAS & WORKSPACE */}
-      <main className={`flex-1 flex flex-col h-full min-w-0 relative transition-colors duration-200 ${
-        isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
-      }`}>
+      <main 
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+          setIsDragOver(false);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+          const file = e.dataTransfer.files?.[0];
+          if (file) handleProcessFile(file);
+        }}
+        className={`flex-1 flex flex-col h-full min-w-0 relative transition-colors duration-200 ${
+          isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
+        }`}
+      >
+        {/* DRAG-AND-DROP OVERLAY FOR INSTANT LEGAL DOCUMENT INGESTION */}
+        {isDragOver && (
+          <div className="absolute inset-0 z-50 bg-[#090a0f]/85 backdrop-blur-xs flex flex-col items-center justify-center pointer-events-none p-6 border-4 border-dashed border-amber-500 rounded-xl m-2 animate-in fade-in duration-150">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 mb-3 animate-bounce">
+              <span className="material-symbols-outlined text-[36px]">upload_file</span>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-1">Drop Legal Document Here</h3>
+            <p className="text-xs text-amber-300 font-mono">Supports PDF, DOCX, TXT up to 15MB • Client-Side Secure Ingestion</p>
+          </div>
+        )}
         {/* Sleek Compact Chat Thread Header (Single-row, minimal vertical space, No SES ID) */}
         <header className={`px-2.5 sm:px-4 py-1.5 h-11 border-b shadow-xs flex items-center justify-between shrink-0 z-10 transition-colors ${
           isDark 
@@ -2653,6 +2749,23 @@ export function ChatView({
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
+                  onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
+                  className={`px-2 py-1 rounded-lg text-[10.5px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
+                    speechLang === 'hi-IN'
+                      ? isDark 
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' 
+                        : 'bg-amber-100 text-amber-900 border-amber-300'
+                      : isDark 
+                        ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#94a3b8] hover:text-white border-[#23283f]' 
+                        : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#444653] hover:text-[#0b1c30] border-[#dce9ff]'
+                  }`}
+                  title={`Dictation Language: ${speechLang === 'en-IN' ? 'English (India)' : 'हिन्दी (India)'} - Click to switch`}
+                >
+                  {speechLang === 'en-IN' ? 'EN' : 'हिन्दी'}
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className={`p-1.5 rounded-lg transition-colors border cursor-pointer shrink-0 ${
                     isDark 
@@ -2800,8 +2913,25 @@ export function ChatView({
                 )}
               </div>
 
-              {/* Right Side: Attach & Mic Buttons on Right of Context Dropdown */}
+              {/* Right Side: Language, Attach & Mic Buttons on Right of Context Dropdown */}
               <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
+                  className={`px-1.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
+                    speechLang === 'hi-IN'
+                      ? isDark 
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' 
+                        : 'bg-amber-100 text-amber-900 border-amber-300'
+                      : isDark 
+                        ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#94a3b8] hover:text-white border-[#23283f]' 
+                        : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#444653] hover:text-[#0b1c30] border-[#dce9ff]'
+                  }`}
+                  title={`Dictation Language: ${speechLang === 'en-IN' ? 'English' : 'हिन्दी'} - Click to switch`}
+                >
+                  {speechLang === 'en-IN' ? 'EN' : 'हिन्दी'}
+                </button>
+
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -2896,6 +3026,91 @@ export function ChatView({
                   >
                     <span className="material-symbols-outlined text-[14px]">refresh</span>
                     <span>Retry Voice Dictation</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Live Continuous Dictation Streaming Banner */}
+            {isListening && (
+              <div className={`mx-2 mb-2 p-2.5 rounded-xl border flex items-center justify-between gap-3 animate-in fade-in ${
+                isDark ? 'bg-red-950/30 border-red-500/40 text-red-200' : 'bg-red-50 border-red-300 text-red-900'
+              }`}>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+                      <span>Live Speech Dictation ({speechLang === 'en-IN' ? 'English - India' : 'हिन्दी - भारत'})</span>
+                      <span className="text-[9px] opacity-75 font-normal">• Continuous recording</span>
+                    </div>
+                    <div className="text-[12px] italic truncate font-sans">
+                      {interimTranscript || 'Listening for your legal prayer or inquiry...'}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleStartDictation}
+                    className="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-red-600 hover:bg-red-700 text-white cursor-pointer transition-colors shadow-xs"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Document Extraction In-Progress Loader */}
+            {isParsingDoc && (
+              <div className={`mx-2 mb-2 p-2.5 rounded-xl border flex items-center gap-2.5 text-[11px] animate-pulse ${
+                isDark ? 'bg-blue-950/30 border-blue-500/30 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-900'
+              }`}>
+                <span className="material-symbols-outlined text-[16px] animate-spin">sync</span>
+                <span>Extracting legal document text (PDF / DOCX / TXT)...</span>
+              </div>
+            )}
+
+            {/* Attached Legal Document Preview Chip */}
+            {attachedDoc && !isParsingDoc && (
+              <div className={`mx-2 mb-2 p-2.5 rounded-xl border flex items-center justify-between gap-2 text-[11.5px] animate-in fade-in ${
+                isDark ? 'bg-[#141a2c] border-[#293556] text-slate-200' : 'bg-[#eef4ff] border-[#b9d2fe] text-[#00288e]'
+              }`}>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${
+                    attachedDoc.fileType === 'pdf'
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      : attachedDoc.fileType === 'docx'
+                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                        : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  }`}>
+                    {attachedDoc.fileType.toUpperCase()}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{attachedDoc.fileName}</div>
+                    <div className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {attachedDoc.formattedSize} • ~{attachedDoc.wordCount.toLocaleString()} words
+                      {attachedDoc.characterCount > 0 && ` • ${attachedDoc.characterCount.toLocaleString()} chars`}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                    isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+                  }`}>
+                    Ready for Ingestion
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setAttachedDoc(null)}
+                    className={`p-1 rounded-md transition-colors cursor-pointer ${
+                      isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-200 text-slate-600 hover:text-black'
+                    }`}
+                    title="Remove attached document"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">close</span>
                   </button>
                 </div>
               </div>

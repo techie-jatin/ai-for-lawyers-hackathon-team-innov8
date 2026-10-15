@@ -3,7 +3,7 @@ import { Loader2, CheckCircle2, Scale, BookOpen, Database, Gavel, ShieldCheck, B
 import type { ChatLaunchContext } from '../App';
 import { PrecedentDossierDrawer, type RealCasePrecedentItem } from './PrecedentDossierDrawer';
 import { LegalStructuredAnswer } from './LegalMarkdownRenderer';
-import { generateAutonomousLegalResponse } from '../services/clientLegalEngine';
+import { generateAutonomousLegalResponse, extractActiveCaseMemory } from '../services/clientLegalEngine';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -1002,10 +1002,12 @@ export function ChatView({
     saveThreadsToStorage(baseThreads);
 
     try {
-      const historyPayload = messages.slice(-6).map(m => ({
-        role: m.role,
-        text: m.text
-      }));
+      const historyPayload = messages.length <= 12
+        ? messages.map(m => ({ role: m.role, text: m.text }))
+        : [
+            { role: messages[0].role, text: messages[0].text },
+            ...messages.slice(-10).map(m => ({ role: m.role, text: m.text }))
+          ];
 
       const data = await sendAssistantQuery({
         query: textToSend,
@@ -1041,10 +1043,12 @@ export function ChatView({
     } catch (err: any) {
       console.warn('handleSendMessage caught error, using autonomous legal engine fallback:', err);
       try {
-        const historyPayload = messages.slice(-6).map(m => ({
-          role: m.role,
-          text: m.text
-        }));
+        const historyPayload = messages.length <= 12
+          ? messages.map(m => ({ role: m.role, text: m.text }))
+          : [
+              { role: messages[0].role, text: messages[0].text },
+              ...messages.slice(-10).map(m => ({ role: m.role, text: m.text }))
+            ];
 
         const fallbackData = await generateAutonomousLegalResponse({
           query: textToSend,
@@ -1794,6 +1798,45 @@ export function ChatView({
                 </div>
               </div>
             ) : null}
+
+            {messages.length >= 2 && (() => {
+              const activeMemory = extractActiveCaseMemory(messages);
+              if (!activeMemory) return null;
+              return (
+                <div className={`no-print w-full p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl border flex items-center justify-between gap-3 text-[11px] font-mono shadow-xs mb-3 transition-all ${
+                  isDark 
+                    ? 'bg-[#0f1322] border-[#222a44] text-zinc-300' 
+                    : 'bg-white border-[#dce9ff] text-slate-700 shadow-sm'
+                }`}>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 shrink-0">
+                      <Brain className="w-3.5 h-3.5 text-indigo-400" />
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                      <span className="font-bold text-[#ff7722] uppercase tracking-wider text-[9.5px]">
+                        Active Case Memory:
+                      </span>
+                      <span className={`font-semibold truncate max-w-[240px] sm:max-w-[400px] ${isDark ? 'text-white' : 'text-[#00288e]'}`} title={activeMemory.rootFactAnchor}>
+                        {activeMemory.rootFactAnchor}
+                      </span>
+                      {activeMemory.provisions.length > 0 && (
+                        <span className={`px-2 py-0.5 rounded text-[9.5px] font-bold border ${
+                          isDark ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/50' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        }`}>
+                          {activeMemory.provisions.slice(0, 3).join(' • ')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="hidden sm:inline font-semibold text-emerald-500">
+                      Turn {activeMemory.turnCount} Synced
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
 
             {messages.map((msg) => (
               <div key={msg.id} className="w-full space-y-3">

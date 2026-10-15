@@ -1493,8 +1493,46 @@ export const CANONICAL_GAZETTES: GazetteItem[] = [
 // =====================================================================
 // QUERY ARCHETYPE CLASSIFIER & STATUTORY LEXICON GENERATOR
 // =====================================================================
-// MULTI-TURN COREFERENCE RESOLVER & QUERY AUGMENTATION
+// MULTI-TURN COREFERENCE RESOLVER & CUMULATIVE CASE MEMORY MATRIX
 // =====================================================================
+export interface ActiveCaseMemory {
+  rootFactAnchor: string;
+  provisions: string[];
+  statutes: string[];
+  turnCount: number;
+}
+
+export function extractActiveCaseMemory(history?: Array<{ role: string; text: string }>): ActiveCaseMemory | null {
+  if (!history || history.length < 2) return null;
+
+  const firstUserMsg = history.find(m => m.role === 'user' && m.text.trim().split(/\s+/).length >= 3);
+  if (!firstUserMsg) return null;
+
+  const rootFactAnchor = firstUserMsg.text.trim();
+  const provSet = new Set<string>();
+  const statuteSet = new Set<string>();
+
+  for (const m of history) {
+    const text = m.text || '';
+    const provMatches = text.match(/\b(Article\s+\d+[A-Z]?|Section\s+\d+[A-Za-z]?(?:\([0-9a-z]+\))?|Order\s+[0-9IVXLCDM]+\s*Rule\s+\d+)\b/gi);
+    if (provMatches) {
+      provMatches.forEach(p => provSet.add(p.trim()));
+    }
+
+    const statuteMatches = text.match(/\b(Constitution(?: of India)?|BNS|BNSS|BSA|Bharatiya Nyaya Sanhita|Bharatiya Nagarik Suraksha Sanhita|Bharatiya Sakshya Adhiniyam|IPC|CrPC|IEA|Negotiable Instruments Act|NI Act|Consumer Protection Act|Motor Vehicles Act|RERA|Arbitration Act|Hindu Marriage Act|Specific Relief Act|Digital Personal Data Protection Act|DPDP|IT Act|Right to Information Act|RTI Act|Payment of Gratuity Act|Income Tax Act)\b/gi);
+    if (statuteMatches) {
+      statuteMatches.forEach(s => statuteSet.add(s.trim()));
+    }
+  }
+
+  return {
+    rootFactAnchor,
+    provisions: Array.from(provSet),
+    statutes: Array.from(statuteSet),
+    turnCount: history.filter(m => m.role === 'user').length
+  };
+}
+
 export function resolveContextualQuery(query: string, history?: Array<{ role: string; text: string }>): string {
   if (!history || history.length === 0) return query;
 
@@ -1506,8 +1544,9 @@ export function resolveContextualQuery(query: string, history?: Array<{ role: st
 
   if (!needsCoref) return query;
 
+  const activeMemory = extractActiveCaseMemory(history);
   const extractedProvs: string[] = [];
-  let userContext = '';
+  let immediateUserContext = '';
 
   for (let i = history.length - 1; i >= 0; i--) {
     const text = history[i]?.text || '';
@@ -1519,19 +1558,24 @@ export function resolveContextualQuery(query: string, history?: Array<{ role: st
       if (statuteMatch) extractedProvs.push(statuteMatch[1]);
     }
 
-    if (!userContext && history[i]?.role === 'user' && text.trim().split(/\s+/).length >= 3) {
-      userContext = text.trim();
+    if (!immediateUserContext && history[i]?.role === 'user' && text.trim().split(/\s+/).length >= 3) {
+      immediateUserContext = text.trim();
     }
 
-    if (extractedProvs.length > 0 && userContext) break;
+    if (extractedProvs.length > 0 && immediateUserContext) break;
   }
 
   const parts = [query];
-  if (userContext && !query.toLowerCase().includes(userContext.toLowerCase().slice(0, 20))) {
-    parts.push(`[Context: ${userContext}]`);
+  if (immediateUserContext && !query.toLowerCase().includes(immediateUserContext.toLowerCase().slice(0, 20))) {
+    parts.push(`[Context: ${immediateUserContext}]`);
+  }
+  if (activeMemory && activeMemory.rootFactAnchor !== immediateUserContext && !query.toLowerCase().includes(activeMemory.rootFactAnchor.toLowerCase().slice(0, 20))) {
+    parts.push(`[Root Dispute: ${activeMemory.rootFactAnchor}]`);
   }
   if (extractedProvs.length > 0) {
     parts.push(extractedProvs.join(' '));
+  } else if (activeMemory && activeMemory.provisions.length > 0) {
+    parts.push(activeMemory.provisions.slice(0, 3).join(' '));
   }
 
   return parts.join(' ');

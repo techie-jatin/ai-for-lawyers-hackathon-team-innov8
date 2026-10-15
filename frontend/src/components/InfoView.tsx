@@ -986,6 +986,67 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
           </div>
         </div>
       </section>
+
+      {/* Section 5: AI-Generated Intelligence Disclosure & Compliance Framework */}
+      <section className={`max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 border-t ${
+        isDark ? 'border-[#1f2438]' : 'border-[#e2e8f0]'
+      }`}>
+        <div className={`p-5 sm:p-6 rounded-2xl border space-y-4 ${
+          isDark ? 'bg-[#0f111a] border-amber-500/30' : 'bg-amber-50/70 border-amber-200'
+        }`}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+              <span className="material-symbols-outlined text-[20px]">smart_toy</span>
+            </div>
+            <div>
+              <h3 className={`text-[15px] sm:text-[16px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
+                AI-Generated Response Warning & Compliance Framework
+              </h3>
+              <p className={`text-[11px] font-mono ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
+                Advocates Act, 1961 • Bar Council of India Ethical Standards • MeitY AI Advisory 2024
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px] leading-relaxed">
+            <div className={`p-3.5 rounded-xl border ${
+              isDark ? 'bg-[#141827] border-[#22283f] text-slate-300' : 'bg-white border-slate-200 text-slate-700'
+            }`}>
+              <div className="font-bold text-[12px] mb-1 text-amber-500 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[15px]">gavel</span>
+                Advocates Act, 1961
+              </div>
+              <p>
+                Under Sections 29, 30 & 33, only enrolled Advocates on State Bar Council rolls hold the right to practice law in Indian courts. All responses on Bharat Legal AI are for legal research and preliminary assessment only and never constitute attorney-client representation or formal pleadings.
+              </p>
+            </div>
+
+            <div className={`p-3.5 rounded-xl border ${
+              isDark ? 'bg-[#141827] border-[#22283f] text-slate-300' : 'bg-white border-slate-200 text-slate-700'
+            }`}>
+              <div className="font-bold text-[12px] mb-1 text-amber-500 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[15px]">verified_user</span>
+                0% Speculative Tolerance
+              </div>
+              <p>
+                Every statutory reference is ground-truth validated against official Central Gazettes and indexed Supreme Court precedents using deterministic lexical AST matching to actively prevent synthetic hallucination.
+              </p>
+            </div>
+
+            <div className={`p-3.5 rounded-xl border ${
+              isDark ? 'bg-[#141827] border-[#22283f] text-slate-300' : 'bg-white border-slate-200 text-slate-700'
+            }`}>
+              <div className="font-bold text-[12px] mb-1 text-amber-500 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[15px]">assignment_turned_in</span>
+                Mandatory Advocate Vetting
+              </div>
+              <p>
+                Litigants and citizens must seek independent review by a qualified legal practitioner prior to acting on any research opinion, signing agreements, or presenting briefs before any court, magistrate, or tribunal.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

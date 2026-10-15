@@ -1196,6 +1196,12 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                     <span className={`text-[10px] font-sans ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       ⚖️ Formatted with Indian Stamp Act e-Stamping placeholder & Section 63 BSA execution lines.
                     </span>
+                    <span className={`inline-flex items-center gap-1 text-[9px] font-mono px-2 py-0.5 rounded border ${
+                      isDark ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-amber-50 text-amber-800 border-amber-200'
+                    }`}>
+                      <span className="material-symbols-outlined text-[11px]">smart_toy</span>
+                      AI Drafted — Subject to Advocate Vetting
+                    </span>
                     {engineUsed && (
                       <span className="inline-block text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                         {engineUsed}

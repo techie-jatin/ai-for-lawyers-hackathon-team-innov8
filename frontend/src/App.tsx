@@ -209,35 +209,180 @@ export function App() {
     <div className={`h-screen flex flex-col font-sans overflow-hidden transition-colors duration-200 ${
       isDark ? 'bg-[#090a0f] text-[#f8fafc]' : 'bg-[#f4f6fb] text-[#0b1c30]'
     }`}>
-      {/* INSTITUTIONAL DAILY LAWS LOADING / SPLASH SCREEN */}
+      {/* BESPOKE INSTITUTIONAL LOADING / SPLASH EXPERIENCE (Tailored Responsive UI/UX) */}
       {isLoading && (
         <div 
           id="app-splash-screen"
-          className={`fixed inset-0 z-[10000] flex flex-col items-center justify-between p-4 sm:p-8 transition-opacity duration-400 select-none ${
-            isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          className={`fixed inset-0 z-[10000] flex flex-col items-center justify-between p-3.5 sm:p-6 md:p-8 transition-all duration-500 select-none overflow-hidden ${
+            isFadingOut ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
           }`}
-          style={{ backgroundColor: isDark ? '#090a0f' : '#f4f6fb' }}
+          style={{ backgroundColor: isDark ? '#080a10' : '#f4f6fb' }}
         >
-          {/* Top Status Header */}
-          <div className="w-full flex items-center justify-between max-w-xl opacity-75 text-[10px] sm:text-[11px] font-mono">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-emerald-400 font-semibold">Bharatiya Statutory Engine</span>
-            </span>
-            <span className={isDark ? 'text-zinc-400' : 'text-zinc-600'}>
-              BNS • BNSS • BSA 2023
-            </span>
+          {/* Ambient Background Glow Orbs */}
+          <div className="absolute top-1/4 -left-20 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-[#ff7722]/10 blur-3xl pointer-events-none animate-pulse"></div>
+          <div className="absolute bottom-1/4 -right-20 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-[#00288e]/10 blur-3xl pointer-events-none animate-pulse delay-300"></div>
+
+          {/* Top Status Header Bar */}
+          <div className="w-full flex items-center justify-between max-w-5xl text-[10px] sm:text-[11px] font-mono z-10">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
+              <span className={`font-bold uppercase tracking-wider ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                Bharatiya Statutory Engine Active
+              </span>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3 text-zinc-400">
+              <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${
+                isDark ? 'bg-white/5 border-white/10 text-zinc-300' : 'bg-white border-slate-200 text-slate-700'
+              }`}>
+                2024-2026 Sanhitas
+              </span>
+              <span className="hidden sm:inline">Neon pgvector Synced</span>
+            </div>
           </div>
 
-          {/* Central Emblem & Daily Legal Right Card */}
-          <div className="flex flex-col items-center max-w-md w-full text-center gap-4 sm:gap-5 my-auto">
+          {/* ============================================================== */}
+          {/* DESKTOP & LARGE SCREENS PRESENTATION (>= 1024px / lg+) */}
+          {/* ============================================================== */}
+          <div className="hidden lg:grid lg:grid-cols-12 gap-8 max-w-5xl w-full my-auto items-center z-10">
+            {/* Left Column: Brand Emblem, Authority Badges, & Architecture Telemetry (5 cols) */}
+            <div className="lg:col-span-5 flex flex-col gap-5">
+              <div className="flex items-center gap-3.5">
+                <div className="relative">
+                  <div className="absolute -inset-2 rounded-2xl bg-gradient-to-r from-[#ff7722]/30 via-[#00288e]/30 to-emerald-500/30 blur-md animate-pulse"></div>
+                  <img 
+                    src="/logo.png" 
+                    alt="Logo" 
+                    className={`relative w-16 h-16 rounded-2xl object-contain p-1 border shadow-2xl ${
+                      isDark ? 'bg-[#121626] border-[#222a44]' : 'bg-white border-[#dce9ff]'
+                    }`}
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 font-black text-2xl tracking-tight">
+                    <span className="text-[#ff7722]">भारत</span>
+                    <span className={isDark ? 'text-white' : 'text-[#00288e]'}>Legal Intelligence</span>
+                  </div>
+                  <span className={`text-[11.5px] font-medium ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
+                    Constitutional & Courtroom Precedents Platform
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Indicator */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-[11px] font-mono">
+                  <span className={`flex items-center gap-1.5 font-semibold ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+                    <span className="material-symbols-outlined text-[14px] text-emerald-400 animate-spin">sync</span>
+                    Loading Central Acts & Landmark Precedents...
+                  </span>
+                  <span className={`font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>100%</span>
+                </div>
+                <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#15192c]' : 'bg-slate-200'}`}>
+                  <div className="h-full bg-gradient-to-r from-[#ff7722] via-[#00288e] to-emerald-400 rounded-full w-full animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Engine Architecture Checklist */}
+              <div className={`p-3.5 rounded-xl border space-y-2 font-mono text-[11px] ${
+                isDark ? 'bg-[#101322]/80 border-[#202740]' : 'bg-white/80 border-[#dce9ff] shadow-sm'
+              }`}>
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider pb-1.5 border-b border-zinc-700/20">
+                  <span className={isDark ? 'text-zinc-400' : 'text-zinc-600'}>Core Verification Pipeline</span>
+                  <span className="text-emerald-400 font-bold">READY</span>
+                </div>
+                {[
+                  { label: 'Central Statutory Corpus (Neon pgvector)', state: 'ACTIVE' },
+                  { label: 'BNS • BNSS • BSA 2023 Concordance', state: 'SYNCED' },
+                  { label: 'AIR & e-SCR Landmark Precedent Benchmarks', state: 'ONLINE' },
+                  { label: 'Deterministic Lexical AST Anti-Hallucination Gate', state: 'ZERO TOLERANCE' }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span className={`flex items-center gap-1.5 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+                      <span className="material-symbols-outlined text-[13px] text-emerald-400">check_circle</span>
+                      {item.label}
+                    </span>
+                    <span className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded ${
+                      isDark ? 'bg-emerald-950/60 text-emerald-300' : 'bg-emerald-50 text-emerald-800'
+                    }`}>
+                      {item.state}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Daily Law for Everyday Use Card (7 cols) */}
+            <div className="lg:col-span-7">
+              <div className={`p-6 rounded-2xl border shadow-xl transition-all relative overflow-hidden ${
+                isDark ? 'bg-[#101424] border-[#222b48]' : 'bg-white border-[#dce9ff]'
+              }`}>
+                {/* Subtle Watermark Icon */}
+                <span className="material-symbols-outlined absolute -right-6 -bottom-6 text-[150px] opacity-[0.03] select-none pointer-events-none">
+                  balance
+                </span>
+
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-500">
+                      <span className="material-symbols-outlined text-[18px]">lightbulb</span>
+                    </div>
+                    <div>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider block ${
+                        isDark ? 'text-amber-400' : 'text-amber-800'
+                      }`}>
+                        Daily Law for Everyday Use
+                      </span>
+                      <span className={`text-[11px] font-mono font-bold ${
+                        isDark ? 'text-emerald-400' : 'text-emerald-700'
+                      }`}>
+                        ⚖️ {splashTip.provision}
+                      </span>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-mono px-2.5 py-1 rounded-full border font-bold ${
+                    isDark ? 'bg-[#181d32] border-[#283252] text-zinc-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+                  }`}>
+                    {splashTip.category}
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-bold text-[#ff7722] mb-1.5 tracking-tight">
+                  {splashTip.title}
+                </h3>
+                <p className={`text-[13px] leading-relaxed mb-4 ${
+                  isDark ? 'text-[#cbd5e1]' : 'text-[#334155]'
+                }`}>
+                  {splashTip.description}
+                </p>
+
+                <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${
+                  isDark ? 'bg-emerald-950/30 border-emerald-900/50 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                }`}>
+                  <span className={`material-symbols-outlined text-[18px] shrink-0 mt-0.5 ${
+                    isDark ? 'text-emerald-400' : 'text-emerald-700'
+                  }`}>
+                    verified
+                  </span>
+                  <div className="text-[12px] leading-relaxed">
+                    <strong className="block font-bold mb-0.5">Citizen / Advocate Practice Mandate:</strong>
+                    <span>{splashTip.actionableTip}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* MOBILE & TABLET PRESENTATION (< 1024px) */}
+          {/* ============================================================== */}
+          <div className="flex lg:hidden flex-col items-center max-w-md w-full text-center gap-3.5 sm:gap-4 my-auto z-10">
             {/* Pulsing Brand Emblem */}
             <div className="relative flex items-center justify-center">
-              <div className="absolute -inset-2.5 rounded-2xl bg-gradient-to-r from-[#ff7722]/30 via-[#3755c3]/30 to-emerald-500/30 blur-md animate-pulse"></div>
+              <div className="absolute -inset-2 rounded-2xl bg-gradient-to-r from-[#ff7722]/30 via-[#00288e]/30 to-emerald-500/30 blur-md animate-pulse"></div>
               <img 
                 src="/logo.png" 
-                alt="भारत Legal Intelligence" 
-                className={`relative w-14 h-14 sm:w-20 sm:h-20 rounded-2xl object-contain shadow-2xl p-1 border ${
+                alt="Logo" 
+                className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-2xl object-contain shadow-2xl p-1 border ${
                   isDark ? 'bg-[#131726] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
                 }`}
               />
@@ -245,66 +390,81 @@ export function App() {
 
             {/* Brand Title */}
             <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1.5">
                 <span className="font-black text-xl sm:text-2xl tracking-tight text-[#ff7722]">भारत</span>
                 <span className={`font-black text-xl sm:text-2xl tracking-tight ${isDark ? 'text-white' : 'text-[#00288e]'}`}>
                   Legal Intelligence
                 </span>
               </div>
-              <p className={`text-[11px] sm:text-[12px] font-medium mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
-                Official Constitutional & Courtroom Precedents Platform
+              <p className={`text-[10.5px] sm:text-[11.5px] font-medium mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
+                Constitutional & Courtroom Precedents Platform
               </p>
             </div>
 
-            {/* Smooth Progress Indicator */}
-            <div className="w-full max-w-xs flex flex-col items-center gap-1.5">
-              <div className="w-full h-1.5 rounded-full overflow-hidden bg-zinc-700/20">
+            {/* Tablet-Only Metric Badges (Visible 640px to 1023px) */}
+            <div className="hidden sm:flex items-center justify-center gap-2 font-mono text-[10px]">
+              <span className={`px-2 py-0.5 rounded-full border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+                59+ Central Statutes
+              </span>
+              <span className={`px-2 py-0.5 rounded-full border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+                BNS • BNSS • BSA Synced
+              </span>
+              <span className={`px-2 py-0.5 rounded-full border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+                AIR Precedents Active
+              </span>
+            </div>
+
+            {/* Progress Indicator */}
+            <div className="w-full max-w-xs flex flex-col items-center gap-1">
+              <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-zinc-800' : 'bg-slate-200'}`}>
                 <div className="h-full bg-gradient-to-r from-[#ff7722] via-[#00288e] to-emerald-400 rounded-full w-full animate-pulse"></div>
               </div>
-              <span className="text-[10px] font-mono text-zinc-400 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[13px] animate-spin text-emerald-400">sync</span>
+              <span className="text-[9.5px] sm:text-[10px] font-mono text-zinc-400 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px] animate-spin text-emerald-400">sync</span>
                 Loading Central Acts & Landmark Precedents...
               </span>
             </div>
 
-            {/* Daily Practical Law Tip for Citizens & Advocates */}
-            <div className={`w-full p-3.5 sm:p-4 rounded-xl border text-left shadow-lg transition-colors ${
+            {/* Compact Daily Law Card */}
+            <div className={`w-full p-3.5 sm:p-4 rounded-xl border text-left shadow-md transition-colors ${
               isDark ? 'bg-[#111422] border-[#242b42]' : 'bg-white border-[#dce9ff]'
             }`}>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px] text-amber-400">lightbulb</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                  <span className={`material-symbols-outlined text-[15px] ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>lightbulb</span>
+                  <span className={`text-[9.5px] font-bold uppercase tracking-wider ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
                     Daily Law for Everyday Use
                   </span>
                 </div>
-                <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${
+                <span className={`text-[8.5px] font-mono px-1.5 py-0.2 rounded border ${
                   isDark ? 'bg-white/5 border-white/10 text-zinc-400' : 'bg-slate-100 border-slate-200 text-slate-600'
                 }`}>
                   {splashTip.category}
                 </span>
               </div>
 
-              <h4 className="text-[13px] sm:text-[14px] font-bold text-[#ff7722] mb-0.5">
+              <h4 className="text-[12.5px] sm:text-[13.5px] font-bold text-[#ff7722] mb-0.5">
                 {splashTip.title}
               </h4>
-              <p className="text-[10.5px] font-mono text-emerald-400 font-semibold mb-1.5">
+              <p className={`text-[10px] font-mono font-semibold mb-1 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>
                 ⚖️ {splashTip.provision}
               </p>
-              <p className={`text-[11.5px] leading-relaxed mb-2.5 ${isDark ? 'text-[#cbd5e1]' : 'text-[#334155]'}`}>
+              <p className={`text-[11px] leading-relaxed mb-2 line-clamp-3 sm:line-clamp-none ${
+                isDark ? 'text-[#cbd5e1]' : 'text-[#334155]'
+              }`}>
                 {splashTip.description}
               </p>
-              <div className={`p-2 rounded-lg text-[10.5px] flex items-center gap-1.5 ${
+              <div className={`p-2 rounded-lg text-[10px] flex items-center gap-1.5 ${
                 isDark ? 'bg-emerald-950/30 border border-emerald-900/40 text-emerald-300' : 'bg-emerald-50 border border-emerald-200 text-emerald-800'
               }`}>
-                <span className="material-symbols-outlined text-[14px] shrink-0 text-emerald-400">verified</span>
-                <span><strong>Citizen / Advocate Rule:</strong> {splashTip.actionableTip}</span>
+                <span className={`material-symbols-outlined text-[13px] shrink-0 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>verified</span>
+                <span className="truncate"><strong>Rule:</strong> {splashTip.actionableTip}</span>
               </div>
             </div>
           </div>
 
-          {/* Bottom Legal Note */}
-          <div className="text-[9.5px] font-mono opacity-50 text-center">
+          {/* Bottom Legal Note Footer */}
+          <div className="text-[9px] sm:text-[9.5px] font-mono opacity-50 text-center z-10">
             Grounded in Central Acts • Law Ministry Directives • Supreme Court of India
           </div>
         </div>
@@ -575,7 +735,9 @@ export function App() {
                         setTimeout(() => setGuestIdCopied(false), 2000);
                       }}
                       className={`p-1 rounded cursor-pointer transition-all ${
-                        guestIdCopied ? 'text-emerald-400' : 'text-slate-400 hover:text-white'
+                        guestIdCopied 
+                          ? (isDark ? 'text-emerald-400' : 'text-emerald-700') 
+                          : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900')
                       }`}
                       title="Copy Guest ID"
                     >
@@ -951,7 +1113,11 @@ export function App() {
                       setGuestIdCopied(true);
                       setTimeout(() => setGuestIdCopied(false), 2000);
                     }}
-                    className="p-1 rounded cursor-pointer text-slate-400 hover:text-white"
+                    className={`p-1 rounded cursor-pointer transition-all ${
+                      guestIdCopied 
+                        ? (isDark ? 'text-emerald-400' : 'text-emerald-700') 
+                        : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900')
+                    }`}
                     title="Copy Guest ID"
                   >
                     <span className="material-symbols-outlined text-[14px]">
@@ -1037,7 +1203,9 @@ export function App() {
                         setGuestIdCopied(true);
                         setTimeout(() => setGuestIdCopied(false), 2000);
                       }}
-                      className="text-[10px] font-mono text-zinc-400 hover:text-white flex items-center gap-0.5 cursor-pointer"
+                      className={`text-[10px] font-mono flex items-center gap-0.5 cursor-pointer ${
+                        isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
+                      }`}
                       title="Copy Guest ID"
                     >
                       <span className="material-symbols-outlined text-[13px]">
@@ -1053,7 +1221,9 @@ export function App() {
               </span>
             </div>
 
-            <p className="text-[11.5px] text-slate-300 leading-relaxed">
+            <p className={`text-[11.5px] leading-relaxed ${
+              isDark ? 'text-slate-300' : 'text-slate-600'
+            }`}>
               Bharat Legal Intelligence operates with a <strong>Zero-Surveillance, Privacy-First Architecture</strong>. Below are the permissions and device capabilities used to provide an optimal legal research experience:
             </p>
 
@@ -1069,14 +1239,22 @@ export function App() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="text-[12px] font-bold">Microphone (Hands-Free Legal Dictation)</h4>
-                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/25">
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${
+                      isDark 
+                        ? 'bg-amber-500/15 text-amber-300 border-amber-500/25' 
+                        : 'bg-amber-100 text-amber-900 border-amber-300'
+                    }`}>
                       Prompt When Used
                     </span>
                   </div>
-                  <p className="text-[10.5px] text-slate-400 mt-0.5 leading-relaxed">
+                  <p className={`text-[10.5px] mt-0.5 leading-relaxed ${
+                    isDark ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
                     Used to speak legal queries, section citations, and FIR facts in <strong>Indian English & Hindi</strong>.
                   </p>
-                  <p className="text-[9.5px] text-emerald-400/90 mt-1 flex items-center gap-1 font-mono">
+                  <p className={`text-[9.5px] mt-1 flex items-center gap-1 font-mono ${
+                    isDark ? 'text-emerald-400/90' : 'text-emerald-700 font-semibold'
+                  }`}>
                     <span className="material-symbols-outlined text-[12px]">lock</span>
                     <span>100% On-Device Web Speech API • Zero voice audio stored</span>
                   </p>
@@ -1093,14 +1271,22 @@ export function App() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="text-[12px] font-bold">Clipboard (Legal Citations & Petitions)</h4>
-                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/25">
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${
+                      isDark 
+                        ? 'bg-blue-500/15 text-blue-300 border-blue-500/25' 
+                        : 'bg-blue-100 text-blue-900 border-blue-300'
+                    }`}>
                       Write-Only on Click
                     </span>
                   </div>
-                  <p className="text-[10.5px] text-slate-400 mt-0.5 leading-relaxed">
+                  <p className={`text-[10.5px] mt-0.5 leading-relaxed ${
+                    isDark ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
                     Allows 1-click copying of High Court & Supreme Court citations, contract drafts, and counter-clauses.
                   </p>
-                  <p className="text-[9.5px] text-emerald-400/90 mt-1 flex items-center gap-1 font-mono">
+                  <p className={`text-[9.5px] mt-1 flex items-center gap-1 font-mono ${
+                    isDark ? 'text-emerald-400/90' : 'text-emerald-700 font-semibold'
+                  }`}>
                     <span className="material-symbols-outlined text-[12px]">security</span>
                     <span>Only writes formatted legal text on explicit button click</span>
                   </p>
@@ -1117,14 +1303,22 @@ export function App() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="text-[12px] font-bold">Local Device Storage (Private Chamber Dockets)</h4>
-                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${
+                      isDark 
+                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25' 
+                        : 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                    }`}>
                       Active
                     </span>
                   </div>
-                  <p className="text-[10.5px] text-slate-400 mt-0.5 leading-relaxed">
+                  <p className={`text-[10.5px] mt-0.5 leading-relaxed ${
+                    isDark ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
                     Saves your research threads and case dossiers strictly in your browser under your unique Guest ID without tracking cookies.
                   </p>
-                  <p className="text-[9.5px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
+                  <p className={`text-[9.5px] mt-1 flex items-center gap-1 font-mono ${
+                    isDark ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
                     <span className="material-symbols-outlined text-[12px]">delete_sweep</span>
                     <span>Reset or zeroize session at any time via header controls</span>
                   </p>

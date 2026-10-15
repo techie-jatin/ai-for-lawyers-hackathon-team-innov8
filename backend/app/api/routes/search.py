@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 import numpy as np
 
@@ -24,8 +24,7 @@ class ProvisionResponse(BaseModel):
     text_content: str
     similarity: Optional[float] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.get("/provisions", response_model=List[ProvisionResponse])
 def get_provisions(

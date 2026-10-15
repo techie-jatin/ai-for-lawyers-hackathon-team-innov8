@@ -255,7 +255,9 @@ export function DossiersDrawer({
                   <div className={`p-2.5 rounded-lg text-[11px] border font-serif ${
                     isDark ? 'bg-[#131624] text-[#cbd5e1] border-[#1f2438]' : 'bg-slate-50 text-slate-700 border-slate-200'
                   }`}>
-                    <span className="font-sans font-bold text-[9px] uppercase tracking-wider block text-[#94a3b8] mb-0.5">
+                    <span className={`font-sans font-bold text-[9px] uppercase tracking-wider block mb-0.5 ${
+                      isDark ? 'text-[#94a3b8]' : 'text-slate-600'
+                    }`}>
                       Client Query / Fact Scenario
                     </span>
                     <p className="line-clamp-2 leading-relaxed italic">"{dossier.initial_query}"</p>
@@ -278,7 +280,9 @@ export function DossiersDrawer({
 
                 {/* Applicable Sections Tags */}
                 {dossier.applicable_sections && dossier.applicable_sections.length > 0 && (
-                  <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-dashed border-[#1f2438] dark:border-[#1f2438]">
+                  <div className={`flex items-center gap-1.5 flex-wrap pt-1 border-t border-dashed ${
+                    isDark ? 'border-[#1f2438]' : 'border-[#e2e8f0]'
+                  }`}>
                     {dossier.applicable_sections.map((sec, idx) => (
                       <span
                         key={idx}

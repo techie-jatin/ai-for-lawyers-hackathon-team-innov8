@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional, Any
 from datetime import datetime
 
@@ -34,8 +34,7 @@ class DossierResponse(BaseModel):
     notes: Optional[str] = None
     created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.get("", response_model=List[DossierResponse])
 def get_all_dossiers(

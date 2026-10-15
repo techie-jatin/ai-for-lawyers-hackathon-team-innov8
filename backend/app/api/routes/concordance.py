@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 from app.api import deps
@@ -22,8 +22,7 @@ class ConcordanceItem(BaseModel):
     cognizable_status: Optional[str] = None
     key_change: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.get("/search", response_model=List[ConcordanceItem])
 def search_concordance(

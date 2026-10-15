@@ -44,7 +44,7 @@ interface GazetteItem {
 }
 
 import type { ChatLaunchContext } from '../App';
-import { CANONICAL_PROVISIONS, CANONICAL_CONCORDANCES, CANONICAL_GAZETTES } from '../services/clientLegalEngine';
+import { CANONICAL_PROVISIONS, CANONICAL_CONCORDANCES, CANONICAL_GAZETTES, searchCanonicalProvisions } from '../services/clientLegalEngine';
 
 const DEFAULT_SOURCES: LegalSource[] = [
   { id: 1, title: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', source_type: 'Act', jurisdiction: 'India', provision_count: 358 },
@@ -52,7 +52,19 @@ const DEFAULT_SOURCES: LegalSource[] = [
   { id: 3, title: 'Bharatiya Sakshya Adhiniyam, 2023 (BSA)', source_type: 'Act', jurisdiction: 'India', provision_count: 170 },
   { id: 4, title: 'Constitution of India', source_type: 'Constitution', jurisdiction: 'India', provision_count: 395 },
   { id: 5, title: 'Digital Personal Data Protection Act, 2023', source_type: 'Act', jurisdiction: 'India', provision_count: 44 },
-  { id: 6, title: 'Information Technology Act, 2000', source_type: 'Act', jurisdiction: 'India', provision_count: 94 }
+  { id: 6, title: 'Information Technology Act, 2000', source_type: 'Act', jurisdiction: 'India', provision_count: 94 },
+  { id: 7, title: 'Negotiable Instruments Act, 1881', source_type: 'Act', jurisdiction: 'India', provision_count: 147 },
+  { id: 8, title: 'Motor Vehicles Act, 1988', source_type: 'Act', jurisdiction: 'India', provision_count: 217 },
+  { id: 9, title: 'Real Estate (Regulation and Development) Act, 2016', source_type: 'Act', jurisdiction: 'India', provision_count: 92 },
+  { id: 10, title: 'Indian Contract Act, 1872', source_type: 'Act', jurisdiction: 'India', provision_count: 238 },
+  { id: 11, title: 'Code of Civil Procedure, 1908 (CPC)', source_type: 'Act', jurisdiction: 'India', provision_count: 158 },
+  { id: 12, title: 'Arbitration and Conciliation Act, 1996', source_type: 'Act', jurisdiction: 'India', provision_count: 86 },
+  { id: 13, title: 'Consumer Protection Act, 2019', source_type: 'Act', jurisdiction: 'India', provision_count: 107 },
+  { id: 14, title: 'Right to Information Act, 2005', source_type: 'Act', jurisdiction: 'India', provision_count: 31 },
+  { id: 15, title: 'Payment of Gratuity Act, 1972', source_type: 'Act', jurisdiction: 'India', provision_count: 15 },
+  { id: 16, title: 'National Green Tribunal Act, 2010', source_type: 'Act', jurisdiction: 'India', provision_count: 38 },
+  { id: 17, title: 'Hindu Succession Act, 1956', source_type: 'Act', jurisdiction: 'India', provision_count: 31 },
+  { id: 18, title: 'Income Tax Act, 1961', source_type: 'Act', jurisdiction: 'India', provision_count: 298 }
 ];
 
 function getCategoryForSource(sourceTitle: string): string {
@@ -68,6 +80,42 @@ function getCategoryForSource(sourceTitle: string): string {
   }
   if (s.includes('information technology') || s.includes('cyber') || s.includes('it act')) {
     return 'Cyber & IT';
+  }
+  if (s.includes('negotiable') || s.includes('cheque') || s.includes('ni act')) {
+    return 'Banking & NI Act';
+  }
+  if (s.includes('motor') || s.includes('vehicle') || s.includes('traffic')) {
+    return 'Motor Vehicles';
+  }
+  if (s.includes('real estate') || s.includes('rera')) {
+    return 'Real Estate (RERA)';
+  }
+  if (s.includes('contract')) {
+    return 'Commercial Contracts';
+  }
+  if (s.includes('civil procedure') || s.includes('cpc')) {
+    return 'Civil Procedure (CPC)';
+  }
+  if (s.includes('arbitration')) {
+    return 'Arbitration';
+  }
+  if (s.includes('consumer')) {
+    return 'Consumer Protection';
+  }
+  if (s.includes('information') || s.includes('rti')) {
+    return 'RTI Act';
+  }
+  if (s.includes('gratuity')) {
+    return 'Labor & Gratuity';
+  }
+  if (s.includes('tribunal') || s.includes('green') || s.includes('ngt')) {
+    return 'Environmental Law';
+  }
+  if (s.includes('hindu') || s.includes('succession') || s.includes('marriage')) {
+    return 'Family & Succession';
+  }
+  if (s.includes('tax') || s.includes('income')) {
+    return 'Taxation Law';
   }
   return 'All Statutes';
 }
@@ -213,14 +261,12 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
       }
       throw new Error('Local statutory search');
     } catch {
-      // Local statutory indexing and keyword matching
-      const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
-      const matched = CANONICAL_PROVISIONS.filter(p => {
-        const full = `${p.source_title} ${p.section_number} ${p.title} ${p.text_content}`.toLowerCase();
-        return terms.some(t => full.includes(t));
-      }).map(p => ({ ...p, source_id: p.id }));
-
-      setResults(matched.length > 0 ? matched : CANONICAL_PROVISIONS.map(p => ({ ...p, source_id: p.id })));
+      // Intelligent Multi-Pillar Statutory Search Engine
+      const matched = searchCanonicalProvisions(q, selectedSourceId).map(p => ({
+        ...p,
+        source_id: p.id
+      }));
+      setResults(matched);
       setHasError(false);
     } finally {
       setLoading(false);
@@ -561,7 +607,9 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
                     {item.title}
                   </h2>
                   {item.section_number.includes('33') && item.source_title.includes('Data') && (
-                    <div className="self-start sm:self-auto px-2.5 py-1 rounded bg-[#ffdad6] text-[#93000a] border border-[#fca5a5] font-mono text-[11px] font-bold flex items-center gap-1">
+                    <div className={`self-start sm:self-auto px-2.5 py-1 rounded font-mono text-[11px] font-bold flex items-center gap-1 border ${
+                      isDark ? 'bg-rose-950/60 text-rose-300 border-rose-800' : 'bg-[#ffdad6] text-[#93000a] border-[#fca5a5]'
+                    }`}>
                       <span className="material-symbols-outlined text-[15px]">warning</span>
                       <span>Max Penalty: ₹250 Crores</span>
                     </div>
@@ -592,7 +640,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
                 <div className={`rounded-lg p-3.5 relative overflow-hidden border-l-4 border-y border-r leading-relaxed ${
                   isDark 
                     ? 'bg-[#0b0c10] border-l-[#f59e0b] border-[#23283f] text-[#f1f5f9]' 
-                    : 'bg-[#f8f9ff] border-l-[#743d00] border-[#e2e8f0] text-[#0b1c30]'
+                    : 'bg-[#f8f9ff] border-l-[#00288e] border-[#e2e8f0] text-[#0b1c30]'
                 }`}>
                   <blockquote className="font-serif italic text-[13px] pl-1">
                     "{item.text_content}"

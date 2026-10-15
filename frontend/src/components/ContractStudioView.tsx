@@ -1181,7 +1181,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                         isDark ? 'bg-[#0a0c14] border-[#1f2438] text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
                       }`}>
                         {generatedText || (
-                          <div className="text-center py-20 text-slate-400 space-y-2">
+                          <div className={`text-center py-20 space-y-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                             <span className="material-symbols-outlined text-[36px] opacity-40">assignment</span>
                             <p className="text-[12px]">Configure parties and click "Generate Agreement" to preview the complete legal deed.</p>
                           </div>
@@ -1193,7 +1193,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-slate-700/20">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] text-slate-400 font-sans">
+                    <span className={`text-[10px] font-sans ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       ⚖️ Formatted with Indian Stamp Act e-Stamping placeholder & Section 63 BSA execution lines.
                     </span>
                     {engineUsed && (
@@ -1307,7 +1307,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
                 />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <span className="text-[10.5px] text-slate-400">
+                  <span className={`text-[10.5px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                     Scans for: Uncapped Indemnity (§73 ICA), Void Non-Competes (§27 ICA), Unilateral Termination, Remote Venues & DPDP 2023.
                   </span>
 

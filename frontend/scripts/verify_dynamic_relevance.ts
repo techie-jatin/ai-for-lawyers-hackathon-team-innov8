@@ -67,8 +67,8 @@ async function runVerification() {
       query: 'Company fired me without notice period and withheld my 3 months salary and gratuity',
       forbiddenProvisions: ['Section 318(4)', 'Section 103'],
       forbiddenPrecedents: ['Arnesh Kumar v. State of Bihar'],
-      expectedProvisionsAny: ['Section 73', 'Section 74', 'Order 37', 'Contract'],
-      expectedPrecedentsAny: ['Kailash Nath Associates']
+      expectedProvisionsAny: ['Section 73', 'Section 74', 'Order 37', 'Contract', 'Payment of Gratuity', 'Section 4'],
+      expectedPrecedentsAny: ['Kailash Nath Associates', 'Bangalore Water Supply']
     },
     {
       name: 'Property / Land Encroachment',
@@ -85,6 +85,62 @@ async function runVerification() {
       forbiddenPrecedents: ['Shirur Mutt'],
       expectedProvisionsAny: ['Section 482', 'Section 35(3)'],
       expectedPrecedentsAny: ['Sushila Aggarwal', 'Satender Kumar Antil']
+    },
+    {
+      name: 'Traffic Light Rules & Automated E-Challan',
+      query: 'traffic light rules',
+      forbiddenProvisions: ['Section 318(4)', 'Section 103', 'Section 12', 'Section 8'],
+      forbiddenPrecedents: ['Arnesh Kumar v. State of Bihar', 'State of Haryana v. Bhajan Lal', 'Hridaya Ranjan'],
+      expectedProvisionsAny: ['Section 119', 'Section 184', 'Motor Vehicles Act'],
+      expectedPrecedentsAny: ['Dr. S. Rajaseekaran v. Union of India']
+    },
+    {
+      name: 'Real Estate / RERA Builder Delay',
+      query: 'Builder delayed flat possession by 3 years, seeking full refund with interest under RERA',
+      forbiddenProvisions: ['Section 318(4)', 'Section 103'],
+      forbiddenPrecedents: ['Arnesh Kumar v. State of Bihar', 'Bhajan Lal'],
+      expectedProvisionsAny: ['Section 18', 'Real Estate (Regulation and Development) Act'],
+      expectedPrecedentsAny: ['Imperia Structures Ltd. v. Anil Patni']
+    },
+    {
+      name: 'RTI / Answer Sheet Inspection',
+      query: 'How to file RTI application to inspect evaluated board exam answer book copies',
+      forbiddenProvisions: ['Section 318(4)', 'Section 103'],
+      forbiddenPrecedents: ['Arnesh Kumar v. State of Bihar', 'Bhajan Lal'],
+      expectedProvisionsAny: ['Section 6', 'Section 7', 'Right to Information Act'],
+      expectedPrecedentsAny: ['Aditya Bandopadhyay']
+    },
+    {
+      name: 'Labor & Gratuity Non-Payment',
+      query: 'Completed 6 years continuous service, company refusing to release gratuity amount',
+      forbiddenProvisions: ['Section 318(4)', 'Section 103'],
+      forbiddenPrecedents: ['Arnesh Kumar v. State of Bihar'],
+      expectedProvisionsAny: ['Section 4', 'Payment of Gratuity Act'],
+      expectedPrecedentsAny: ['Bangalore Water Supply']
+    },
+    {
+      name: 'Environmental Pollution / NGT Restitution',
+      query: 'Industrial factory discharging chemical effluents into village river causing groundwater pollution',
+      forbiddenProvisions: ['Section 318(4)'],
+      forbiddenPrecedents: ['Arnesh Kumar v. State of Bihar'],
+      expectedProvisionsAny: ['Section 14', 'National Green Tribunal Act'],
+      expectedPrecedentsAny: ['Vellore Citizens Welfare Forum']
+    },
+    {
+      name: 'Hindu Succession / Daughter Ancestral Coparcenary',
+      query: 'Can married daughter claim equal share in ancestral agricultural property under Hindu Succession Act',
+      forbiddenProvisions: ['Section 318(4)', 'Section 103'],
+      forbiddenPrecedents: ['Arnesh Kumar v. State of Bihar', 'Bhajan Lal'],
+      expectedProvisionsAny: ['Section 6', 'Hindu Succession Act'],
+      expectedPrecedentsAny: ['Vineeta Sharma v. Rakesh Sharma']
+    },
+    {
+      name: 'Direct Tax / Section 148 Reassessment Notice',
+      query: 'Received income tax Section 148 notice for assessment year 2018 without Section 148A show cause inquiry',
+      forbiddenProvisions: ['Section 318(4)'],
+      forbiddenPrecedents: ['Arnesh Kumar v. State of Bihar', 'Bhajan Lal'],
+      expectedProvisionsAny: ['Section 148', 'Income Tax Act'],
+      expectedPrecedentsAny: ['Union of India v. Ashish Agarwal']
     }
   ];
 

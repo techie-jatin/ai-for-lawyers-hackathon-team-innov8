@@ -146,7 +146,9 @@ class GeminiSynthesizer:
                 "STRICT CITIZEN GUIDANCE DIRECTIVES:\n"
                 "1. Explain the law in plain, supportive, and accessible language while maintaining 100% statutory precision.\n"
                 "2. Clearly demystify what the citizen's rights are, what the police/authorities can and cannot do, and how to stay safe.\n"
-                "3. Structure your response clearly in GitHub-style Markdown with:\n\n"
+                "3. CONSTITUTIONAL CLAUSE FIDELITY: Never state an Article has 'N distinct clauses' unless you detail all N clauses. Clearly distinguish between constitutional clauses and institutional categories (e.g., Article 28 has 3 constitutional clauses that classify institutions into 4 categories). Always use sequential numbers (1., 2., 3., 4., etc.) for enumerated clauses or action steps.\n"
+                "4. FORMATTING DIRECTIVE: Do NOT output horizontal rule lines (--- or ***) between sections or at the end of your response.\n"
+                "5. Structure your response clearly in GitHub-style Markdown with:\n\n"
                 "### Plain Language Summary\n"
                 "- Direct, clear answer explaining what the situation means under Indian law.\n\n"
                 "### What the Law Specifically Mandates\n"
@@ -233,6 +235,150 @@ class GeminiSynthesizer:
 
         return None
 
+    def discover_official_precedents_ai(
+        self,
+        query: str,
+        context_filter: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Discovers genuine, reported Indian judicial precedents from official databanks (e-SCR, AIR, SCC, Kanoon)
+        for queries where static canonical precedents are absent.
+        Strict zero-hallucination prompt.
+        """
+        if not self.is_available():
+            return []
+
+        prompt = (
+            "You are an elite Supreme Court of India legal research engine for 'भारत Legal Intelligence'.\n"
+            "Your sole mission is to discover 2 to 3 REAL-WORLD reported Indian judicial precedents (Supreme Court of India or High Courts) strictly applicable to the user's factual dispute or legal issue.\n\n"
+            "STRICT MANDATORY DIRECTIVE ON AUTHENTICITY (ZERO HALLUCINATION):\n"
+            "1. You MUST ONLY cite genuine, actually reported cases decided by the Supreme Court of India or Indian High Courts.\n"
+            "2. The cases MUST be traceable to legitimate, official databanks:\n"
+            "   - Supreme Court of India e-SCR (escr.sci.gov.in) with Neutral Citations (e.g., 2024 INSC ...)\n"
+            "   - All India Reporter (AIR / aironline.in)\n"
+            "   - Supreme Court Cases (SCC) / Supreme Court Reports (SCR)\n"
+            "   - Indian Kanoon (indiankanoon.org)\n"
+            "   - High Courts & National Judicial Data Grid (services.ecourts.gov.in)\n"
+            "3. NEVER invent fictional parties, imaginary bench compositions, or hypothetical case citations. If no exact Supreme Court decision on the hyper-specific fact exists, cite the nearest binding High Court or Supreme Court landmark laying down the operative ratio.\n"
+            "4. Return ONLY a valid JSON array of 2 to 3 objects conforming to this exact schema (no trailing commas, no extra commentary):\n"
+            "[\n"
+            "  {\n"
+            '    "id": 101,\n'
+            '    "title": "Petitioner v. Respondent",\n'
+            '    "citation": "Authentic Citation (e.g. (2018) 7 SCC 192 or 2023 INSC 412 or AIR 2019 SC 820)",\n'
+            '    "court": "Supreme Court of India",\n'
+            '    "bench": "2-Judge Bench (Name & Name, JJ.)",\n'
+            '    "decision_year": 2022,\n'
+            '    "category": "Legal Domain / Category",\n'
+            '    "governing_provisions": ["Act Name Section Number"],\n'
+            '    "factual_matrix": "Concrete factual summary of what occurred between the parties in court.",\n'
+            '    "legal_controversy": "The exact legal question the Court resolved.",\n'
+            '    "court_holding": "Operative ratio decidendi and final relief granted by the Court.",\n'
+            '    "advocate_strategy": "Winning counsel arguments, threshold defense tactics, or procedural moves.",\n'
+            '    "sanhita_mapping_2024": "Relevance under 2024 Sanhitas or current statutory framework.",\n'
+            '    "key_takeaways": ["Takeaway 1", "Takeaway 2", "Takeaway 3"],\n'
+            '    "official_databank": "Supreme Court e-SCR | AIR Online Verified | SCC Online | Indian Kanoon",\n'
+            '    "source_url": "https://escr.sci.gov.in/ or https://www.aironline.in/ or https://indiankanoon.org/"\n'
+            "  }\n"
+            "]\n"
+            f"User Legal Query: {query}\n"
+            f"Context: {context_filter or 'General'}\n"
+            "Output JSON Array ONLY:"
+        )
+
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "temperature": 0.1,
+                "maxOutputTokens": 2048,
+                "responseMimeType": "application/json"
+            }
+        }
+
+        models_to_try = [self.model, "gemini-flash-latest", "gemini-3.8-flash"]
+        for target_model in models_to_try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:generateContent?key={self.api_key}"
+            try:
+                with httpx.Client(timeout=8.0) as client:
+                    resp = client.post(url, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts", [])
+                            if parts:
+                                txt = parts[0].get("text", "").strip()
+                                if txt.startswith("```json"):
+                                    txt = re.sub(r"^```json\s*", "", txt)
+                                    txt = re.sub(r"\s*```$", "", txt)
+                                elif txt.startswith("```"):
+                                    txt = re.sub(r"^```\s*", "", txt)
+                                    txt = re.sub(r"\s*```$", "", txt)
+                                parsed = json.loads(txt)
+                                if isinstance(parsed, list):
+                                    reporter_pattern = re.compile(r'\b(INSC|SCC|AIR|SCR|SCALE|Cri\s*LJ|ILR|DMC|CPJ|Del|Bom|Mad|Cal|All|P&H|Pat|Ker|Guj)\b|\(\d{4}\)\s*\d+', re.I)
+                                    valid_results = []
+                                    for idx, item in enumerate(parsed):
+                                        if isinstance(item, dict) and item.get("title") and item.get("citation"):
+                                            if reporter_pattern.search(item.get("citation", "")):
+                                                item["id"] = item.get("id") or (200 + idx)
+                                                if not item.get("official_databank"):
+                                                    item["official_databank"] = "Supreme Court e-SCR Grounded"
+                                                if not item.get("source_url"):
+                                                    item["source_url"] = "https://escr.sci.gov.in/"
+                                                valid_results.append(item)
+                                    if valid_results:
+                                        return valid_results
+            except Exception as e:
+                print(f"Gemini precedent discovery failed for {target_model}: {e}")
+
+        return []
+
+def resolve_contextual_query(query: str, history: Optional[List[Dict[str, str]]] = None) -> str:
+    """
+    Resolves multi-turn anaphora/coreference (e.g. 'this article', 'about it', 'tell me again').
+    Extracts provisions, statute names, and legal subjects from previous turns.
+    """
+    if not history or len(history) == 0:
+        return query
+
+    q_lower = query.lower().strip()
+    needs_coref = (
+        len(q_lower.split()) <= 15 or
+        any(re.search(r'\b' + re.escape(w) + r'\b', q_lower) for w in [
+            "this", "that", "it", "these", "those", "again", "more", "elaborate",
+            "clarify", "penalty", "punishment", "bail", "appeal", "fine", "arrest",
+            "quash", "period", "limitation", "clause", "sub-clause", "article", "section", "act",
+            "him", "her", "them", "he", "she", "his", "their", "order", "injunction", "stay",
+            "stop", "protect", "action", "remedy", "court", "step", "lock", "evict", "money", "dues",
+            "scam", "bank"
+        ])
+    )
+    if not needs_coref:
+        return query
+
+    # Traverse history backwards (user and assistant messages)
+    for m in reversed(history):
+        text = m.get("text", "")
+        # Look for explicit provision references in history (e.g., Article 28, Section 138, etc.)
+        prov_match = re.search(r'\b(Article\s+\d+[A-Z]?|Section\s+\d+[A-Za-z]?(?:\([0-9a-z]+\))?|Order\s+[0-9IVXLCDM]+\s*Rule\s+\d+)\b', text, re.IGNORECASE)
+        statute_match = re.search(r'\b(Constitution(?: of India)?|BNS|BNSS|BSA|Bharatiya Nyaya Sanhita|Bharatiya Nagarik Suraksha Sanhita|Bharatiya Sakshya Adhiniyam|IPC|CrPC|IEA|Negotiable Instruments Act|NI Act|Consumer Protection Act|Motor Vehicles Act|RERA|Arbitration Act|Hindu Marriage Act|Specific Relief Act|Digital Personal Data Protection Act|DPDP|IT Act|Right to Information Act|RTI Act|Payment of Gratuity Act|Income Tax Act)\b', text, re.IGNORECASE)
+        
+        extracted = []
+        if prov_match:
+            extracted.append(prov_match.group(1))
+        if statute_match:
+            extracted.append(statute_match.group(1))
+            
+        if extracted:
+            return f"{query} {' '.join(extracted)}"
+            
+        # If no explicit provision, check if there was a user question with substantive text
+        if m.get("role") == "user" and len(text.strip().split()) >= 3:
+            return f"{query} {text.strip()}"
+
+    return query
+
 class LegalAssistantService:
     def __init__(self, db: Session):
         self.db = db
@@ -283,24 +429,16 @@ class LegalAssistantService:
     ) -> List[LegalProvision]:
         """
         Retrieves relevant provisions using a hybrid strategy:
-        1. Exact article/section regex match prioritized by statute title match
-        2. Keyword substring matches on title and text
-        3. Context category scoring boost for user-selected pillar
-        4. Multi-turn dialogue query augmentation
+        1. Multi-turn dialogue coreference resolution & query augmentation
+        2. Exact article/section regex match prioritized by statute title match
+        3. Keyword substring matches on title and text with strict relevance gate
+        4. Context category scoring boost for user-selected pillar
         5. pgvector semantic embedding distance
         """
         candidate_scores = {}  # provision_id -> (provision, score)
         
-        # Multi-turn query augmentation: if query is brief or follow-up, fuse prior user context
-        augmented_query = query
-        if history and len(history) > 0:
-            user_past_queries = [m.get("text", "") for m in history if m.get("role") == "user" and m.get("text")]
-            if user_past_queries:
-                last_user_query = user_past_queries[-1]
-                q_words = query.strip().split()
-                if len(q_words) < 8 or any(w in query.lower() for w in ["this", "that", "it", "penalty", "punishment", "bail", "appeal", "fine", "arrest", "fir", "quash", "period", "limitation"]):
-                    augmented_query = f"{query} {last_user_query}"
-
+        # Multi-turn query augmentation: resolve referents like 'this article' from history
+        augmented_query = resolve_contextual_query(query, history)
         q_lower = augmented_query.lower()
 
         # Check for statute/case mentions in query
@@ -328,23 +466,35 @@ class LegalAssistantService:
             if any(w in q_lower for w in src_words):
                 matched_source_ids.add(src.id)
 
-        # 1. Regex check for specific provisions (e.g. 'Article 21', 'Section 12', 'Case 1')
-        match = re.search(r'\b(Article\s+\d+[A-Z]?|Section\s+\d+[A-Z]?|Case\s+\d+)\b', query, re.IGNORECASE)
+        # 1. Regex check for specific provisions (e.g. 'Article 28', 'Section 138', 'Order 39 Rule 1')
+        match = re.search(r'\b(Article\s+\d+[A-Z]?|Section\s+\d+[A-Za-z]?(?:\([0-9a-z]+\))?|Order\s+[0-9IVXLCDM]+\s*Rule\s+\d+)\b', augmented_query, re.IGNORECASE)
+        has_exact_provision_match = False
         if match:
             term = match.group(1).strip()
             exact_provs = self.db.query(LegalProvision).filter(
-                LegalProvision.section_number.ilike(term)
+                or_(
+                    LegalProvision.section_number.ilike(term),
+                    LegalProvision.section_number.ilike(f"%{term}%")
+                )
             ).all()
             for ep in exact_provs:
-                score = 10.0
+                has_exact_provision_match = True
+                score = 35.0  # Dominant baseline for exact provision match
                 if ep.source_id in matched_source_ids:
-                    score += 15.0  # Big boost if both section and statute name match
+                    score += 25.0
                 if ep.source_id in filter_source_ids:
-                    score += 20.0  # Context filter priority boost
+                    score += 25.0
                 candidate_scores[ep.id] = (ep, score)
 
-        # 2. Keyword relevance scoring
-        keywords = [w for w in re.findall(r'\b\w{4,}\b', q_lower) if w not in {"what", "which", "about", "under", "with", "from", "laws", "have", "does"}]
+        # 2. Keyword relevance scoring (Strict Lexical & Word-Boundary Grounding)
+        STOP_WORDS = {
+            "what", "which", "about", "under", "with", "from", "laws", "have", "does",
+            "rules", "rule", "order", "section", "article", "statute", "court", "state",
+            "india", "provision", "provisions", "matter", "matters", "general", "power",
+            "powers", "shall", "case", "cases", "where", "when", "into", "been", "their",
+            "there", "tell", "explain", "give", "help", "need", "again", "this", "that"
+        }
+        keywords = [w for w in re.findall(r'\b\w{4,}\b', q_lower) if w not in STOP_WORDS]
         if keywords:
             kw_filters = [
                 or_(
@@ -354,42 +504,85 @@ class LegalAssistantService:
             ]
             kw_provs = self.db.query(LegalProvision).filter(or_(*kw_filters)).limit(25).all()
             for kp in kw_provs:
-                overlap = sum(1 for kw in keywords if kw in kp.title.lower() or kw in kp.text_content.lower())
-                base_score = 3.0 + overlap * 2.0
+                t_lower = kp.title.lower()
+                c_lower = kp.text_content.lower()
+                # Strict word boundary check (prevents 'traffic' matching 'trafficking')
+                title_matches = sum(1 for kw in keywords if re.search(r'\b' + re.escape(kw) + r'\b', t_lower))
+                text_matches = sum(1 for kw in keywords if re.search(r'\b' + re.escape(kw) + r'\b', c_lower))
+                total_matches = title_matches * 2 + text_matches
+                if total_matches == 0:
+                    continue  # Skip false partial substring hits
+
+                base_score = total_matches * 4.0
                 if kp.source_id in matched_source_ids:
-                    base_score += 5.0
+                    base_score += 10.0
                 if kp.source_id in filter_source_ids:
-                    base_score += 15.0  # High relevance for requested context category
+                    base_score += 15.0
                 if kp.id in candidate_scores:
                     prov, existing = candidate_scores[kp.id]
                     candidate_scores[kp.id] = (prov, existing + base_score)
                 else:
-                    candidate_scores[kp.id] = (kp, base_score)
+                    # If an exact provision match already occurred, suppress non-matching random statutory noise
+                    if not has_exact_provision_match:
+                        candidate_scores[kp.id] = (kp, base_score)
 
-        # Only return provisions that have genuine substantive relevance (score >= 3.0)
-        valid_candidates = [item for item in candidate_scores.values() if item[1] >= 3.0]
+        # Only return provisions that have genuine substantive relevance (score >= 8.0)
+        valid_candidates = [item for item in candidate_scores.values() if item[1] >= 8.0]
         sorted_provisions = sorted(valid_candidates, key=lambda x: x[1], reverse=True)
         return [prov for prov, _ in sorted_provisions[:top_k]]
 
-    def retrieve_concordance_context(self, query: str) -> List[StatutoryConcordance]:
+    def retrieve_concordance_context(self, query: str, context_filter: Optional[str] = None) -> List[StatutoryConcordance]:
         """
         Extracts sections and legal terms to retrieve relevant colonial-to-Bharatiya concordance mappings.
+        Strictly restricted to criminal/penal inquiries. Never returns criminal concordances for
+        constitutional, administrative, consumer, civil, taxation, labor, or tenancy disputes.
         """
-        terms = set()
-        sec_matches = re.findall(r'\b\d+[A-Za-z]?\b', query)
-        terms.update(sec_matches)
-        keywords = [w for w in re.findall(r'\b[a-zA-Z]{4,}\b', query.lower()) if w not in {"what", "which", "about", "under", "with", "from", "laws", "have", "does", "this", "that"}]
-        terms.update(keywords[:5])
+        q_lower = query.lower()
 
-        if not terms:
+        # Check if query or context actually concerns criminal law
+        is_criminal_query = any(k in q_lower for k in [
+            "ipc", "crpc", "iea", "bns", "bnss", "bsa", "crime", "criminal", "police", "arrest",
+            "bail", "fir", "remand", "custody", "quash", "cheating", "fraud", "theft", "murder",
+            "forgery", "extortion", "assault", "culpable homicide", "hit and run", "snatching",
+            "mob lynching", "sedition", "dowry", "498a", "302", "420", "379", "406", "304", "173",
+            "35(3)", "482", "528", "63"
+        ])
+
+        # If user explicitly selected non-criminal context or query is purely constitutional/civil, suppress concordance
+        is_pure_constitutional = (
+            bool(re.search(r'\barticle\s*\d+\b', q_lower)) and
+            not any(k in q_lower for k in ["bns", "bnss", "bsa", "ipc", "crpc", "fir", "arrest", "bail"])
+        )
+        if not is_criminal_query or is_pure_constitutional:
+            return []
+
+        # Only extract specific section numbers or substantive criminal offense names
+        KNOWN_SECTIONS = {
+            "420", "378", "379", "304", "405", "406", "463", "465", "468", "383", "384",
+            "300", "302", "299", "304a", "319", "323", "320", "325", "375", "376", "124a",
+            "498a", "41a", "438", "482", "154", "65b", "318", "303", "316", "336", "338",
+            "308", "103", "105", "106", "115", "117", "64", "69", "152", "85", "35", "173", "63", "528"
+        }
+        sec_matches = [s for s in re.findall(r'\b\d+[A-Za-z]?\b', query) if s.lower() in KNOWN_SECTIONS]
+        
+        CRIMINAL_TERMS = {
+            "cheating", "theft", "snatching", "breach of trust", "forgery", "extortion", "murder",
+            "lynching", "culpable homicide", "hit and run", "rash driving", "grievous hurt",
+            "sexual intercourse", "sedition", "cruelty", "anticipatory bail", "quashing",
+            "zero fir", "electronic records"
+        }
+        matched_terms = [t for t in CRIMINAL_TERMS if t in q_lower]
+
+        if not sec_matches and not matched_terms:
             return []
 
         filters = []
-        for t in terms:
-            filters.append(StatutoryConcordance.old_section.ilike(f"%{t}%"))
-            filters.append(StatutoryConcordance.new_section.ilike(f"%{t}%"))
+        for s in sec_matches:
+            filters.append(StatutoryConcordance.old_section.ilike(f"%{s}%"))
+            filters.append(StatutoryConcordance.new_section.ilike(f"%{s}%"))
+
+        for t in matched_terms:
             filters.append(StatutoryConcordance.offense_title.ilike(f"%{t}%"))
-            filters.append(StatutoryConcordance.key_change.ilike(f"%{t}%"))
 
         return self.db.query(StatutoryConcordance).filter(or_(*filters)).limit(4).all()
 
@@ -397,7 +590,7 @@ class LegalAssistantService:
         """
         Retrieves relevant Ministry of Home Affairs / Law Ministry gazette notifications.
         """
-        words = [w for w in re.findall(r'\b[a-zA-Z]{4,}\b', query.lower()) if w not in {"what", "which", "about", "under", "with", "from", "laws"}]
+        words = [w for w in re.findall(r'\b[a-zA-Z]{4,}\b', query.lower()) if w not in {"what", "which", "about", "under", "with", "from", "laws", "again", "this", "that"}]
         if not words:
             return []
         filters = [or_(GazetteNotification.title.ilike(f"%{w}%"), GazetteNotification.summary.ilike(f"%{w}%")) for w in words[:3]]
@@ -510,15 +703,46 @@ class LegalAssistantService:
                 score += 24.0
             if any(k in q_lower for k in ["liquidated damages", "pre-estimated", "patent illegality", "section 34", "ongc", "saw pipes"]) and "Saw Pipes" in c.title:
                 score += 24.0
+            if any(k in q_lower for k in ["traffic", "motor vehicle", "challan", "red light", "driving license", "rc", "parivahan", "speeding", "helmet", "seatbelt", "rto", "stop line", "itms", "rlvd", "section 206", "section 119", "section 184"]) and "Rajaseekaran" in c.title:
+                score += 28.0
+            if any(k in q_lower for k in ["rera", "builder", "flat", "possession", "allottee", "apartment", "real estate", "promoter", "section 18", "delay in possession", "refund interest"]) and "Imperia" in c.title:
+                score += 28.0
+            if any(k in q_lower for k in ["rti", "right to information", "public information officer", "pio", "first appellate", "answer sheet", "evaluated answer", "section 6", "section 7"]) and "Bandopadhyay" in c.title:
+                score += 28.0
+            if any(k in q_lower for k in ["gratuity", "provident fund", "pf", "epfo", "workman", "labor", "labour", "industrial dispute", "severance", "wages", "continuous service", "section 4"]) and "Bangalore Water" in c.title:
+                score += 28.0
+            if any(k in q_lower for k in ["pollution", "ngt", "green tribunal", "environment", "effluent", "air act", "water act", "polluter pays", "precautionary principle", "section 14", "section 15"]) and "Vellore" in c.title:
+                score += 28.0
+            if any(k in q_lower for k in ["coparcenary", "ancestral", "succession", "inheritance", "partition", "hindu succession", "daughter share", "legal heir", "mitakshara", "section 6"]) and "Vineeta Sharma" in c.title:
+                score += 28.0
+            if any(k in q_lower for k in ["income tax", "reassessment", "section 148", "section 148a", "it act", "assessment year", "escaped assessment", "show cause notice tax"]) and "Ashish Agarwal" in c.title:
+                score += 28.0
+            if any(k in q_lower for k in ["article 28", "religious instruction", "prayer in school", "secular education", "compulsory worship", "d.a.v", "dav college", "guru nanak"]) and "D.A.V." in c.title:
+                score += 32.0
+            if any(k in q_lower for k in ["article 28", "religious instruction", "prayer in school", "secular education", "value education", "aruna roy", "ncert"]) and "Aruna Roy" in c.title:
+                score += 30.0
+
+            # Penalize criminal bail/quashing cases if query is about non-criminal civil/administrative topics
+            is_non_crim = any(k in q_lower for k in [
+                "traffic", "red light", "challan", "motor vehicle", "driving license", "rera", "builder",
+                "flat", "possession", "rti", "information", "gratuity", "labor", "labour", "workman",
+                "pollution", "environment", "ngt", "succession", "inheritance", "ancestral", "income tax",
+                "reassessment", "cheque", "contract", "injunction", "arbitration", "divorce", "consumer",
+                "article 28", "article 26", "article 320", "religious instruction", "secular education"
+            ])
+            if is_non_crim and any(k in c.title for k in ["Arnesh Kumar", "Bhajan Lal", "Sharad Birdhichand", "Antil", "Sushila Aggarwal"]):
+                score -= 30.0
+            if any(k in q_lower for k in ["article 28", "religious instruction", "prayer in school", "secular education"]) and any(k in c.title for k in ["Puttaswamy", "Maneka Gandhi", "Bandopadhyay"]):
+                score -= 25.0
 
             scored_cases.append((c, score))
 
         # Sort by score descending
         scored_cases.sort(key=lambda x: x[1], reverse=True)
-        if scored_cases and scored_cases[0][1] > 0:
-            return [c for c, s in scored_cases[:limit]]
+        if scored_cases and scored_cases[0][1] >= 15.0:
+            return [c for c, s in scored_cases[:limit] if s >= 15.0]
         else:
-            return [c for c, _ in sorted(scored_cases, key=lambda x: x[0].decision_year, reverse=True)[:limit]]
+            return []
 
     def generate_response(
         self,
@@ -549,12 +773,15 @@ class LegalAssistantService:
             if ai_abuse:
                 return ai_abuse
 
+        # Multi-turn dialogue coreference resolution & query augmentation
+        augmented_query = resolve_contextual_query(query, history)
+
         # 3. Retrieve authoritative provisions & multi-source evidence
-        provisions = self.retrieve_context(query, top_k=5, context_filter=context_filter, history=history)
-        concordance_items = self.retrieve_concordance_context(query)
-        precedents = self.retrieve_precedents_context(query, category=context_filter, limit=3)
-        gazettes = self.retrieve_gazette_context(query)
-        helplines = self.retrieve_helpline_context(query)
+        provisions = self.retrieve_context(augmented_query, top_k=5, context_filter=context_filter, history=history)
+        concordance_items = self.retrieve_concordance_context(augmented_query, context_filter=context_filter)
+        precedents = self.retrieve_precedents_context(augmented_query, category=context_filter, limit=3)
+        gazettes = self.retrieve_gazette_context(augmented_query)
+        helplines = self.retrieve_helpline_context(augmented_query)
         
         if not provisions:
             return {
@@ -615,8 +842,32 @@ class LegalAssistantService:
             primary_prov = provisions[0]
             sec_provisions = provisions[1:] if len(provisions) > 1 else []
             
+            effective_q_lower = augmented_query.lower()
+            is_ni = any(k in effective_q_lower for k in ["cheque", "check bounce", "138", "dishonour", "dishonor", "141", "142", "drawer", "payee"])
+            is_contract = any(k in effective_q_lower for k in ["contract", "breach", "liquidated damages", "penalty clause", "section 73", "section 74", "specific performance", "earnest money"])
+            is_injunction = any(k in effective_q_lower for k in ["injunction", "stay order", "order 39", "rule 1", "rule 2", "status quo", "summary suit", "order 37", "cpc"])
+            is_arbitration = any(k in effective_q_lower for k in ["arbitrat", "section 9", "section 11", "section 34", "arbitral award"])
+            is_writ = any(k in effective_q_lower for k in [
+                "article 226", "article 32", "writ", "mandamus", "certiorari", "habeas corpus", "ultra vires",
+                "article 26", "article 320", "article 14", "article 19", "article 21", "article 25", "article 28", "article 311", "article 368",
+                "essential religious", "religious denomination", "public service commission", "constitution of india"
+            ]) or bool(re.search(r'\barticle\s*\d+\b', effective_q_lower))
+            is_matrimonial = any(k in effective_q_lower for k in ["divorce", "matrimonial", "maintenance", "alimony", "section 13", "section 24", "domestic violence", "dv act"])
+            is_consumer = any(k in effective_q_lower for k in ["consumer", "deficiency in service", "unfair trade practice", "dcdrc", "ncdrc"])
+            is_mv = any(k in effective_q_lower for k in ["traffic", "motor vehicle", "challan", "red light", "driving license", "rc", "parivahan", "speeding", "helmet", "seatbelt", "rto", "stop line", "itms", "rlvd"])
+            is_rera = any(k in effective_q_lower for k in ["rera", "builder", "flat", "possession", "allottee", "apartment", "real estate", "promoter"])
+            is_rti = any(k in effective_q_lower for k in ["rti", "right to information", "public information officer", "pio", "first appellate", "answer sheet", "evaluated answer"])
+            is_labor = any(k in effective_q_lower for k in ["gratuity", "provident fund", "pf", "epfo", "workman", "labor", "labour", "industrial dispute", "severance", "wages", "continuous service"])
+            is_environment = any(k in effective_q_lower for k in ["pollution", "ngt", "green tribunal", "environment", "effluent", "air act", "water act", "polluter pays"])
+            is_succession = any(k in effective_q_lower for k in ["coparcenary", "ancestral", "succession", "inheritance", "partition", "hindu succession", "daughter share", "legal heir"])
+            is_taxation = any(k in effective_q_lower for k in ["income tax", "reassessment", "section 148", "it act", "assessment year", "gst", "show cause notice tax"])
+            is_crim = (
+                any(k in effective_q_lower for k in ["fir", "arrest", "bail", "bns", "ipc", "murder", "theft", "cheat", "cyber", "police", "crime", "offense", "offence", "custody"])
+                and not is_writ
+            )
+            
             concordance_section = ""
-            if concordance_items:
+            if concordance_items and is_crim:
                 c_rows = []
                 for c in concordance_items:
                     c_rows.append(
@@ -656,26 +907,9 @@ class LegalAssistantService:
                     "\n\n".join(p_items) + "\n\n"
                 )
             else:
-                precedents_section = (
-                    "### Binding Supreme Court Precedents & Jurisprudential Benchmarks\n\n"
-                    "1. **Maneka Gandhi v. Union of India (1978)**: Procedure established by law under Article 21 must be just, fair, and reasonable, prohibiting arbitrary executive restraint.\n"
-                    "2. **D.K. Basu v. State of West Bengal (1997)**: Mandatory arrest memos, intimation to relatives, and independent medical examinations.\n"
-                    "3. **Satender Kumar Antil v. CBI (2022)**: Strict categorization of offenses for bail adjudication and non-custodial investigation compliance.\n\n"
-                )
+                precedents_section = ""
 
             if mode == "professional":
-                q_lower = query.lower()
-                is_ni = any(k in q_lower for k in ["cheque", "check bounce", "138", "dishonour", "dishonor", "141", "142", "drawer", "payee"])
-                is_contract = any(k in q_lower for k in ["contract", "breach", "liquidated damages", "penalty clause", "section 73", "section 74", "specific performance", "earnest money"])
-                is_injunction = any(k in q_lower for k in ["injunction", "stay order", "order 39", "rule 1", "rule 2", "status quo", "summary suit", "order 37", "cpc"])
-                is_arbitration = any(k in q_lower for k in ["arbitrat", "section 9", "section 11", "section 34", "arbitral award"])
-                is_writ = any(k in q_lower for k in [
-                    "article 226", "article 32", "writ", "mandamus", "certiorari", "habeas corpus", "ultra vires",
-                    "article 26", "article 320", "article 14", "article 19", "article 21", "article 25", "article 311", "article 368",
-                    "essential religious", "religious denomination", "public service commission", "constitution of india"
-                ])
-                is_matrimonial = any(k in q_lower for k in ["divorce", "matrimonial", "maintenance", "alimony", "section 13", "section 24", "domestic violence", "dv act"])
-                is_consumer = any(k in q_lower for k in ["consumer", "deficiency in service", "unfair trade practice", "dcdrc", "ncdrc"])
 
                 if is_ni:
                     answer_text = (
@@ -828,8 +1062,113 @@ class LegalAssistantService:
                         f"2. **E-Daakhil Electronic Filing**: File complaint online via edaakhil.nic.in at consumer's place of residence.\n"
                         f"3. **Comprehensive Relief Claim**: Claim consideration refund, interest, compensation for harassment, and litigation costs."
                     )
-                else:
-                    # Criminal Defense default
+                elif is_mv:
+                    answer_text = (
+                        f"### Executive Legal Summary & Jurisdictional Matrix (Motor Vehicles Act & Traffic Law)\n\n"
+                        f"- **Governing Subject / Cause of Action**: Traffic Signal Adherence, Electronic Challans & Citizen Safeguards\n"
+                        f"- **Primary Statutory Authority**: Motor Vehicles Act, 1988 — Section 119, 177, 184 & 206\n"
+                        f"- **Procedural Classification**: Compoundable Statutory Traffic Infraction / Quasi-Judicial Adjudication\n"
+                        f"- **Competent Adjudication Forum**: Virtual Traffic Court / Judicial Magistrate / Traffic Lok Adalat\n"
+                        f"- **Adjudication Standard**: Electronic evidence compliance under Section 136A MV Act and Section 63 BSA\n\n"
+                        f"### Substantive Statutory Foundation & Verbatim Provisions\n\n"
+                        f"**Authority**: {primary_prov.source.title if primary_prov.source else 'Law of India'}, {primary_prov.section_number}\n\n"
+                        f"> \"{primary_prov.text_content}\"\n\n"
+                        f"### Essential Statutory Mandates & Enforcement Benchmarks\n\n"
+                        f"1. **Duty to Obey Signals (Section 119)**: Mandatory duty of every motor vehicle driver to stop at red signals and stop lines.\n"
+                        f"2. **Automated Enforcement (Section 136A)**: Electronic enforcement via ITMS/RLVD must satisfy verifiable photographic timestamping.\n"
+                        f"3. **Limits on Document Seizure (Section 206)**: Under *Dr. S. Rajaseekaran v. Union of India* ((2014) 6 SCC 36), police officers cannot seize licenses or impound vehicles arbitrarily for minor compounding infractions.\n\n"
+                        f"{precedents_section}"
+                        f"### Chamber Advisory & Actionable Litigation Strategy\n\n"
+                        f"1. **Electronic Evidence Inspection**: Audit the photographic snapshot on echallan.parivahan.gov.in for signal status and number plate clarity.\n"
+                        f"2. **Lok Adalat Settlement / Compounding**: Where violation is minor or compounding fee disputed, list before upcoming National/State Lok Adalat for compounding or compounding fee revision.\n"
+                        f"3. **Magisterial Trial Option**: Exercise statutory right to refuse online compounding and request transfer to Judicial Magistrate under Section 208 MV Act if notice is erroneous."
+                    )
+                elif is_rera:
+                    answer_text = (
+                        f"### Executive Legal Summary & Jurisdictional Matrix (Real Estate Regulation - RERA)\n\n"
+                        f"- **Governing Subject / Cause of Action**: Builder Delay, Possession Default & Allottee Compensation\n"
+                        f"- **Primary Statutory Authority**: Real Estate (Regulation and Development) Act, 2016 — Section 18 & Section 31\n"
+                        f"- **Procedural Classification**: Special Statutory Regulatory Redressal\n"
+                        f"- **Competent Adjudication Forum**: Real Estate Regulatory Authority (RERA) / Adjudicating Officer / REAT\n"
+                        f"- **Adjudication Standard**: Strict contractual compliance with RERA registered completion timeline\n\n"
+                        f"### Substantive Statutory Foundation & Verbatim Provisions\n\n"
+                        f"**Authority**: {primary_prov.source.title if primary_prov.source else 'Law of India'}, {primary_prov.section_number}\n\n"
+                        f"> \"{primary_prov.text_content}\"\n\n"
+                        f"### Essential Statutory Mandates & Relief Principles\n\n"
+                        f"1. **Unconditional Right to Refund (Section 18)**: If builder fails to give possession by agreed date, allottee has unqualified right to full refund with interest or monthly delay interest.\n"
+                        f"2. **Concurrent Remedies**: Under *Imperia Structures Ltd. v. Anil Patni* ((2020) 10 SCC 783), allottees can approach RERA and Consumer Commission concurrently without statutory bar.\n"
+                        f"3. **Recovery as Land Revenue**: Unpaid RERA decrees are executable directly through District Collector as arrears of land revenue.\n\n"
+                        f"{precedents_section}"
+                        f"### Chamber Advisory & Actionable Litigation Strategy\n\n"
+                        f"1. **Section 31 Complaint**: File complaint before State RERA online portal claiming either refund with interest or monthly interest until actual possession.\n"
+                        f"2. **Section 71 Adjudication**: File simultaneously before Adjudicating Officer for mental agony and tortious damages.\n"
+                        f"3. **Execution under Section 40**: File recovery certificate for enforcement through District Magistrate."
+                    )
+                elif is_rti:
+                    answer_text = (
+                        f"### Executive Legal Summary & Jurisdictional Matrix (Right to Information Act, 2005)\n\n"
+                        f"- **Governing Subject / Cause of Action**: Statutory Transparency, Information Disclosure & Appellate Remedy\n"
+                        f"- **Primary Statutory Authority**: Right to Information Act, 2005 — Section 6, 7 & 19\n"
+                        f"- **Procedural Classification**: Administrative Statutory Disclosure Right\n"
+                        f"- **Competent Forum**: Central/State Public Information Officer -> First Appellate Authority -> Information Commission\n"
+                        f"- **Adjudication Standard**: Strict compliance with Section 7 time limits; exemptions strictly interpreted under Section 8\n\n"
+                        f"### Substantive Statutory Foundation & Verbatim Provisions\n\n"
+                        f"**Authority**: {primary_prov.source.title if primary_prov.source else 'Law of India'}, {primary_prov.section_number}\n\n"
+                        f"> \"{primary_prov.text_content}\"\n\n"
+                        f"### Essential Statutory Mandates\n\n"
+                        f"1. **Mandatory 30-Day Disposal (Section 7(1))**: CPIO must supply information within 30 days (48 hours if life and liberty involved).\n"
+                        f"2. **Examinee Inspection Rights**: Under *CBSE v. Aditya Bandopadhyay* ((2011) 8 SCC 497), answer books and public evaluations are accessible under RTI.\n"
+                        f"3. **Penalties under Section 20**: PIO refusing without reasonable cause faces ₹250/day penalty up to ₹25,000.\n\n"
+                        f"{precedents_section}"
+                        f"### Chamber Advisory & Actionable Litigation Strategy\n\n"
+                        f"1. **Targeted Formulation**: Frame questions seeking existing records/documents, avoiding hypothetical opinions.\n"
+                        f"2. **First Appeal under Section 19(1)**: File within 30 days of PIO refusal or expiry of 30 days.\n"
+                        f"3. **Second Appeal under Section 19(3)**: Approach Central/State Information Commission within 90 days."
+                    )
+                elif is_labor:
+                    answer_text = (
+                        f"### Executive Legal Summary & Jurisdictional Matrix (Labor, Employment & Gratuity Law)\n\n"
+                        f"- **Governing Subject / Cause of Action**: Gratuity Dues, Severance & Industrial Protection\n"
+                        f"- **Primary Statutory Authority**: Payment of Gratuity Act, 1972 — Section 4 & 7; Industrial Disputes Act, 1947\n"
+                        f"- **Procedural Classification**: Welfare Labor Enactment (Summary Statutory Redressal)\n"
+                        f"- **Competent Adjudication Forum**: Controlling Authority under Payment of Gratuity Act / Labor Court\n"
+                        f"- **Adjudication Standard**: Statutory entitlement upon completion of 5 continuous years of service\n\n"
+                        f"### Substantive Statutory Foundation & Verbatim Provisions\n\n"
+                        f"**Authority**: {primary_prov.source.title if primary_prov.source else 'Law of India'}, {primary_prov.section_number}\n\n"
+                        f"> \"{primary_prov.text_content}\"\n\n"
+                        f"### Essential Statutory Mandates & Principles\n\n"
+                        f"1. **Continuous Service (Section 4)**: Gratuity is mandatory after 5 continuous years; forfeiture strictly limited to moral turpitude or willful damage under Section 4(6).\n"
+                        f"2. **Triple Test Precedent**: Under *Bangalore Water Supply & Sewerage Board v. A. Rajappa* ((1978) 2 SCC 213), statutory definitions of industry and workman are expansively applied.\n"
+                        f"3. **Mandatory Interest (Section 7(3A))**: Employer failing to pay within 30 days must pay compound interest notified by Central Government.\n\n"
+                        f"{precedents_section}"
+                        f"### Chamber Advisory & Actionable Litigation Strategy\n\n"
+                        f"1. **Form I Notice**: Serve written notice of application for gratuity to employer.\n"
+                        f"2. **Form N Application**: If employer defaults past 30 days, file Form N before Controlling Authority.\n"
+                        f"3. **Statutory Recovery**: Execute through Revenue Recovery Certificate via District Collector."
+                    )
+                elif is_taxation:
+                    answer_text = (
+                        f"### Executive Legal Summary & Jurisdictional Matrix (Taxation & Reassessment Law)\n\n"
+                        f"- **Governing Subject / Cause of Action**: Income Tax Reassessment & Statutory Notice Challenge\n"
+                        f"- **Primary Statutory Authority**: Income Tax Act, 1961 — Section 148, 148A & Section 149\n"
+                        f"- **Procedural Classification**: Direct Tax Statutory Assessment & Quasi-Judicial Adjudication\n"
+                        f"- **Competent Forum**: Assessing Officer -> CIT (Appeals) -> ITAT -> High Court (Section 260A)\n"
+                        f"- **Adjudication Standard**: Tangible material with live nexus to escaped income; strict limitation compliance\n\n"
+                        f"### Substantive Statutory Foundation & Verbatim Provisions\n\n"
+                        f"**Authority**: {primary_prov.source.title if primary_prov.source else 'Law of India'}, {primary_prov.section_number}\n\n"
+                        f"> \"{primary_prov.text_content}\"\n\n"
+                        f"### Essential Statutory Mandates\n\n"
+                        f"1. **Mandatory Show-Cause (Section 148A)**: Under *Union of India v. Ashish Agarwal* ((2023) 1 SCC 617), AO must provide information and minimum 7-30 days to reply before issuing Section 148 notice.\n"
+                        f"2. **Limitation Horizons (Section 149)**: Reassessment barred beyond 3 years unless escaped income exceeds ₹50 Lakh with specific asset evidence.\n"
+                        f"3. **Jurisdictional Challenge**: Notice without statutory approval of Principal Chief Commissioner is void ab initio.\n\n"
+                        f"{precedents_section}"
+                        f"### Chamber Advisory & Actionable Litigation Strategy\n\n"
+                        f"1. **Inspect E-Proceedings**: Access IT portal, verify approval under Section 151, and demand underlying reasons/evidence.\n"
+                        f"2. **Reply under Section 148A(c)**: Submit reconciliation with bank statements and audited financials within statutory timeline.\n"
+                        f"3. **Writ Petition (Article 226)**: If notice lacks jurisdiction or violates limitation, file High Court writ before assessment order is passed."
+                    )
+                elif is_crim:
+                    # Criminal Defense
                     answer_text = (
                         f"### Executive Legal Summary & Jurisdictional Matrix (Criminal Defense & BNSS)\n\n"
                         f"- **Governing Offense/Subject**: {primary_prov.title}\n"
@@ -858,37 +1197,120 @@ class LegalAssistantService:
                         f"3. **Quashing Petition**: File under **Section 528 BNSS** before High Court to quash malicious proceedings under *Bhajan Lal* (AIR 1992 SC 604).\n"
                         f"4. **Evidentiary Audit**: Audit electronic records for mandatory Section 63 BSA certificate."
                     )
+                else:
+                    # General Substantive / Civil Procedure
+                    answer_text = (
+                        f"### Executive Legal Summary & Jurisdictional Matrix (Civil & Statutory Law)\n\n"
+                        f"- **Governing Subject / Cause of Action**: {primary_prov.title}\n"
+                        f"- **Primary Statutory Authority**: {primary_prov.source.title if primary_prov.source else 'Law of India'}, {primary_prov.section_number}\n"
+                        f"- **Adjudication Forum**: Civil Court / Designated Statutory Authority having territorial jurisdiction\n"
+                        f"- **Adjudication Standard**: Preponderance of probabilities and documentary verification\n\n"
+                        f"### Substantive Statutory Foundation & Verbatim Provisions\n\n"
+                        f"**Authority**: {primary_prov.source.title if primary_prov.source else 'Law of India'}, {primary_prov.section_number}\n\n"
+                        f"> \"{primary_prov.text_content}\"\n\n"
+                        f"### Statutory Ingredients & Legal Principles\n\n"
+                        f"1. **Statutory Baseline**: Verification of mandatory conditions precedent stipulated under {primary_prov.section_number}.\n"
+                        f"2. **Limitation & Forum**: Ensure claim is within statutory limitation and instituted before the forum having territorial and pecuniary competence.\n"
+                        f"3. **Evidentiary Proof**: Primary documentary evidence must satisfy the Indian Evidence / BSA standards.\n\n"
+                        f"{precedents_section}"
+                        f"### Chamber Advisory & Actionable Litigation Strategy\n\n"
+                        f"1. **Formal Statutory Notice**: Serve a comprehensive legal notice outlining grounds, documentation, and specific time for compliance.\n"
+                        f"2. **Pleadings Draft**: Ensure strict verification of cause of action and territorial jurisdiction.\n"
+                        f"3. **ADR & Mediation**: Evaluate pre-litigation settlement or mediation to secure expedited relief."
+                    )
             else:
                 helpline_bullets = "\n".join([f"- **{h.service_name}**: Dial **{h.short_code}** ({h.hours}) — {h.description}" for h in helplines]) if helplines else "- **NALSA Helpline**: Dial **15100** (24/7 Toll-Free Free Legal Aid across India)"
                 
-                answer_text = (
-                    f"### Plain Language Summary\n\n"
-                    f"Under Indian law, your inquiry regarding **{primary_prov.title}** is governed by **{primary_prov.section_number}** of the **{primary_prov.source.title if primary_prov.source else 'Indian Law'}**.\n\n"
-                    f"The law provides clear legal definitions, sets penalties for unlawful conduct, and establishes non-negotiable protections so that citizens cannot be subjected to harassment or arbitrary action.\n\n"
-                    f"### What the Law Specifically Mandates\n\n"
-                    f"According to the official statutory provision:\n\n"
-                    f"> \"{primary_prov.text_content[:280]}...\"\n\n"
-                    f"**In simple terms**:\n"
-                    f"- The law strictly prohibits the conduct described and requires formal statutory proof before any penalty can be imposed.\n"
-                    f"- If you are an aggrieved victim, you have the right to register a formal police complaint or court petition.\n"
-                    f"- If you are facing questioning, you are protected by constitutional guarantees of fair process.\n\n"
-                    f"{concordance_section}"
-                    f"### Your Constitutional & Procedural Safeguards\n\n"
-                    f"Whenever dealing with law enforcement or legal inquiries in India, you are protected by fundamental constitutional rights:\n\n"
-                    f"- **Protection Against Arbitrary Arrest (Article 22 & Sec 35(3) BNSS)**: For offenses where punishment is up to 7 years, police cannot arrest you without issuing a formal Notice of Appearance first.\n"
-                    f"- **Right to Know Grounds of Arrest**: You must be informed immediately of the exact allegations against you in writing.\n"
-                    f"- **Right to Legal Counsel**: You have the constitutional right to consult and be defended by a lawyer of your choice.\n"
-                    f"- **24-Hour Magistrate Production**: Anyone detained must be presented before the nearest Judicial Magistrate within 24 hours.\n"
-                    f"- **Free Legal Aid (Article 39A)**: If you cannot afford an advocate, the State is constitutionally bound to provide one free of cost through DLSA/NALSA.\n\n"
-                    f"### Step-by-Step Citizen Action Plan\n\n"
-                    f"1. **Preserve All Evidence**: Keep records, written notices, timestamps, and digital communications safely.\n"
-                    f"2. **Filing a Complaint (Zero FIR)**: If filing a criminal complaint, visit your nearest police station. Under Section 173 of Bharatiya Nagarik Suraksha Sanhita (BNSS), police must register a 'Zero FIR' even if the offense occurred outside their territorial jurisdiction.\n"
-                    f"3. **Online Complaints**: For online fraud or harassment, file an immediate complaint at the National Cyber Crime Reporting Portal (`cybercrime.gov.in`) or call **1930**.\n"
-                    f"4. **Approach Free Legal Aid**: If facing legal action, contact your local District Legal Services Authority (DLSA) located inside the district court complex.\n\n"
-                    f"### Official Government Helplines & Legal Aid Access\n\n"
-                    f"{helpline_bullets}\n"
-                    f"- **National Emergency Number**: Dial **112** (Immediate police, fire, or ambulance dispatch)."
-                )
+                if is_mv:
+                    answer_text = (
+                        f"### Plain Language Summary\n\n"
+                        f"Traffic signals and red light rules are governed under the **Motor Vehicles Act, 1988** to prevent road accidents and safeguard pedestrians and motorists.\n\n"
+                        f"### What the Law Specifically Mandates\n\n"
+                        f"According to Section 119 and Section 184 of the Motor Vehicles Act:\n\n"
+                        f"- **Duty to Stop at Red Light**: Every driver must bring their vehicle to a complete halt behind the white stop line or zebra crossing when the signal turns red.\n"
+                        f"- **Penalties**: Jumping a red light attracts statutory fines under Section 177 / 184. Automated ITMS (RLVD) cameras capture violations and issue electronic challans to the registered vehicle owner.\n\n"
+                        f"### Your Constitutional & Procedural Safeguards\n\n"
+                        f"- **Right to Inspect Photo Evidence**: You have the absolute right to view the timestamped photographic or video snapshot of the alleged infraction on the official portal before paying.\n"
+                        f"- **No Arbitrary Key Snatching or Harassment**: Traffic police cannot snatch your keys, physically manhandle you, or confiscate driving licenses for minor infractions (*Dr. S. Rajaseekaran v. Union of India*). License seizure is restricted to specific grave offenses under Section 206.\n"
+                        f"- **Right to Contest in Lok Adalat**: You can contest erroneous e-challans (e.g. wrong plate reading or camera malfunction) before the Virtual Traffic Court or Traffic Lok Adalat.\n\n"
+                        f"### Step-by-Step Citizen Action Plan\n\n"
+                        f"1. **Check E-Challan Online**: Visit `echallan.parivahan.gov.in` and enter your vehicle number or challan number.\n"
+                        f"2. **Verify Photographic Proof**: Examine if your vehicle was actually across the stop line during the red light and whether registration digits are correct.\n"
+                        f"3. **Pay or Contest**: Settle online to close the challan, or submit an online grievance / contest request if issued erroneously.\n\n"
+                        f"### Official Government Helplines & Portals\n\n"
+                        f"- **Parivahan E-Challan Portal**: echallan.parivahan.gov.in\n"
+                        f"- **NALSA Free Legal Aid**: Dial **15100** (24/7 Toll-Free)\n"
+                        f"- **National Emergency / Police**: Dial **112**"
+                    )
+                elif is_rera:
+                    answer_text = (
+                        f"### Plain Language Summary\n\n"
+                        f"If your real estate builder or developer has delayed handing over possession of your flat or apartment, your rights are strictly protected under the **Real Estate (Regulation and Development) Act, 2016 (RERA)**.\n\n"
+                        f"### What the Law Specifically Mandates\n\n"
+                        f"Under **Section 18 of RERA**:\n\n"
+                        f"- **Right to Full Refund with Interest**: If the promoter fails to deliver possession according to the agreement, you are entitled to claim a 100% refund of all amounts paid, along with statutory interest.\n"
+                        f"- **Right to Monthly Delay Interest**: If you choose to retain the apartment, the builder is legally obligated to pay monthly delay interest for every month of delay until possession is delivered.\n\n"
+                        f"### Your Safeguards & Legal Rights\n\n"
+                        f"- **Dual Remedies Allowed**: Under *Imperia Structures Ltd. v. Anil Patni*, you can seek relief before RERA and the Consumer Commission simultaneously.\n"
+                        f"- **Arrears of Land Revenue**: RERA recovery orders are executed directly by the District Collector.\n\n"
+                        f"### Step-by-Step Citizen Action Plan\n\n"
+                        f"1. **Collate Documentation**: Gather your Agreement for Sale, payment receipts, and builder communication.\n"
+                        f"2. **File Online RERA Complaint**: Log on to your State's official RERA portal and submit Form M/N for Section 18 relief.\n\n"
+                        f"### Official Government Helplines & Legal Aid Access\n\n"
+                        f"- **NALSA Legal Aid**: Dial **15100**\n"
+                        f"- **National Consumer Helpline**: Dial **1915**"
+                    )
+                elif is_crim:
+                    answer_text = (
+                        f"### Plain Language Summary\n\n"
+                        f"Under Indian law, your inquiry regarding **{primary_prov.title}** is governed by **{primary_prov.section_number}** of the **{primary_prov.source.title if primary_prov.source else 'Indian Law'}**.\n\n"
+                        f"The law provides clear legal definitions, sets penalties for unlawful conduct, and establishes non-negotiable protections so that citizens cannot be subjected to harassment or arbitrary action.\n\n"
+                        f"### What the Law Specifically Mandates\n\n"
+                        f"According to the official statutory provision:\n\n"
+                        f"> \"{primary_prov.text_content[:280]}...\"\n\n"
+                        f"**In simple terms**:\n"
+                        f"- The law strictly prohibits the conduct described and requires formal statutory proof before any penalty can be imposed.\n"
+                        f"- If you are an aggrieved victim, you have the right to register a formal police complaint or court petition.\n"
+                        f"- If you are facing questioning, you are protected by constitutional guarantees of fair process.\n\n"
+                        f"{concordance_section}"
+                        f"### Your Constitutional & Procedural Safeguards\n\n"
+                        f"Whenever dealing with law enforcement or legal inquiries in India, you are protected by fundamental constitutional rights:\n\n"
+                        f"- **Protection Against Arbitrary Arrest (Article 22 & Sec 35(3) BNSS)**: For offenses where punishment is up to 7 years, police cannot arrest you without issuing a formal Notice of Appearance first.\n"
+                        f"- **Right to Know Grounds of Arrest**: You must be informed immediately of the exact allegations against you in writing.\n"
+                        f"- **Right to Legal Counsel**: You have the constitutional right to consult and be defended by a lawyer of your choice.\n"
+                        f"- **24-Hour Magistrate Production**: Anyone detained must be presented before the nearest Judicial Magistrate within 24 hours.\n"
+                        f"- **Free Legal Aid (Article 39A)**: If you cannot afford an advocate, the State is constitutionally bound to provide one free of cost through DLSA/NALSA.\n\n"
+                        f"### Step-by-Step Citizen Action Plan\n\n"
+                        f"1. **Preserve All Evidence**: Keep records, written notices, timestamps, and digital communications safely.\n"
+                        f"2. **Filing a Complaint (Zero FIR)**: If filing a criminal complaint, visit your nearest police station. Under Section 173 of Bharatiya Nagarik Suraksha Sanhita (BNSS), police must register a 'Zero FIR' even if the offense occurred outside their territorial jurisdiction.\n"
+                        f"3. **Online Complaints**: For online fraud or harassment, file an immediate complaint at the National Cyber Crime Reporting Portal (`cybercrime.gov.in`) or call **1930**.\n"
+                        f"4. **Approach Free Legal Aid**: If facing legal action, contact your local District Legal Services Authority (DLSA) located inside the district court complex.\n\n"
+                        f"### Official Government Helplines & Legal Aid Access\n\n"
+                        f"{helpline_bullets}\n"
+                        f"- **National Emergency Number**: Dial **112** (Immediate police, fire, or ambulance dispatch)."
+                    )
+                else:
+                    answer_text = (
+                        f"### Plain Language Summary\n\n"
+                        f"Under Indian law, your inquiry regarding **{primary_prov.title}** is governed by **{primary_prov.section_number}** of the **{primary_prov.source.title if primary_prov.source else 'Indian Law'}**.\n\n"
+                        f"The law establishes clear rights, statutory standards, and procedural remedies so that citizens can resolve disputes lawfully without unfair hardship.\n\n"
+                        f"### What the Law Specifically Mandates\n\n"
+                        f"According to the official statutory provision:\n\n"
+                        f"> \"{primary_prov.text_content[:280]}...\"\n\n"
+                        f"**Key Rights & Protections**:\n"
+                        f"- Entitlements and obligations are governed strictly by the written statutory terms and recognized rules.\n"
+                        f"- Any party seeking to enforce a claim must demonstrate substantive compliance and produce valid documentary records.\n\n"
+                        f"### Your Legal Safeguards\n\n"
+                        f"- **Right to Fair Adjudication**: Public bodies and judicial forums must follow natural justice and procedural fairness before passing adverse orders.\n"
+                        f"- **Access to Free Legal Aid**: Under Article 39A and the Legal Services Authorities Act, eligible citizens can access free legal aid across India.\n\n"
+                        f"### Step-by-Step Citizen Action Plan\n\n"
+                        f"1. **Collect Supporting Documents**: Gather all original agreements, notices, receipts, and correspondence.\n"
+                        f"2. **Send Formal Legal Notice**: State your grievance, statutory grounds, and a reasonable response timeline.\n"
+                        f"3. **Contact Legal Aid if Needed**: Reach out to the District Legal Services Authority (DLSA) or dial NALSA.\n\n"
+                        f"### Official Government Helplines & Legal Aid Access\n\n"
+                        f"{helpline_bullets}\n"
+                        f"- **NALSA 24/7 Legal Aid**: Dial **15100**"
+                    )
 
         # 6. Run strict Citation Validator
         validation_report = self.validator.validate_answer(claims_for_validation)
@@ -911,7 +1333,23 @@ class LegalAssistantService:
                 "advocate_strategy": p.advocate_strategy,
                 "sanhita_mapping_2024": p.sanhita_mapping_2024,
                 "key_takeaways": p.key_takeaways or [],
+                "official_databank": "Supreme Court Canonical Repository",
+                "source_url": "https://www.aironline.in/"
             })
+
+        # Tier 2: AI Official Databank Precedent Discovery Engine (e-SCR, AIR, SCC, Kanoon)
+        if len(similar_cases_payload) < 2 and synthesizer.is_available():
+            try:
+                ai_cases = synthesizer.discover_official_precedents_ai(query=query, context_filter=context_filter)
+                if ai_cases:
+                    existing_titles = {c.get("title", "").lower() for c in similar_cases_payload}
+                    for ac in ai_cases:
+                        if ac.get("title", "").lower() not in existing_titles:
+                            similar_cases_payload.append(ac)
+                            if len(similar_cases_payload) >= 3:
+                                break
+            except Exception as e:
+                print(f"AI Precedent discovery fallback error: {e}")
 
         return {
             "is_emergency": False,

@@ -15,6 +15,8 @@ export interface RealCasePrecedentItem {
   advocate_strategy: string;
   sanhita_mapping_2024: string;
   key_takeaways?: string[];
+  official_databank?: string;
+  source_url?: string;
 }
 
 interface PrecedentDossierDrawerProps {
@@ -141,24 +143,31 @@ Generated via भारत Legal Intelligence Engine`;
           >
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-14px text-amber-500">menu_book</span>
-              <span className="font-semibold text-amber-400">{precedent.citation}</span>
+              <span className={`font-semibold ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>{precedent.citation}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-14px text-slate-400">group</span>
+              <span className={`material-symbols-outlined text-14px ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>group</span>
               <span>{precedent.bench}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-14px text-slate-400">account_balance</span>
+              <span className={`material-symbols-outlined text-14px ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>account_balance</span>
               <span>{precedent.court}</span>
             </div>
             <a
-              href="https://www.aironline.in/"
+              href={
+                precedent.source_url ||
+                (precedent.official_databank?.toLowerCase().includes('escr')
+                  ? 'https://escr.sci.gov.in/'
+                  : precedent.official_databank?.toLowerCase().includes('kanoon')
+                  ? 'https://indiankanoon.org/'
+                  : 'https://www.aironline.in/')
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-amber-500 hover:text-amber-400 font-bold hover:underline transition-colors ml-auto"
             >
               <span className="material-symbols-outlined text-14px">open_in_new</span>
-              <span>AIR Online Verified</span>
+              <span>{precedent.official_databank || 'AIR Online Verified'}</span>
             </a>
           </div>
 
@@ -255,8 +264,8 @@ Generated via भारत Legal Intelligence Engine`;
               }`}
             >
               <div className="flex items-center gap-2 mb-2.5">
-                <span className="material-symbols-outlined text-amber-500 text-18px">fact_check</span>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-500">
+                <span className={`material-symbols-outlined text-18px ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>fact_check</span>
+                <h3 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
                   1. Factual Matrix (What Actually Occurred)
                 </h3>
               </div>
@@ -278,8 +287,8 @@ Generated via भारत Legal Intelligence Engine`;
               }`}
             >
               <div className="flex items-center gap-2 mb-2.5">
-                <span className="material-symbols-outlined text-blue-400 text-18px">help</span>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-blue-400">
+                <span className={`material-symbols-outlined text-18px ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>help</span>
+                <h3 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
                   2. Legal Controversy Framed
                 </h3>
               </div>
@@ -328,8 +337,8 @@ Generated via भारत Legal Intelligence Engine`;
               }`}
             >
               <div className="flex items-center gap-2 mb-2.5">
-                <span className="material-symbols-outlined text-amber-400 text-18px">psychology</span>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400">
+                <span className={`material-symbols-outlined text-18px ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>psychology</span>
+                <h3 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
                   4. Winning Advocate Defense Strategy & Playbook
                 </h3>
               </div>
@@ -353,8 +362,8 @@ Generated via भारत Legal Intelligence Engine`;
               }`}
             >
               <div className="flex items-center gap-2 mb-2.5">
-                <span className="material-symbols-outlined text-indigo-400 text-18px">change_circle</span>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-400">
+                <span className={`material-symbols-outlined text-18px ${isDark ? 'text-indigo-400' : 'text-indigo-700'}`}>change_circle</span>
+                <h3 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-indigo-400' : 'text-indigo-800'}`}>
                   5. 2024 Sanhita Application (BNS / BNSS / BSA)
                 </h3>
               </div>
@@ -376,8 +385,8 @@ Generated via भारत Legal Intelligence Engine`;
               }`}
             >
               <div className="flex items-center gap-2 mb-3">
-                <span className="material-symbols-outlined text-amber-500 text-18px">checklist</span>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-500">
+                <span className={`material-symbols-outlined text-18px ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>checklist</span>
+                <h3 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
                   6. Chamber Takeaways & Evidentiary Checklist
                 </h3>
               </div>

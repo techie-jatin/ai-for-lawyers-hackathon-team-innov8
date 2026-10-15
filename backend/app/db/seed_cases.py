@@ -510,6 +510,466 @@ def seed_precedents():
                 "Hyper-technical signatory defects do not invalidate electronic records if SHA-256 hash matches.",
                 "Simultaneous cloud copies and synchronized server logs are recognized as primary evidence under BSA §57."
             ]
+        },
+        {
+            "title": "Dr. S. Rajaseekaran v. Union of India",
+            "citation": "(2014) 6 SCC 36; (2018) 13 SCC 516",
+            "court": "Supreme Court of India",
+            "bench": "3-Judge Bench (Ranjan Gogoi, R. Banumathi & N.V. Ramana, JJ.)",
+            "decision_year": 2018,
+            "category": "Motor Vehicles & Traffic Regulation",
+            "governing_provisions": [
+                "Motor Vehicles Act Section 119", "Motor Vehicles Act Section 136A", "Motor Vehicles Act Section 177", "Motor Vehicles Act Section 184", "Motor Vehicles Act Section 206"
+            ],
+            "factual_matrix": (
+                "A public interest litigation was filed by an orthopedic surgeon documenting severe road crash fatalities "
+                "caused by non-enforcement of traffic signal rules, red-light jumping, speeding, and erratic police behavior. "
+                "The Supreme Court constituted the Supreme Court Committee on Road Safety (headed by Justice Radhakrishnan) "
+                "to issue mandatory national directions governing automated enforcement (ITMS/RLVD), transparent electronic challans, "
+                "and strict curbs on arbitrary harassment of drivers."
+            ),
+            "legal_controversy": (
+                "Whether traffic police officers possess arbitrary discretion to confiscate driving licenses and impound vehicles "
+                "for routine compounding traffic infractions, and what procedural benchmarks govern automated electronic challan enforcement."
+            ),
+            "court_holding": (
+                "The Supreme Court held that automated Intelligent Traffic Management Systems (ITMS) and red-light violation detection (RLVD) "
+                "must generate timestamped photographic evidence. Police officers cannot arbitrarily seize driving licenses under Section 206 "
+                "of the Motor Vehicles Act unless the infraction falls strictly within specified grave offenses (such as drunken driving, "
+                "fatal accidents, or dangerous driving over speed limits). Drivers possess the full statutory right to inspect electronic "
+                "evidence and contest citations before Traffic Lok Adalats or Judicial Magistrates."
+            ),
+            "advocate_strategy": (
+                "Counsel emphasized that road safety and citizen rights are complementary. Automated enforcement must be transparent with "
+                "verifiable photographic records uploaded to Parivahan portal, protecting motorists from extortion while holding violators accountable."
+            ),
+            "sanhita_mapping_2024": (
+                "Directly incorporated into Section 136A of the amended Motor Vehicles Act and Section 63 BSA 2023 for photographic evidentiary proof."
+            ),
+            "key_takeaways": [
+                "Red-light and signal violations captured by cameras require verifiable photographic snapshots with timestamps.",
+                "Police cannot arbitrarily seize driving licenses for routine traffic violations without Section 206 grounds.",
+                "Citizens have the statutory right to contest erroneous automated challans before Lok Adalats or Virtual Traffic Courts."
+            ]
+        },
+        {
+            "title": "Imperia Structures Ltd. v. Anil Patni",
+            "citation": "(2020) 10 SCC 783; AIR 2021 SC 70",
+            "court": "Supreme Court of India",
+            "bench": "2-Judge Bench (Uday Umesh Lalit & Vineet Saran, JJ.)",
+            "decision_year": 2020,
+            "category": "Real Estate (RERA) & Consumer Rights",
+            "governing_provisions": [
+                "RERA Act 2016 Section 18", "RERA Act 2016 Section 71", "RERA Act 2016 Section 79", "Consumer Protection Act Section 35"
+            ],
+            "factual_matrix": (
+                "Allottees booked residential apartments in a housing project in Gurugram in 2011 with committed possession by 2015. "
+                "Even by 2017, the builder failed to finish construction. When allottees filed consumer complaints for full refund and "
+                "interest, the builder argued that the enactment of RERA 2016 created an absolute jurisdictional bar under Section 79, "
+                "requiring all disputes to be adjudicated solely by RERA Authorities."
+            ),
+            "legal_controversy": (
+                "Whether RERA Section 79 bars home buyers from approaching Consumer Commissions, and whether Section 18 RERA gives "
+                "an absolute, unconditional right to refund with interest upon construction delay."
+            ),
+            "court_holding": (
+                "The Supreme Court held that Section 18 of RERA gives allottees an unconditional statutory right to exit the project and "
+                "demand full refund of paid amounts with prescribed interest upon delay. Furthermore, remedies under RERA and the Consumer "
+                "Protection Act are concurrent and parallel; Section 79 RERA bars civil courts, not consumer redressal forums."
+            ),
+            "advocate_strategy": (
+                "Allottee counsel established that home buyers cannot be made to wait indefinitely for completion of delayed projects, "
+                "and consumer protections operate as additional cumulative remedies under Section 88 of RERA."
+            ),
+            "sanhita_mapping_2024": (
+                "Solidified concurrent relief channels across RERA Adjudicating Authorities and E-Daakhil consumer commissions."
+            ),
+            "key_takeaways": [
+                "Delay beyond agreement date gives allottees an unconditional right to 100% refund with interest under Section 18 RERA.",
+                "RERA does not bar proceedings before Consumer Protection Commissions.",
+                "Allottees choosing not to withdraw are entitled to monthly delay interest until physical possession."
+            ]
+        },
+        {
+            "title": "Central Board of Secondary Education v. Aditya Bandopadhyay",
+            "citation": "(2011) 8 SCC 497; AIR 2011 SC 3192",
+            "court": "Supreme Court of India",
+            "bench": "2-Judge Bench (R.V. Raveendran & A.K. Patnaik, JJ.)",
+            "decision_year": 2011,
+            "category": "Right to Information & Administrative Transparency",
+            "governing_provisions": [
+                "RTI Act 2005 Section 6", "RTI Act 2005 Section 7", "RTI Act 2005 Section 8(1)(e)", "RTI Act 2005 Section 22"
+            ],
+            "factual_matrix": (
+                "An examinee appeared in the Secondary School Examination conducted by CBSE and suspected gross undervaluation. "
+                "The examinee submitted an RTI application under Section 6 seeking inspection and certified copies of his evaluated "
+                "answer sheets. CBSE rejected the request claiming fiduciary relationship and administrative inconvenience."
+            ),
+            "legal_controversy": (
+                "Whether an evaluated answer sheet in a public examination is 'information' accessible to the student under Section 6 & 7 "
+                "of the RTI Act, or whether it is exempt under Section 8(1)(e) as fiduciary material."
+            ),
+            "court_holding": (
+                "The Supreme Court held that every examinee has a statutory right to inspect their evaluated answer books and obtain copies. "
+                "An examining body does not hold answer scripts in a fiduciary capacity towards the examinee. Transparency promotes "
+                "fairness and eliminates arbitrary administrative valuation."
+            ),
+            "advocate_strategy": (
+                "Applicant counsel demonstrated that confidentiality cannot shield administrative errors or carelessness from the person "
+                "whose career depends on the assessment."
+            ),
+            "sanhita_mapping_2024": (
+                "Reaffirmed procedural transparency mandates under Section 6 & 7 RTI Act and administrative accountability."
+            ),
+            "key_takeaways": [
+                "Examinees have an absolute right under RTI Section 6 to inspect and receive certified copies of evaluated answer books.",
+                "Fiduciary exemption under Section 8(1)(e) cannot be misused to deny citizens access to their own records.",
+                "Public authorities must comply within the strict 30-day statutory timeline of Section 7(1)."
+            ]
+        },
+        {
+            "title": "Bangalore Water Supply and Sewerage Board v. A. Rajappa",
+            "citation": "(1978) 2 SCC 213; AIR 1978 SC 548",
+            "court": "Supreme Court of India",
+            "bench": "7-Judge Constitution Bench (M.H. Beg, C.J., Y.V. Chandrachud, P.N. Bhagwati, V.R. Krishna Iyer et al.)",
+            "decision_year": 1978,
+            "category": "Labor, Employment & Gratuity Rights",
+            "governing_provisions": [
+                "Payment of Gratuity Act 1972 Section 4", "Payment of Gratuity Act 1972 Section 7", "Industrial Disputes Act 1947 Section 2(j)"
+            ],
+            "factual_matrix": (
+                "Workmen in a statutory sewerage board were subjected to arbitrary administrative fines and denial of retirement/severance "
+                "benefits. The employer contended that public statutory boards and government utilities are sovereign entities outside the "
+                "definition of industry and labor welfare statutes."
+            ),
+            "legal_controversy": (
+                "What is the legal scope of 'industry' and 'workman' under Indian labor law, and whether employees in statutory bodies are "
+                "protected by statutory terminal welfare entitlements including Gratuity and retrenchment compensation."
+            ),
+            "court_holding": (
+                "The 7-Judge Constitution Bench established the landmark 'Triple Test': Where there is (i) systematic activity, (ii) organized "
+                "cooperation between employer and employees, and (iii) production/distribution of goods and services calculated to satisfy "
+                "human desires, it constitutes an industry regardless of profit motive. Welfare rights including Payment of Gratuity under "
+                "Section 4 and protection against arbitrary withholding are statutory and cannot be defeated."
+            ),
+            "advocate_strategy": (
+                "Counsel for workmen argued that welfare enactments are intended to remedy economic inequality and must be given the widest "
+                "purposive interpretation."
+            ),
+            "sanhita_mapping_2024": (
+                "Directly underpins the expansive definitions codified in the Occupational Safety, Health and Social Security Code 2020."
+            ),
+            "key_takeaways": [
+                "Labor welfare statutes protect employees across public and private organizations fulfilling the Triple Test.",
+                "Gratuity after 5 years continuous service is a mandatory statutory right under Section 4.",
+                "Employers cannot withhold terminal dues without strict compliance with statutory forfeiture conditions."
+            ]
+        },
+        {
+            "title": "Vellore Citizens Welfare Forum v. Union of India",
+            "citation": "(1996) 5 SCC 647; AIR 1996 SC 2715",
+            "court": "Supreme Court of India",
+            "bench": "3-Judge Bench (Kuldip Singh, Faizan Uddin & K. Venkataswami, JJ.)",
+            "decision_year": 1996,
+            "category": "Environmental Law & NGT Jurisprudence",
+            "governing_provisions": [
+                "NGT Act 2010 Section 14", "NGT Act 2010 Section 15", "Article 21 Constitution", "Water Act 1974 Section 25"
+            ],
+            "factual_matrix": (
+                "Untreated toxic chemical effluents discharged by hundreds of tanneries in Tamil Nadu contaminated ground water, "
+                "rendering agricultural lands barren and polluting the Palar River, depriving thousands of citizens of drinking water."
+            ),
+            "legal_controversy": (
+                "Whether industrial enterprises can pollute public natural resources in the name of economic development and employment, "
+                "and what legal principles govern environmental remediation and liability."
+            ),
+            "court_holding": (
+                "The Supreme Court held that the 'Precautionary Principle' and 'Polluter Pays Principle' are essential features of Sustainable "
+                "Development and part of Indian environmental law under Article 21. Polluting industries must bear the full cost of reversing "
+                "ecological degradation and compensating victims. This standard forms the statutory foundation of National Green Tribunal "
+                "(NGT) jurisdiction under Sections 14 and 15 of the NGT Act, 2010."
+            ),
+            "advocate_strategy": (
+                "Environmental petitioner counsel established that the right to clean drinking water and unpolluted environment is an "
+                "inalienable fundamental right under Article 21 that overrides private industrial profits."
+            ),
+            "sanhita_mapping_2024": (
+                "Foundational precedent governing NGT restitution orders under Sections 14, 15, and 19 of the NGT Act, 2010."
+            ),
+            "key_takeaways": [
+                "The Polluter Pays Principle mandates that polluters bear full financial liability for environmental restoration.",
+                "Lack of full scientific certainty cannot excuse failure to prevent ecological degradation (Precautionary Principle).",
+                "Citizens have the right to approach the National Green Tribunal under Sections 14 & 15 for environmental relief."
+            ]
+        },
+        {
+            "title": "Vineeta Sharma v. Rakesh Sharma",
+            "citation": "(2020) 9 SCC 1; AIR 2020 SC 3717",
+            "court": "Supreme Court of India",
+            "bench": "3-Judge Bench (Arun Mishra, S. Abdul Nazeer & M.R. Shah, JJ.)",
+            "decision_year": 2020,
+            "category": "Hindu Succession & Inheritance Law",
+            "governing_provisions": [
+                "Hindu Succession Act 1956 Section 6", "Article 14 Constitution", "Article 15 Constitution"
+            ],
+            "factual_matrix": (
+                "Conflicting Supreme Court decisions (*Prakash v. Phulavati* and *Danamma*) created legal chaos regarding whether daughters "
+                "possess equal coparcenary rights in ancestral Mitakshara property under the 2005 amendment if the father passed away "
+                "prior to September 9, 2005."
+            ),
+            "legal_controversy": (
+                "Whether daughter's coparcenary right under Section 6 of the Hindu Succession Act, 1956 is conditioned upon the coparcener "
+                "father being alive on September 9, 2005."
+            ),
+            "court_holding": (
+                "The 3-Judge Bench held that the daughter's right to coparcenary in ancestral property is acquired by birth (unobstructed "
+                "heritage). It is retroactive in nature: it does not matter whether the father was alive or not on September 9, 2005. "
+                "Daughters have the identical rights and liabilities as sons in ancestral property, invalidating male-only succession claims."
+            ),
+            "advocate_strategy": (
+                "Counsel argued that Section 6 was enacted to eliminate gender discrimination under Articles 14 and 15. A coparcenary right "
+                "is created by the factum of birth, not by the event of the father's death."
+            ),
+            "sanhita_mapping_2024": (
+                "Settled the national law on gender equality in ancestral property succession across all civil courts."
+            ),
+            "key_takeaways": [
+                "Daughters acquire equal coparcenary rights in ancestral property by birth under Section 6 Hindu Succession Act.",
+                "The rights apply irrespective of whether the father was alive on September 9, 2005.",
+                "Oral or unregistered family partitions after December 20, 2004 cannot defeat the daughter's share."
+            ]
+        },
+        {
+            "title": "Union of India v. Ashish Agarwal",
+            "citation": "(2023) 1 SCC 617; AIR 2022 SC 2781",
+            "court": "Supreme Court of India",
+            "bench": "2-Judge Bench (M.R. Shah & B.V. Nagarathna, JJ.)",
+            "decision_year": 2022,
+            "category": "Direct Taxation & Reassessment Law",
+            "governing_provisions": [
+                "Income Tax Act 1961 Section 148", "Income Tax Act 1961 Section 148A", "Income Tax Act 1961 Section 149"
+            ],
+            "factual_matrix": (
+                "Following the Finance Act 2021 overhaul of reassessment provisions introducing mandatory show-cause inquiry under "
+                "Section 148A, the Income Tax Department issued roughly 90,000 reassessment notices under the old pre-amendment regime. "
+                "High Courts across India quashed these notices as invalid and issued without statutory authority."
+            ),
+            "legal_controversy": (
+                "Whether reassessment notices issued after April 1, 2021 under the old regime were void ab initio, and what procedural "
+                "safeguards under Section 148A are mandatory before reopening past assessments."
+            ),
+            "court_holding": (
+                "The Supreme Court held that the amended reassessment scheme under Section 148A is a beneficial procedural safeguard for "
+                "assessees. The Assessing Officer must mandatorily conduct inquiry, provide the assessee with the underlying material/information, "
+                "and grant a minimum of 7 to 30 days to file a show-cause reply before issuing a Section 148 reassessment notice."
+            ),
+            "advocate_strategy": (
+                "Assessee counsel demonstrated that statutory amendments substituting assessment procedures cannot be bypassed by executive "
+                "circulars, and taxpayers have a statutory right to be heard prior to reopening."
+            ),
+            "sanhita_mapping_2024": (
+                "Codified mandatory pre-assessment show cause protocol across all direct tax digital reassessment proceedings."
+            ),
+            "key_takeaways": [
+                "Section 148A mandates prior disclosure of information and minimum 7 to 30 days to reply before reassessment notice.",
+                "Reassessment beyond 3 years is barred unless escaped income exceeds ₹50 Lakh with specific asset evidence under Section 149.",
+                "Failure of tax authorities to follow Section 148A procedure renders the reassessment void."
+            ]
+        },
+        {
+            "title": "D.A.V. College, Jullundur v. State of Punjab",
+            "citation": "(1971) 2 SCC 269; AIR 1971 SC 1737",
+            "court": "Supreme Court of India",
+            "bench": "5-Judge Constitution Bench (S.M. Sikri CJI, G.K. Mitter, K.S. Hegde, A.N. Grover, P. Jaganmohan Reddy, JJ.)",
+            "decision_year": 1971,
+            "category": "Constitutional & Secular Education",
+            "governing_provisions": [
+                "Article 28 Constitution", "Article 28(1)", "Article 28(3)", "Article 29", "Article 30"
+            ],
+            "factual_matrix": (
+                "The D.A.V. College trust challenged sections of Guru Nanak University Amritsar Act, 1969, which mandated colleges "
+                "to study and research the life and teachings of Guru Nanak, arguing this amounted to compulsory religious instruction "
+                "in violation of Article 28(1)."
+            ),
+            "legal_controversy": (
+                "What constitutes 'religious instruction' within the prohibition of Article 28(1), and whether academic study of the life, "
+                "philosophy, and moral teachings of religious figures constitutes forbidden religious indoctrination."
+            ),
+            "court_holding": (
+                "The 5-Judge Constitution Bench authoritatively ruled that academic study and research into the life, culture, and "
+                "teachings of a religious or spiritual leader does NOT constitute 'religious instruction' under Article 28(1). Religious "
+                "instruction strictly implies imparting tenets of a particular faith, religious rituals, dogmas, or forms of worship. "
+                "Academic, philosophical, or historical study is completely lawful."
+            ),
+            "advocate_strategy": (
+                "Winning counsel distinguished between religious education/indoctrination (forbidden under Article 28(1) in state-funded "
+                "institutions) and value-oriented cultural-historical studies (fully permissible under secular constitutional scheme)."
+            ),
+            "sanhita_mapping_2024": (
+                "Foundational constitutional precedent defining the exact boundary of religious instruction vs academic curriculum in "
+                "educational institutions under Article 28."
+            ),
+            "key_takeaways": [
+                "Article 28(1) prohibits imparting religious dogmas, rituals, or sectarian beliefs in wholly state-funded institutions.",
+                "Academic study of religious philosophy, history, and moral teachings does not violate Article 28(1).",
+                "Under Article 28(3), state-aided or recognized schools cannot force students to attend worship or prayers without consent."
+            ]
+        },
+        {
+            "title": "Aruna Roy & Ors. v. Union of India & Ors.",
+            "citation": "(2002) 7 SCC 368; AIR 2002 SC 3176",
+            "court": "Supreme Court of India",
+            "bench": "3-Judge Bench (M.B. Shah, D.M. Dharmadhikari, H.K. Sema, JJ.)",
+            "decision_year": 2002,
+            "category": "Constitutional & Secular Education",
+            "governing_provisions": [
+                "Article 28 Constitution", "Article 28(1)", "Article 25 Constitution"
+            ],
+            "factual_matrix": (
+                "Social activist Aruna Roy and others challenged the National Curriculum Framework for School Education (NCFSE) "
+                "published by NCERT, alleging that introducing education about religions amounted to 'religious instruction' prohibited by Article 28(1)."
+            ),
+            "legal_controversy": (
+                "Whether the inclusion of comparative study of all religions for moral and value education violates secularism and Article 28(1) "
+                "of the Constitution of India."
+            ),
+            "court_holding": (
+                "The Supreme Court unanimously held that education about religions is not the same as religious instruction. Secularism does not "
+                "mean hostility towards religion; it means equal respect for all faiths (Sarva Dharma Sambhava). Knowledge of common ethical and "
+                "moral values across religions promotes tolerance and national harmony and does not violate Article 28(1)."
+            ),
+            "advocate_strategy": (
+                "Union counsel proved that NCERT guidelines provided comparative value education without promoting any single religion or compelling "
+                "prayer, directly satisfying the constitutional standard under Article 28."
+            ),
+            "sanhita_mapping_2024": (
+                "Primary constitutional benchmark on value-based education and secular curricular boundaries under Article 28 of the Constitution."
+            ),
+            "key_takeaways": [
+                "There is a vital constitutional difference between 'religious instruction' and 'study of religions'.",
+                "Value education based on comparative religions does not violate Article 28(1).",
+                "Article 28(3) strictly guarantees citizen opt-out protection from compulsory religious worship."
+            ]
+        },
+        {
+            "title": "Damodar S. Prabhu v. Sayed Babalal H.",
+            "citation": "(2010) 5 SCC 663; AIR 2010 SC 1907",
+            "court": "Supreme Court of India",
+            "bench": "3-Judge Bench (K.G. Balakrishnan CJI, P. Sathasivam & J.M. Panchal, JJ.)",
+            "decision_year": 2010,
+            "category": "Negotiable Instruments Act (Cheque Dishonour)",
+            "governing_provisions": [
+                "NI Act Section 138", "NI Act Section 147", "Section 143 NI Act", "Section 320 CrPC"
+            ],
+            "factual_matrix": (
+                "The appellant was convicted under Section 138 of the Negotiable Instruments Act for cheque bounce. "
+                "During appeal before the Supreme Court, the parties entered into a compromise settlement. The case "
+                "highlighted heavy backlog in trial courts dealing with cheque bounce matters and the need for standardized "
+                "guidelines on compounding of Section 138 offenses."
+            ),
+            "legal_controversy": (
+                "Whether Section 138 NI Act offenses are predominantly civil in nature, and what standardized compounding "
+                "fee guidelines should govern compounding under Section 147 at trial, appellate, and revisional stages."
+            ),
+            "court_holding": (
+                "The 3-Judge Bench held that Section 138 NI Act is fundamentally a regulatory offense with civil undertones "
+                "aimed at ensuring commercial credibility, not penal vengeance. Under Section 147, offenses are compoundable. "
+                "The Court issued graded cost guidelines for compounding: (i) If compounded at trial stage before evidence: no penalty; "
+                "(ii) If compounded before Sessions Court in appeal: 10% of cheque amount; (iii) If compounded before High Court / Supreme Court: "
+                "15% of cheque amount as costs deposited with Legal Services Authority."
+            ),
+            "advocate_strategy": (
+                "Defense counsel successfully argued that commercial disputes should not be overburdened with custodial punishment "
+                "when the creditor's debt is satisfied, leveraging Section 147 to achieve complete quashing and compounding of conviction."
+            ),
+            "sanhita_mapping_2024": (
+                "Primary landmark authority for compounding cheque dishonour prosecutions under Section 147 NI Act and procedural "
+                "disposal under Section 143."
+            ),
+            "key_takeaways": [
+                "Section 138 offenses are primarily compensatory in nature rather than purely punitive.",
+                "Under Section 147 NI Act, cheque bounce cases can be compounded at any stage of litigation.",
+                "Graded compounding fee (10% on appeal, 15% on revision) deposited with DLSA/SLSA encourages early stage dispute settlement."
+            ]
+        },
+        {
+            "title": "Bir Singh v. Mukesh Kumar",
+            "citation": "(2019) 4 SCC 197; AIR 2019 SC 2446",
+            "court": "Supreme Court of India",
+            "bench": "2-Judge Bench (R. Banumathi & Indira Banerjee, JJ.)",
+            "decision_year": 2019,
+            "category": "Negotiable Instruments Act (Cheque Dishonour)",
+            "governing_provisions": [
+                "NI Act Section 138", "NI Act Section 139", "NI Act Section 118", "Section 20 NI Act"
+            ],
+            "factual_matrix": (
+                "The accused issued a signed blank cheque to the complainant which was subsequently filled and presented for "
+                "encashment, bouncing with 'insufficient funds'. The accused argued that he had handed over a blank cheque as "
+                "security and therefore did not owe the filled amount."
+            ),
+            "legal_controversy": (
+                "Whether a signed blank cheque handed over to a payee attracts the statutory presumption under Section 139 "
+                "of the Negotiable Instruments Act once the signature is admitted."
+            ),
+            "court_holding": (
+                "The Supreme Court authoritatively ruled that even if a blank cheque leaf is voluntarily signed and handed over "
+                "by the drawer, it implies authority given to the holder to fill up the blanks under Section 20 of the NI Act. "
+                "Once signature is admitted, the statutory presumption under Section 139 that the cheque was issued in discharge "
+                "of a debt or liability arises mandatorily, and the burden shifts entirely to the drawer to rebut it by leading "
+                "cogent evidence on a preponderance of probabilities."
+            ),
+            "advocate_strategy": (
+                "Winning complainant counsel established that mere denial of handwriting or claiming the cheque was a 'security cheque' "
+                "is insufficient to rebut Section 139 presumption unless the drawer produces independent financial records proving no subsisting debt."
+            ),
+            "sanhita_mapping_2024": (
+                "Governing benchmark on admission of cheque signature, inchoate instruments (Section 20), and Section 139 statutory presumption in cheque dishonour trials."
+            ),
+            "key_takeaways": [
+                "Admission of drawer's signature triggers mandatory presumption under Section 139 NI Act.",
+                "Voluntary signing of blank cheque empowers holder to complete the instrument under Section 20.",
+                "Mere defense of 'security cheque' without documentary proof fails to rebut the Section 139 presumption."
+            ]
+        },
+        {
+            "title": "Satish Chander Ahuja v. Sneha Ahuja",
+            "citation": "(2021) 1 SCC 414; AIR 2020 SC 5399",
+            "court": "Supreme Court of India",
+            "bench": "3-Judge Bench (Ashok Bhushan, R. Subhash Reddy & M.R. Shah, JJ.)",
+            "decision_year": 2020,
+            "category": "Domestic Violence & Matrimonial Residence Rights",
+            "governing_provisions": [
+                "DV Act 2005 Section 2(s)", "DV Act 2005 Section 17", "DV Act 2005 Section 19", "Section 144 BNSS"
+            ],
+            "factual_matrix": (
+                "The father-in-law filed a civil suit for mandatory injunction seeking eviction of his daughter-in-law from a residential "
+                "property that was self-acquired and exclusively owned by the father-in-law, claiming that under the earlier S.R. Batra ruling, "
+                "the house did not qualify as a 'shared household' if the husband had no legal share."
+            ),
+            "legal_controversy": (
+                "Whether an aggrieved daughter-in-law has the statutory right of residence under Sections 17 and 19 of the DV Act in a house "
+                "owned exclusively by her in-laws, and whether S.R. Batra v. Taruna Batra was correctly decided."
+            ),
+            "court_holding": (
+                "Overruling S.R. Batra v. Taruna Batra, the 3-Judge Bench held that 'shared household' under Section 2(s) includes any premises "
+                "where the aggrieved woman lives or has lived at any stage in a domestic relationship with her husband and in-laws, irrespective "
+                "of whether the husband has any proprietary title or ownership share in the property. The woman cannot be evicted or dispossessed "
+                "from the matrimonial home without due process and residence order under Section 19 of the DV Act."
+            ),
+            "advocate_strategy": (
+                "Defense counsel for the aggrieved wife demonstrated that restricting the definition of shared household to properties owned by "
+                "the husband defeats the entire socio-welfare objective of the DV Act, securing non-eviction protections for women living under "
+                "joint family roofs."
+            ),
+            "sanhita_mapping_2024": (
+                "Primary landmark precedent governing protection from dispossession and right to reside in shared household under Sections 17 & 19 "
+                "of Protection of Women from Domestic Violence Act, 2005."
+            ),
+            "key_takeaways": [
+                "An aggrieved woman cannot be evicted from shared household even if it is exclusively owned by in-laws.",
+                "Overruled the restrictive doctrine in S.R. Batra v. Taruna Batra.",
+                "Civil court injunction suits by in-laws cannot bypass the protective shield of Section 17 & 19 DV Act."
+            ]
         }
     ]
 

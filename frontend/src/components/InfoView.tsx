@@ -694,7 +694,9 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
                         href="https://www.aironline.in/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 font-mono text-[10px] text-amber-500 hover:text-amber-400 font-bold transition-colors"
+                        className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold transition-colors ${
+                          isDark ? 'text-amber-400 hover:text-amber-300' : 'text-amber-800 hover:text-amber-900'
+                        }`}
                       >
                         <span className="material-symbols-outlined text-[13px]">open_in_new</span>
                         <span>AIR Online Verified</span>
@@ -754,7 +756,7 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-rose-500">Grounding Violation</span>
+                    <span className={`text-[10px] uppercase font-bold ${isDark ? 'text-rose-400' : 'text-rose-700'}`}>Grounding Violation</span>
                     <h4 className={`text-[13px] font-bold ${
                       isDark ? 'text-[#f87171]' : 'text-rose-900'
                     }`}>

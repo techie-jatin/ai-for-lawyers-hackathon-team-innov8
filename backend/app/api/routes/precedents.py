@@ -93,9 +93,9 @@ def find_similar_precedents(
     else:
         matched = base_query.limit(limit).all()
 
-    # Fallback to general precedents if search term yielded zero
+    # If specific query/category was provided and no precedents matched, return empty list (never hallucinate unrelated cases)
     if not matched:
-        matched = db.query(RealCasePrecedent).limit(limit).all()
+        return []
 
     return [serialize_precedent(c, full=True) for c in matched]
 

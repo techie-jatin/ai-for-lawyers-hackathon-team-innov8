@@ -1,5 +1,5 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Locate .env in backend directory or current working directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,8 +15,9 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-flash-latest"
     
-    class Config:
-        env_file = [backend_env, root_env, ".env"]
-        extra = "ignore"
+    model_config = SettingsConfigDict(
+        env_file=[backend_env, root_env, ".env"],
+        extra="ignore"
+    )
 
 settings = Settings()

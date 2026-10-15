@@ -119,10 +119,16 @@ export const InlineMarkdown: React.FC<{ text: string; isDark?: boolean }> = ({ t
   );
 };
 
+export interface OlItem {
+  num: number;
+  text: string;
+}
+
 interface Block {
-  type: 'p' | 'blockquote' | 'ul' | 'ol' | 'header';
+  type: 'p' | 'blockquote' | 'ul' | 'ol' | 'header' | 'hr';
   level?: number;
   items?: string[];
+  olItems?: OlItem[];
   text?: string;
 }
 
@@ -133,8 +139,8 @@ function parseBlocks(markdownText: string): Block[] {
   const lines = markdownText.split('\n');
   const blocks: Block[] = [];
   let currentParagraphLines: string[] = [];
-  let currentListItems: string[] = [];
-  let currentListType: 'ul' | 'ol' | null = null;
+  let currentUlItems: string[] = [];
+  let currentOlItems: OlItem[] = [];
   let currentBlockquoteLines: string[] = [];
 
   const flushParagraph = () => {
@@ -147,11 +153,17 @@ function parseBlocks(markdownText: string): Block[] {
     }
   };
 
-  const flushList = () => {
-    if (currentListItems.length > 0 && currentListType) {
-      blocks.push({ type: currentListType, items: [...currentListItems] });
-      currentListItems = [];
-      currentListType = null;
+  const flushUl = () => {
+    if (currentUlItems.length > 0) {
+      blocks.push({ type: 'ul', items: [...currentUlItems] });
+      currentUlItems = [];
+    }
+  };
+
+  const flushOl = () => {
+    if (currentOlItems.length > 0) {
+      blocks.push({ type: 'ol', olItems: [...currentOlItems] });
+      currentOlItems = [];
     }
   };
 
@@ -165,23 +177,39 @@ function parseBlocks(markdownText: string): Block[] {
     }
   };
 
+  const flushAll = () => {
+    flushParagraph();
+    flushUl();
+    flushOl();
+    flushBlockquote();
+  };
+
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i];
     const line = rawLine.trim();
 
     if (!line) {
       flushParagraph();
-      flushList();
       flushBlockquote();
+      // Only flush lists if followed by a non-list item or double blank lines
+      if (i + 1 < lines.length && !lines[i + 1].trim()) {
+        flushUl();
+        flushOl();
+      }
+      continue;
+    }
+
+    // Horizontal Rule (---, ***, ___)
+    if (/^[-*_]{3,}$/.test(line)) {
+      flushAll();
+      blocks.push({ type: 'hr' });
       continue;
     }
 
     // Header (###, ##, #)
     const headerMatch = line.match(/^(#{1,4})\s+(.+)$/);
     if (headerMatch) {
-      flushParagraph();
-      flushList();
-      flushBlockquote();
+      flushAll();
       blocks.push({
         type: 'header',
         level: headerMatch[1].length,
@@ -193,7 +221,8 @@ function parseBlocks(markdownText: string): Block[] {
     // Blockquote (> text)
     if (line.startsWith('>')) {
       flushParagraph();
-      flushList();
+      flushUl();
+      flushOl();
       const quoteContent = line.replace(/^>\s?/, '').trim();
       currentBlockquoteLines.push(quoteContent);
       continue;
@@ -203,36 +232,41 @@ function parseBlocks(markdownText: string): Block[] {
     const ulMatch = line.match(/^[-*]\s+(.+)$/);
     if (ulMatch) {
       flushParagraph();
+      flushOl();
       flushBlockquote();
-      if (currentListType === 'ol') flushList();
-      currentListType = 'ul';
-      currentListItems.push(ulMatch[1].trim());
+      currentUlItems.push(ulMatch[1].trim());
       continue;
     }
 
-    // Ordered list item (1. item)
+    // Ordered list item (1. item, 2. item, etc.)
     const olMatch = line.match(/^(\d+)\.\s+(.+)$/);
     if (olMatch) {
       flushParagraph();
+      flushUl();
       flushBlockquote();
-      if (currentListType === 'ul') flushList();
-      currentListType = 'ol';
-      currentListItems.push(olMatch[2].trim());
+      const num = parseInt(olMatch[1], 10);
+      currentOlItems.push({
+        num: isNaN(num) ? currentOlItems.length + 1 : num,
+        text: olMatch[2].trim()
+      });
+      continue;
+    }
+
+    // Unindented or indented text following an ordered list item becomes part of its descriptive body
+    if (currentOlItems.length > 0) {
+      currentOlItems[currentOlItems.length - 1].text += '\n' + line;
+      continue;
+    }
+
+    // Indented continuation of unordered list
+    if (currentUlItems.length > 0 && (rawLine.startsWith('   ') || rawLine.startsWith('\t'))) {
+      currentUlItems[currentUlItems.length - 1] += ' ' + line;
       continue;
     }
 
     // Regular paragraph line
-    if (currentListType) {
-      // Check if line is indented continuation of list
-      if (rawLine.startsWith('   ') || rawLine.startsWith('\t')) {
-        const lastIdx = currentListItems.length - 1;
-        if (lastIdx >= 0) {
-          currentListItems[lastIdx] += ' ' + line;
-          continue;
-        }
-      }
-      flushList();
-    }
+    flushUl();
+    flushOl();
     if (currentBlockquoteLines.length > 0) {
       flushBlockquote();
     }
@@ -240,9 +274,7 @@ function parseBlocks(markdownText: string): Block[] {
     currentParagraphLines.push(line);
   }
 
-  flushParagraph();
-  flushList();
-  flushBlockquote();
+  flushAll();
 
   return blocks;
 }
@@ -251,7 +283,20 @@ export const BlocksRenderer: React.FC<{ blocks: Block[]; isDark?: boolean }> = (
   return (
     <div className="space-y-3">
       {blocks.map((block, idx) => {
+        if (block.type === 'hr') {
+          return (
+            <hr 
+              key={idx} 
+              className={`my-3 border-t ${isDark ? 'border-[#1f2438]' : 'border-[#e2e8f0]'}`} 
+            />
+          );
+        }
+
         if (block.type === 'p' && block.text) {
+          // Avoid rendering standalone markdown horizontal rules that may have leaked
+          if (/^[-*_]{3,}$/.test(block.text.trim())) {
+            return null;
+          }
           return (
             <p 
               key={idx} 
@@ -290,7 +335,7 @@ export const BlocksRenderer: React.FC<{ blocks: Block[]; isDark?: boolean }> = (
 
         if (block.type === 'ul' && block.items) {
           return (
-            <ul key={idx} className="space-y-1.5 my-2">
+            <ul key={idx} className="space-y-2 my-2">
               {block.items.map((item, itemIdx) => (
                 <li key={itemIdx} className="flex items-start gap-2 text-[12.5px] leading-relaxed">
                   <span className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${
@@ -305,23 +350,44 @@ export const BlocksRenderer: React.FC<{ blocks: Block[]; isDark?: boolean }> = (
           );
         }
 
-        if (block.type === 'ol' && block.items) {
+        // Ordered List with persistent numbers and multi-line body rendering
+        if (block.type === 'ol') {
+          const olItems = block.olItems || (block.items?.map((it, i) => ({ num: i + 1, text: it })) || []);
           return (
-            <ol key={idx} className="space-y-2 my-2">
-              {block.items.map((item, itemIdx) => (
-                <li key={itemIdx} className="flex items-start gap-2.5 text-[12.5px] leading-relaxed">
-                  <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[10px] font-bold shrink-0 mt-0.5 border ${
-                    isDark 
-                      ? 'bg-[#181c2d] text-amber-400 border-amber-500/30' 
-                      : 'bg-[#eff4ff] text-[#00288e] border-[#bfdbfe]'
-                  }`}>
-                    {itemIdx + 1}
-                  </span>
-                  <div className={isDark ? 'text-[#e2e8f0]' : 'text-[#0b1c30]'}>
-                    <InlineMarkdown text={item} isDark={isDark} />
-                  </div>
-                </li>
-              ))}
+            <ol key={idx} className="space-y-3 my-2">
+              {olItems.map((item, itemIdx) => {
+                const lines = item.text.split('\n');
+                const titleLine = lines[0];
+                const bodyLines = lines.slice(1).filter(l => l.trim().length > 0);
+
+                return (
+                  <li key={itemIdx} className="flex items-start gap-2.5 text-[12.5px] leading-relaxed">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[10px] font-bold shrink-0 mt-0.5 border ${
+                      isDark 
+                        ? 'bg-[#181c2d] text-amber-400 border-amber-500/30' 
+                        : 'bg-[#eff4ff] text-[#00288e] border-[#bfdbfe]'
+                    }`}>
+                      {item.num || (itemIdx + 1)}
+                    </span>
+                    <div className={`flex-1 min-w-0 ${isDark ? 'text-[#e2e8f0]' : 'text-[#0b1c30]'}`}>
+                      <div>
+                        <InlineMarkdown text={titleLine} isDark={isDark} />
+                      </div>
+                      {bodyLines.length > 0 && (
+                        <div className={`mt-1.5 space-y-1.5 text-[12px] leading-relaxed ${
+                          isDark ? 'text-[#cbd5e1]' : 'text-[#334155]'
+                        }`}>
+                          {bodyLines.map((bLine, bIdx) => (
+                            <p key={bIdx}>
+                              <InlineMarkdown text={bLine} isDark={isDark} />
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           );
         }
@@ -392,7 +458,14 @@ function splitIntoLegalSections(text: string): LegalSection[] {
   let currentSectionLines: string[] = [];
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    const rawLine = lines[i];
+    const line = rawLine.trim();
+
+    // Skip horizontal rule dividers (---, ***, ___) between sections
+    if (/^[-*_]{3,}$/.test(line)) {
+      continue;
+    }
+
     const headerMatch = line.match(/^#{2,4}\s+(.+)$/);
 
     if (headerMatch) {

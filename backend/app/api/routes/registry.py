@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 from app.api import deps
@@ -18,8 +18,7 @@ class GazetteItem(BaseModel):
     summary: str
     official_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class HelplineItem(BaseModel):
     id: int
@@ -30,8 +29,7 @@ class HelplineItem(BaseModel):
     description: str
     jurisdiction: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.get("/gazettes", response_model=List[GazetteItem])
 def get_gazette_notifications(db: Session = Depends(deps.get_db)):

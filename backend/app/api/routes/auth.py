@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from app.api import deps
 from app.models.user import User
@@ -16,8 +16,7 @@ class UserResponse(BaseModel):
     email: str
     is_active: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.post("/register", response_model=UserResponse)
 def register(user_in: UserCreate, db: Session = Depends(deps.get_db)):

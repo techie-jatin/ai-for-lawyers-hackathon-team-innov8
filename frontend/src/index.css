@@ -1,4 +1,18 @@
 :root {
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --heading: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  font: 16px/145% var(--sans);
+  letter-spacing: 0.18px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root,
+html.dark {
   --text: #cbd5e1;
   --text-h: #ffffff;
   --bg: #090a0f;
@@ -8,19 +22,24 @@
   --accent-bg: rgba(255, 119, 34, 0.1);
   --accent-border: rgba(255, 119, 34, 0.5);
 
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --heading: 'Inter', system-ui, -apple-system, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
-
-  font: 16px/145% var(--sans);
-  letter-spacing: 0.18px;
   color-scheme: dark;
   color: #f8fafc;
-  background: #090a0f;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: #090a0f;
+}
+
+html.light {
+  --text: #334155;
+  --text-h: #0b1c30;
+  --bg: #f4f6fb;
+  --border: #e2e8f0;
+  --code-bg: #f1f5f9;
+  --accent: #00288e;
+  --accent-bg: rgba(0, 40, 142, 0.08);
+  --accent-border: rgba(0, 40, 142, 0.3);
+
+  color-scheme: light;
+  color: #0b1c30;
+  background-color: #f4f6fb;
 }
 
 /* Google Material Symbols Outlined Icon Font Rendering */
@@ -50,15 +69,23 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+}
+
+html.dark #root,
+html.dark body {
   background-color: #090a0f;
   color: #f8fafc;
+}
+
+html.light #root,
+html.light body {
+  background-color: #f4f6fb;
+  color: #0b1c30;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #090a0f;
-  color: #f8fafc;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -92,6 +119,18 @@ body {
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.22) transparent;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.28);
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 40, 142, 0.6);
+}
+
+html.light * {
+  scrollbar-color: rgba(100, 116, 139, 0.28) transparent;
 }
 
 /* Complete scrollbar hiding for horizontal pill tracks, carousels, and chips */

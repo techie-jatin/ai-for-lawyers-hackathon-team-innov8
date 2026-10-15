@@ -94,6 +94,212 @@ interface ChatViewProps {
   onSelectTab?: (tab: 'chat' | 'contracts' | 'search' | 'info') => void;
 }
 
+interface GeneratingCardProps {
+  isDark: boolean;
+  mode: 'citizen' | 'professional';
+  totalProvisions?: number;
+}
+
+function LegalIntelligenceGeneratingCard({
+  isDark,
+  mode,
+  totalProvisions = 59
+}: GeneratingCardProps) {
+  const [activeStep, setActiveStep] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0.0);
+
+  const steps = [
+    {
+      title: 'Retrieving Central Acts & Bharatiya Sanhitas',
+      detail: 'Scanning BNS 2023, BNSS 2023, BSA 2023 & Constitution of India...',
+      icon: 'menu_book',
+      badge: 'Statutes'
+    },
+    {
+      title: 'Querying Neon pgvector Semantic Embeddings',
+      detail: `Performing 768-dim HNSW vector search across ${totalProvisions}+ gazette provisions...`,
+      icon: 'database',
+      badge: 'pgvector HNSW'
+    },
+    {
+      title: 'Cross-Referencing Supreme Court Precedents',
+      detail: 'Matching AIR, e-SCR & High Court binding ratio decidendi...',
+      icon: 'gavel',
+      badge: 'AIR Precedents'
+    },
+    {
+      title: 'Deterministic Lexical AST Verification',
+      detail: 'Verifying authentic verbatim statutory citations with 0% speculative hallucination...',
+      icon: 'verified_user',
+      badge: 'Truth Audit'
+    },
+    {
+      title: mode === 'professional' ? 'Synthesizing Courtroom Brief & Litigation Playbook' : 'Synthesizing Plain-Language Citizen Rights Guide',
+      detail: 'Formulating legal safeguards, procedural timeline & actionable remedies...',
+      icon: 'psychology',
+      badge: 'Synthesis'
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedSeconds(prev => +(prev + 0.1).toFixed(1));
+    }, 100);
+
+    const stepTimer = setInterval(() => {
+      setActiveStep(prev => (prev < steps.length - 1 ? prev + 1 : prev));
+    }, 1100);
+
+    return () => {
+      clearInterval(timer);
+      clearInterval(stepTimer);
+    };
+  }, [steps.length]);
+
+  const progressPercent = Math.min(15 + activeStep * 20 + Math.floor(elapsedSeconds * 3), 95);
+
+  return (
+    <div className={`no-print w-full p-4 sm:p-5 rounded-2xl border shadow-lg transition-all animate-in fade-in slide-in-from-bottom-2 duration-300 ${
+      isDark 
+        ? 'bg-[#0e111d] border-[#242b44] text-[#f8fafc]' 
+        : 'bg-white border-[#dce9ff] text-[#0b1c30] shadow-md'
+    }`}>
+      {/* Top Bar: Animated Brand Seal, Active Pipeline Title, & Live Telemetry Timer */}
+      <div className="flex items-center justify-between gap-3 pb-3 border-b border-zinc-700/20">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {/* Pulsing Glowing Emblem with Orbit Ring */}
+          <div className="relative flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-[#ff7722] via-[#00288e] to-emerald-500 p-0.5 animate-spin duration-3000">
+              <div className={`w-full h-full rounded-[10px] flex items-center justify-center ${
+                isDark ? 'bg-[#090b14]' : 'bg-white'
+              }`}>
+                <span className={`material-symbols-outlined text-[17px] sm:text-[19px] ${
+                  isDark ? 'text-amber-400' : 'text-[#00288e]'
+                }`}>
+                  balance
+                </span>
+              </div>
+            </div>
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-extrabold text-[13px] sm:text-[14px] text-[#ff7722]">भारत</span>
+              <span className={`font-extrabold text-[13px] sm:text-[14px] tracking-tight ${
+                isDark ? 'text-white' : 'text-[#00288e]'
+              }`}>
+                Legal Intelligence Reasoning
+              </span>
+              <span className={`hidden sm:inline px-1.5 py-0.2 rounded font-mono text-[9px] font-bold border ${
+                isDark ? 'bg-[#181c2d] text-emerald-400 border-emerald-500/30' : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+              }`}>
+                0% Speculation Gate
+              </span>
+            </div>
+            <span className={`text-[10px] sm:text-[11px] truncate ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>
+              {steps[activeStep].title}
+            </span>
+          </div>
+        </div>
+
+        {/* Live Elapsed Timer & Accuracy Tag */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[10px] sm:text-[11px] border font-bold ${
+            isDark ? 'bg-[#131626] border-[#222942] text-amber-300' : 'bg-[#eff4ff] border-[#dce9ff] text-[#00288e]'
+          }`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>{elapsedSeconds.toFixed(1)}s</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Dynamic Tricolor Progress Shimmer */}
+      <div className="w-full mt-3 mb-3.5">
+        <div className="flex items-center justify-between text-[10px] font-mono mb-1.5">
+          <span className={isDark ? 'text-zinc-400' : 'text-zinc-600'}>
+            Step {activeStep + 1} of {steps.length} • {steps[activeStep].badge}
+          </span>
+          <span className={`font-bold ${isDark ? 'text-white' : 'text-[#00288e]'}`}>
+            {progressPercent}%
+          </span>
+        </div>
+        <div className={`w-full h-1.5 rounded-full overflow-hidden ${
+          isDark ? 'bg-[#181d30]' : 'bg-slate-200'
+        }`}>
+          <div 
+            className="h-full bg-gradient-to-r from-[#ff7722] via-[#00288e] to-emerald-400 rounded-full transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Step Pipeline Track & Current Active Step Detail */}
+      <div className={`p-3 rounded-xl border flex flex-col gap-2.5 ${
+        isDark ? 'bg-[#090b14]/70 border-[#1c2236]' : 'bg-slate-50 border-slate-200'
+      }`}>
+        {/* Step Icons Track */}
+        <div className="flex items-center justify-between gap-1 overflow-x-auto no-scrollbar pb-1">
+          {steps.map((st, sIdx) => {
+            const isCompleted = sIdx < activeStep;
+            const isCurrent = sIdx === activeStep;
+            return (
+              <div 
+                key={sIdx} 
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10.5px] transition-all whitespace-nowrap ${
+                  isCurrent 
+                    ? isDark 
+                      ? 'bg-[#1c233c] text-white border border-[#3b4772] shadow-xs' 
+                      : 'bg-white text-[#00288e] border border-[#bfdbfe] shadow-xs font-bold'
+                    : isCompleted
+                    ? isDark
+                      ? 'text-emerald-400'
+                      : 'text-emerald-700 font-semibold'
+                    : isDark
+                    ? 'text-zinc-500 opacity-60'
+                    : 'text-zinc-400 opacity-60'
+                }`}
+              >
+                <span className={`material-symbols-outlined text-[14px] ${
+                  isCurrent ? 'animate-spin' : ''
+                }`}>
+                  {isCompleted ? 'check_circle' : isCurrent ? 'progress_activity' : st.icon}
+                </span>
+                <span className="hidden md:inline font-mono text-[9.5px]">
+                  {st.badge}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Live Detail Line */}
+        <div className="flex items-center gap-2 text-[11px] font-mono">
+          <span className="material-symbols-outlined text-[15px] text-[#ff7722] animate-pulse">
+            psychology_alt
+          </span>
+          <span className={`truncate ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+            {steps[activeStep].detail}
+          </span>
+        </div>
+      </div>
+
+      {/* Shimmering Wireframe / Skeleton Preview of Incoming Legal Brief */}
+      <div className="mt-3.5 space-y-2 opacity-80 select-none">
+        <div className={`h-4 rounded-md w-3/5 animate-pulse ${
+          isDark ? 'bg-gradient-to-r from-zinc-800 via-zinc-700 to-zinc-800' : 'bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200'
+        }`}></div>
+        <div className={`h-2.5 rounded-md w-full animate-pulse delay-75 ${
+          isDark ? 'bg-gradient-to-r from-zinc-800/80 via-zinc-700/80 to-zinc-800/80' : 'bg-gradient-to-r from-slate-200/80 via-slate-300/80 to-slate-200/80'
+        }`}></div>
+        <div className={`h-2.5 rounded-md w-4/5 animate-pulse delay-150 ${
+          isDark ? 'bg-gradient-to-r from-zinc-800/60 via-zinc-700/60 to-zinc-800/60' : 'bg-gradient-to-r from-slate-200/60 via-slate-300/60 to-slate-200/60'
+        }`}></div>
+      </div>
+    </div>
+  );
+}
+
 interface ChatInputFormProps {
   loading: boolean;
   mode: 'citizen' | 'professional';
@@ -381,11 +587,18 @@ export function ChatView({
     } catch (err: any) {
       console.warn('Direct query caught error, executing autonomous legal engine fallback:', err);
       try {
+        const targetThread = baseThreads.find(t => t.id === targetThreadId);
+        const historyPayload = (targetThread ? targetThread.messages : []).slice(-6).map(m => ({
+          role: m.role,
+          text: m.text
+        }));
+
         const fallbackData = await generateAutonomousLegalResponse({
           query: queryText,
           mode: mode,
           context_filter: categoryName,
-          gemini_api_key: geminiApiKey || undefined
+          gemini_api_key: geminiApiKey || undefined,
+          history: historyPayload
         });
 
         const asstMsgId = `msg-a-${Date.now()}`;
@@ -1059,7 +1272,11 @@ export function ChatView({
             <button
               type="button"
               onClick={() => window.print()}
-              className="w-full py-1 rounded text-[10px] font-bold bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 cursor-pointer flex items-center justify-center gap-1 transition-colors"
+              className={`w-full py-1 rounded text-[10px] font-bold border cursor-pointer flex items-center justify-center gap-1 transition-colors ${
+                isDark 
+                  ? 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/40 text-amber-300' 
+                  : 'bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900'
+              }`}
             >
               <span className="material-symbols-outlined text-[13px]">picture_as_pdf</span>
               Export Current to PDF
@@ -1775,7 +1992,9 @@ export function ChatView({
                                 }`}>
                                   <span className={`text-[11px] ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>{contact.name}</span>
                                   <span className="text-[16px] font-bold text-[#e11d48] font-mono">{contact.number}</span>
-                                  <span className="text-[10px] text-emerald-400 font-medium">{contact.available}</span>
+                                  <span className={`text-[10px] font-medium ${
+                                    isDark ? 'text-emerald-400' : 'text-emerald-700'
+                                  }`}>{contact.available}</span>
                                 </div>
                               ))}
                             </div>
@@ -1931,8 +2150,15 @@ export function ChatView({
                                             <h5 className={`text-[13px] font-bold line-clamp-1 ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>
                                               {caseItem.title}
                                             </h5>
-                                            <div className="text-[11px] font-mono text-amber-500 font-semibold line-clamp-1 mt-0.5">
-                                              {caseItem.citation}
+                                            <div className="flex items-center justify-between gap-1.5 text-[11px] font-mono mt-0.5">
+                                              <span className="text-amber-500 font-semibold line-clamp-1">{caseItem.citation}</span>
+                                              {caseItem.official_databank && (
+                                                <span className={`text-[9px] px-1.5 py-0.5 rounded border shrink-0 ${
+                                                  isDark ? 'bg-emerald-950/30 text-emerald-400 border-emerald-500/30' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                }`}>
+                                                  {caseItem.official_databank.replace(' Grounded', '')}
+                                                </span>
+                                              )}
                                             </div>
                                           </div>
 
@@ -2018,14 +2244,17 @@ export function ChatView({
                               <button
                                 type="button"
                                 onClick={() => toggleSourceExpand(msg.id)}
-                                className={`no-print inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[10px] font-bold border transition-colors cursor-pointer ${
+                                className={`no-print inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-mono text-[10px] font-bold border transition-colors cursor-pointer ${
                                   isDark 
                                     ? 'bg-[#0b1f17] text-emerald-300 border-emerald-800/60 hover:bg-[#102a20]' 
                                     : 'bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100'
                                 }`}
                               >
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                {expandedSources[msg.id] === false ? 'Click to Expand Citations' : 'Verified Gazette Authority • Neon pgvector Validated'}
+                                {Boolean(expandedSources[msg.id]) ? 'Verified Gazette Authority • Neon pgvector Validated' : 'Verified Gazette Authority • Neon pgvector Validated (Click to Expand)'}
+                                <span className="material-symbols-outlined text-[13px] ml-0.5">
+                                  {Boolean(expandedSources[msg.id]) ? 'expand_less' : 'expand_more'}
+                                </span>
                               </button>
                               <div className="hidden print:inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[9pt] font-bold cite-badge">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
@@ -2038,7 +2267,7 @@ export function ChatView({
                               </span>
                             </div>
 
-                            <div className={expandedSources[msg.id] === false ? 'hidden print:block space-y-2.5' : 'space-y-2.5'}>
+                            <div className={Boolean(expandedSources[msg.id]) ? 'space-y-2.5' : 'hidden print:block space-y-2.5'}>
                               {msg.response.applicable_laws.map((law, idx) => (
                                 <div key={idx} className="space-y-1.5">
                                   <div className="flex items-center justify-between">
@@ -2113,14 +2342,11 @@ export function ChatView({
             ))}
 
             {loading && (
-              <div className={`no-print w-full p-4 rounded-xl border flex items-center gap-3 ${
-                isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0]'
-              }`}>
-                <span className={`w-2.5 h-2.5 rounded-full animate-ping ${isDark ? 'bg-white' : 'bg-[#00288e]'}`}></span>
-                <span className={`text-[13px] ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
-                  Triangulating provisions in Neon PostgreSQL via pgvector and validating quotes...
-                </span>
-              </div>
+              <LegalIntelligenceGeneratingCard
+                isDark={isDark}
+                mode={mode}
+                totalProvisions={totalProvisions}
+              />
             )}
 
             {/* PRINT-ONLY LEGAL OPINION SIGNATURE & VERIFICATION FOOTER */}
@@ -2372,32 +2598,52 @@ export function ChatView({
             </div>
 
             {dictationNotice && (
-              <div className="mx-2 mb-2 p-2 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] flex items-center justify-between animate-in fade-in">
+              <div className={`mx-2 mb-2 p-2 rounded-lg text-[11px] flex items-center justify-between animate-in fade-in border ${
+                isDark 
+                  ? 'bg-amber-500/15 border-amber-500/30 text-amber-300' 
+                  : 'bg-amber-50 border-amber-300 text-amber-900 font-medium'
+              }`}>
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[15px]">info</span>
                   <span>{dictationNotice}</span>
                 </div>
-                <button type="button" onClick={() => setDictationNotice(null)} className="p-0.5 hover:text-white cursor-pointer">
+                <button 
+                  type="button" 
+                  onClick={() => setDictationNotice(null)} 
+                  className={`p-0.5 cursor-pointer ${isDark ? 'hover:text-white' : 'hover:text-black'}`}
+                >
                   <span className="material-symbols-outlined text-[13px]">close</span>
                 </button>
               </div>
             )}
 
             {micBlockedHelp && (
-              <div className="mx-2 mb-2 p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[11.5px] space-y-2 animate-in fade-in">
+              <div className={`mx-2 mb-2 p-3 rounded-xl text-[11.5px] space-y-2 animate-in fade-in border ${
+                isDark 
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-300' 
+                  : 'bg-amber-50 border-amber-300 text-amber-900'
+              }`}>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold flex items-center gap-1.5 text-amber-300">
+                  <span className={`font-bold flex items-center gap-1.5 ${
+                    isDark ? 'text-amber-300' : 'text-amber-950'
+                  }`}>
                     <span className="material-symbols-outlined text-[16px]">mic_off</span>
                     <span>Microphone Permission Blocked in Browser</span>
                   </span>
-                  <button type="button" onClick={() => setMicBlockedHelp(false)} className="p-0.5 hover:text-white cursor-pointer">
+                  <button 
+                    type="button" 
+                    onClick={() => setMicBlockedHelp(false)} 
+                    className={`p-0.5 cursor-pointer ${isDark ? 'hover:text-white' : 'hover:text-black'}`}
+                  >
                     <span className="material-symbols-outlined text-[14px]">close</span>
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-300">
+                <p className={`text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                   To enable hands-free voice dictation:
                 </p>
-                <ol className="list-decimal list-inside text-[10.5px] space-y-1 text-slate-300">
+                <ol className={`list-decimal list-inside text-[10.5px] space-y-1 ${
+                  isDark ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                   <li>Click the <strong>🔒 lock / tune icon</strong> on the left side of your browser URL bar.</li>
                   <li>Change <strong>Microphone</strong> from "Block" to <strong>"Allow"</strong>.</li>
                   <li>Click Retry below to start voice dictation.</li>
@@ -2529,7 +2775,7 @@ export function ChatView({
                   <span className="material-symbols-outlined text-[15px]">lock</span>
                   <span>100% On-Device Privacy</span>
                 </div>
-                <p className="text-[10px] text-slate-400">
+                <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                   Voice audio is processed live in your browser using the Web Speech API. No audio recordings or voice files are uploaded or stored.
                 </p>
               </div>

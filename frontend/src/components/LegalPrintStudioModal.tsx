@@ -153,7 +153,7 @@ export function LegalPrintStudioModal({
       className="no-print fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-3 md:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 h-[100dvh] max-h-[100dvh] pt-[max(0.25rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))] px-[env(safe-area-inset-left)]"
     >
       <div 
-        className={`w-full h-full sm:h-[94vh] sm:max-h-[920px] max-w-6xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border ${
+        className={`w-full h-full min-h-0 sm:h-[94vh] sm:max-h-[920px] max-w-6xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border ${
           isDark ? 'bg-[#0f121d] border-[#252c48] text-white' : 'bg-white border-slate-200 text-slate-900'
         }`}
       >
@@ -228,11 +228,14 @@ export function LegalPrintStudioModal({
         </div>
 
         {/* MODAL BODY (DUAL PANEL ON MD+, TABBED ON MOBILE) */}
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        <div className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden relative">
           {/* LEFT PANEL: CONFIGURATION CONTROLS */}
-          <div className={`w-full md:w-[380px] lg:w-[420px] p-4 sm:p-5 overflow-y-auto space-y-6 shrink-0 md:border-r ${
-            isDark ? 'bg-[#0f121d] border-[#22283f]' : 'bg-white border-slate-200'
-          } ${activeMobileTab === 'options' ? 'block' : 'hidden md:block'}`}>
+          <div 
+            className={`w-full flex-1 md:flex-none md:w-[380px] lg:w-[420px] p-4 sm:p-5 overflow-y-auto space-y-6 h-full min-h-0 md:shrink-0 md:border-r overscroll-contain touch-pan-y ${
+              isDark ? 'bg-[#0f121d] border-[#22283f]' : 'bg-white border-slate-200'
+            } ${activeMobileTab === 'options' ? 'block' : 'hidden md:block'}`}
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             
             {/* SCOPE SELECTOR */}
             <div className="space-y-3">
@@ -329,9 +332,12 @@ export function LegalPrintStudioModal({
 
               {/* SELECTIVE TURN CHECKLIST */}
               {options.scope === 'selected' && (
-                <div className={`p-3 rounded-xl border space-y-2 mt-2 max-h-48 overflow-y-auto ${
-                  isDark ? 'bg-[#131726] border-[#252c48]' : 'bg-slate-50 border-slate-200'
-                }`}>
+                <div 
+                  className={`p-3 rounded-xl border space-y-2 mt-2 max-h-48 overflow-y-auto overscroll-contain touch-pan-y ${
+                    isDark ? 'bg-[#131726] border-[#252c48]' : 'bg-slate-50 border-slate-200'
+                  }`}
+                  style={{ WebkitOverflowScrolling: 'touch' }}
+                >
                   <div className="text-[10px] font-mono font-bold uppercase text-zinc-400 mb-1 flex items-center justify-between">
                     <span>Select Exchanges to Print</span>
                     <span>{options.selectedTurnIndices.length} of {exchanges.length} Selected</span>
@@ -563,9 +569,12 @@ export function LegalPrintStudioModal({
           </div>
 
           {/* RIGHT PANEL: LIVE WYSIWYG A4 PREVIEW CANVAS */}
-          <div className={`flex-1 p-3 sm:p-6 overflow-y-auto flex flex-col items-center justify-start ${
-            isDark ? 'bg-[#090b12]' : 'bg-slate-200/70'
-          } ${activeMobileTab === 'preview' ? 'flex' : 'hidden md:flex'}`}>
+          <div 
+            className={`w-full flex-1 h-full min-h-0 p-3 sm:p-6 overflow-y-auto flex flex-col items-center justify-start overscroll-contain touch-pan-y ${
+              isDark ? 'bg-[#090b12]' : 'bg-slate-200/70'
+            } ${activeMobileTab === 'preview' ? 'flex' : 'hidden md:flex'}`}
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             <div className="w-full flex items-center justify-between mb-3 max-w-[620px] text-[11px] font-mono text-zinc-400">
               <span className="flex items-center gap-1.5">
                 <Eye className="w-3.5 h-3.5 text-amber-500" />
@@ -576,7 +585,7 @@ export function LegalPrintStudioModal({
 
             {/* SCALED A4 DOCUMENT PREVIEW CONTAINER */}
             <div 
-              className={`w-full max-w-[620px] bg-white text-slate-900 shadow-2xl p-3.5 sm:p-8 rounded-sm border transition-all text-[11px] font-serif leading-normal select-none overflow-hidden ${
+              className={`w-full max-w-[620px] bg-white text-slate-900 shadow-2xl p-3.5 sm:p-8 rounded-sm border transition-all text-[11px] font-serif leading-normal overflow-hidden ${
                 options.colorProfile === 'monochrome' ? 'grayscale contrast-125' : ''
               }`}
               style={{
@@ -742,7 +751,7 @@ export function LegalPrintStudioModal({
         </div>
 
         {/* MODAL FOOTER ACTION BAR */}
-        <footer className={`px-4 sm:px-6 py-3 sm:py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 ${
+        <footer className={`px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-t flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 shrink-0 ${
           isDark ? 'bg-[#141827] border-[#22283f]' : 'bg-slate-50 border-slate-200'
         }`}>
           <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-zinc-400 w-full sm:w-auto justify-between sm:justify-start">

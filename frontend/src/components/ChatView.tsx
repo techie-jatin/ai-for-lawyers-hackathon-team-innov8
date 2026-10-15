@@ -4,6 +4,7 @@ import type { ChatLaunchContext } from '../App';
 import { PrecedentDossierDrawer, type RealCasePrecedentItem } from './PrecedentDossierDrawer';
 import { LegalStructuredAnswer } from './LegalMarkdownRenderer';
 import { generateAutonomousLegalResponse, extractActiveCaseMemory } from '../services/clientLegalEngine';
+import { LegalPrintStudioModal, CourtReadyPrintCanvas, groupMessagesIntoExchanges, type PrintStudioOptions } from './LegalPrintStudioModal';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -55,7 +56,7 @@ export interface AssistantResponse {
   original_filter?: string;
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   text: string;
@@ -446,6 +447,49 @@ export function ChatView({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isContextDropdownOpen, setIsContextDropdownOpen] = useState(false);
   const contextDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Court-Ready Legal Print & PDF Export Studio State
+  const [isPrintStudioOpen, setIsPrintStudioOpen] = useState(false);
+  const [printStudioOptions, setPrintStudioOptions] = useState<PrintStudioOptions>({
+    scope: 'all',
+    selectedTurnIndices: [],
+    includeUserPrompts: true,
+    includeStatutoryPills: true,
+    includeGazetteEvidence: true,
+    includePrecedents: true,
+    includeChamberSeal: true,
+    includeSignatureBlock: mode === 'professional',
+    colorProfile: 'royal',
+    paperSize: 'a4'
+  });
+
+  const handleOpenPrintStudio = () => {
+    setIsPrintStudioOpen(true);
+  };
+
+  const handleOpenPrintForMessage = (msgId: string) => {
+    const exchanges = groupMessagesIntoExchanges(messages);
+    const targetIdx = exchanges.findIndex(e => e.assistantMsg.id === msgId);
+    if (targetIdx !== -1) {
+      setPrintStudioOptions(prev => ({
+        ...prev,
+        scope: 'selected',
+        selectedTurnIndices: [targetIdx]
+      }));
+    } else {
+      setPrintStudioOptions(prev => ({
+        ...prev,
+        scope: 'last'
+      }));
+    }
+    setIsPrintStudioOpen(true);
+  };
+
+  const handleTriggerSystemPrint = () => {
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  };
 
   const MAX_FREE_THREADS = 7;
 
@@ -1275,7 +1319,7 @@ export function ChatView({
             </p>
             <button
               type="button"
-              onClick={() => window.print()}
+              onClick={handleOpenPrintStudio}
               className={`w-full py-1 rounded text-[10px] font-bold border cursor-pointer flex items-center justify-center gap-1 transition-colors ${
                 isDark 
                   ? 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/40 text-amber-300' 
@@ -1584,13 +1628,13 @@ export function ChatView({
             </button>
             <button 
               type="button"
-              onClick={() => window.print()}
+              onClick={handleOpenPrintStudio}
               className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] font-bold shadow-xs transition-all cursor-pointer ${
                 isDark 
                   ? 'bg-white hover:bg-zinc-200 text-black' 
                   : 'bg-[#00288e] hover:bg-[#1e40af] text-white'
               }`}
-              title="Export Legal Opinion as PDF"
+              title="Open Court-Ready Legal Print & PDF Export Studio"
             >
               <span className="material-symbols-outlined text-[14px]">picture_as_pdf</span>
               <span className="hidden sm:inline">Export PDF</span>
@@ -1960,6 +2004,21 @@ export function ChatView({
                         >
                           <span className="material-symbols-outlined text-[17px]">
                             {copiedId === msg.id ? 'check' : 'content_copy'}
+                          </span>
+                        </button>
+
+                        <button 
+                          type="button"
+                          onClick={() => handleOpenPrintForMessage(msg.id)}
+                          className={`no-print p-1 rounded transition-colors cursor-pointer ${
+                            isDark 
+                              ? 'hover:bg-[#131624] text-[#94a3b8] hover:text-white' 
+                              : 'hover:bg-[#eff4ff] text-[#565e74] hover:text-[#0b1c30]'
+                          }`}
+                          title="Print / Export this Legal Exchange"
+                        >
+                          <span className="material-symbols-outlined text-[17px]">
+                            picture_as_pdf
                           </span>
                         </button>
                       </div>
@@ -2756,7 +2815,10 @@ export function ChatView({
               <div className="flex flex-col gap-2 pt-1">
                 <button
                   type="button"
-                  onClick={() => { window.print(); }}
+                  onClick={() => {
+                    setShowLimitModal(false);
+                    handleOpenPrintStudio();
+                  }}
                   className="w-full py-2.5 px-3 rounded-lg text-[12px] font-bold bg-amber-500 text-black hover:bg-amber-400 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
                 >
                   <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
@@ -2859,6 +2921,29 @@ export function ChatView({
           onConsultInChat={(p) => {
             handleSendMessage(`Provide a comprehensive courtroom strategy analyzing ${p.title} (${p.citation}) and its application to ongoing proceedings.`);
           }}
+        />
+
+        {/* COURT-READY LEGAL PRINT & PDF EXPORT STUDIO MODAL */}
+        <LegalPrintStudioModal
+          isOpen={isPrintStudioOpen}
+          onClose={() => setIsPrintStudioOpen(false)}
+          messages={messages}
+          activeThreadTitle={threads.find(t => t.id === activeThreadId)?.title || 'Legal Research Consultation'}
+          activeThreadId={activeThreadId || 'thread-active'}
+          mode={mode}
+          isDark={isDark}
+          options={printStudioOptions}
+          onOptionsChange={setPrintStudioOptions}
+          onTriggerPrint={handleTriggerSystemPrint}
+        />
+
+        {/* COURT-READY PRINT CANVAS (Visible only during window.print()) */}
+        <CourtReadyPrintCanvas
+          messages={messages}
+          activeThreadTitle={threads.find(t => t.id === activeThreadId)?.title || 'Legal Research Consultation'}
+          activeThreadId={activeThreadId || 'thread-active'}
+          mode={mode}
+          options={printStudioOptions}
         />
       </main>
     </div>

@@ -270,8 +270,14 @@ code {
     visibility: hidden !important;
   }
 
-  /* Clean legal opinion printable document canvas */
+  /* Hide legacy chat scrollable canvas during printing */
   #printable-legal-dossier {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Court-Ready Dedicated Legal Print & PDF Engine */
+  #court-ready-print-canvas {
     display: block !important;
     visibility: visible !important;
     width: 100% !important;
@@ -279,7 +285,48 @@ code {
     margin: 0 auto !important;
     padding: 0 !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
+    font-family: Georgia, 'Times New Roman', Cambria, serif !important;
+  }
+
+  #court-ready-print-canvas * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Courtroom Royal Navy & Gold Theme */
+  .court-royal-navy .court-double-border {
+    border: 3.5px double #00288e !important;
+    background: #ffffff !important;
+  }
+
+  .court-royal-navy .court-inner-frame {
+    border: 1px solid #d97706 !important;
+  }
+
+  /* Monochrome Court Filing Theme */
+  .monochrome-court-filing .court-double-border {
+    border: 3px double #000000 !important;
+    background: #ffffff !important;
+  }
+
+  .monochrome-court-filing .court-inner-frame {
+    border: 1px solid #333333 !important;
+  }
+
+  /* Page Break Rules & Isolation */
+  .print-exchange-block {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 24pt !important;
+  }
+
+  .print-statement-of-facts,
+  .print-gazette-dossier,
+  .print-precedents-card,
+  .print-signature-block {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   /* Prevent page breaks inside individual message cards */

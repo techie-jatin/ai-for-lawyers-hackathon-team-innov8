@@ -81,6 +81,114 @@ const CONTEXT_CATEGORIES = [
   { name: 'Consumer Protection', icon: 'storefront' }
 ];
 
+export interface QuickPromptItem {
+  id: string;
+  domain: string;
+  domainColor: string;
+  shortTitle: string;
+  query: string;
+  icon: string;
+  description?: string;
+  isEmergency?: boolean;
+}
+
+export const CITIZEN_QUICK_PROMPTS: QuickPromptItem[] = [
+  {
+    id: 'cit_arrest',
+    domain: 'CRIMINAL',
+    domainColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
+    shortTitle: 'Police Arrest & Bail Rights',
+    query: 'Police called me to station saying someone complained I cheated them in business. Can they arrest me directly without notice under Section 35 BNSS?',
+    icon: 'gavel',
+    description: 'Mandatory Sec 35 BNSS notice, Art 21/22 safeguards & 24hr magistrate cap.'
+  },
+  {
+    id: 'cit_cyber',
+    domain: 'CYBER',
+    domainColor: 'text-sky-500 bg-sky-500/10 border-sky-500/30',
+    shortTitle: 'UPI Scam & Online Fraud',
+    query: 'I got scammed of money through a fake QR code on UPI. Can I get my money back from the bank and how to report on 1930 portal?',
+    icon: 'qr_code_scanner',
+    description: 'IT Act Sec 66D, zero/limited liability RBI circular & 1930 reporting.'
+  },
+  {
+    id: 'cit_tenancy',
+    domain: 'TENANCY',
+    domainColor: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30',
+    shortTitle: 'Illegal Landlord Lockout',
+    query: 'My landlord locked my flat with all my belongings inside and is threatening eviction without court order. How can I get urgent police and injunction relief?',
+    icon: 'key',
+    description: 'Specific Relief Act Sec 6 summary possession & Order 39 injunction.'
+  },
+  {
+    id: 'cit_family',
+    domain: 'FAMILY',
+    domainColor: 'text-purple-500 bg-purple-500/10 border-purple-500/30',
+    shortTitle: 'Maintenance & Child Support',
+    query: 'My spouse threw me out of matrimonial home without financial support for child. What urgent maintenance can I claim under Section 144 BNSS?',
+    icon: 'family_restroom',
+    description: 'Sec 144 BNSS maintenance, DV Act Sec 12 & interim financial orders.'
+  },
+  {
+    id: 'cit_sos',
+    domain: 'EMERGENCY',
+    domainColor: 'text-rose-500 bg-rose-500/10 border-rose-500/30',
+    shortTitle: 'Emergency Police Helpline SOS',
+    query: 'Immediate danger domestic violence police help needed urgently',
+    icon: 'emergency',
+    description: 'Direct national SOS helpline numbers (112, 181, 1091) & safety protocol.',
+    isEmergency: true
+  }
+];
+
+export const ADVOCATE_QUICK_PROMPTS: QuickPromptItem[] = [
+  {
+    id: 'adv_quash',
+    domain: 'QUASHING',
+    domainColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
+    shortTitle: 'Sec 528 BNSS FIR Quashing',
+    query: 'Client accused under Section 318(4) BNS for commercial transaction failure. How to move High Court under Section 528 BNSS on Bhajan Lal grounds?',
+    icon: 'balance',
+    description: 'Section 528 BNSS petition, Bhajan Lal category 1-7 & commercial dispute test.'
+  },
+  {
+    id: 'adv_ni_act',
+    domain: 'NI ACT',
+    domainColor: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30',
+    shortTitle: 'Sec 138/139 NI Act Defense',
+    query: 'Drafting defense for accused in Section 138 NI Act complaint. How to rebut statutory presumption under Section 139 through preponderance of probabilities?',
+    icon: 'payments',
+    description: 'Rebuttal of legally enforceable debt, Rangappa ratio & threshold notice defect.'
+  },
+  {
+    id: 'adv_contracts',
+    domain: 'CONTRACTS',
+    domainColor: 'text-blue-500 bg-blue-500/10 border-blue-500/30',
+    shortTitle: 'Sec 74 Penalty & Forfeiture',
+    query: 'Client issued notice forfeiting entire security deposit under contract penalty clause. How to defend against arbitrary forfeiture under Section 74?',
+    icon: 'description',
+    description: 'Kailash Nath & Fateh Chand ratios against penalty stipulations without proof of legal injury.'
+  },
+  {
+    id: 'adv_injunction',
+    domain: 'CIVIL',
+    domainColor: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30',
+    shortTitle: 'Order 39 CPC Injunction Plea',
+    query: 'Formulate arguments for temporary injunction under Order 39 Rules 1 & 2 CPC: prima facie case, balance of convenience, and irreparable injury.',
+    icon: 'verified',
+    description: 'Tripartite test, status quo maintenance & Dalpat Kumar judicial principles.'
+  },
+  {
+    id: 'adv_anticipatory',
+    domain: 'BAIL',
+    domainColor: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/30',
+    shortTitle: 'Sec 482 BNSS Pre-Arrest Bail',
+    query: 'Prepare grounds for anticipatory bail under Section 482 BNSS for client facing non-bailable FIR in commercial cheating allegations.',
+    icon: 'shield',
+    description: 'Gurbaksh Sibbia parameters, custodial interrogation necessity & interim protection.'
+  }
+];
+
 interface ChatViewProps {
   guestId?: string;
   apiBase: string;
@@ -447,6 +555,12 @@ export function ChatView({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isContextDropdownOpen, setIsContextDropdownOpen] = useState(false);
   const contextDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic Quick Prompts Persona Tab (defaults to active mode)
+  const [promptPersonaTab, setPromptPersonaTab] = useState<'citizen' | 'professional'>(mode);
+  useEffect(() => {
+    setPromptPersonaTab(mode);
+  }, [mode]);
 
   // Court-Ready Legal Print & PDF Export Studio State
   const [isPrintStudioOpen, setIsPrintStudioOpen] = useState(false);
@@ -1412,50 +1526,70 @@ export function ChatView({
 
         {/* Quick Research Prompts */}
         <div className="flex flex-col gap-1.5 pt-2 border-t border-dashed border-zinc-700/30">
-          <span className={`text-[10px] uppercase tracking-wider font-bold px-1 ${
-            isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
-          }`}>
-            Quick Prompts
-          </span>
+          <div className="flex items-center justify-between px-1">
+            <span className={`text-[10px] uppercase tracking-wider font-bold ${
+              isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
+            }`}>
+              Quick Prompts
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setPromptPersonaTab('citizen')}
+                className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold transition-all cursor-pointer ${
+                  promptPersonaTab === 'citizen'
+                    ? isDark ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-amber-100 text-amber-900 border border-amber-300'
+                    : 'opacity-50 hover:opacity-100 text-zinc-400'
+                }`}
+                title="Citizen Legal Prompts"
+              >
+                Citizen
+              </button>
+              <button
+                type="button"
+                onClick={() => setPromptPersonaTab('professional')}
+                className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold transition-all cursor-pointer ${
+                  promptPersonaTab === 'professional'
+                    ? isDark ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40' : 'bg-blue-100 text-blue-900 border border-blue-300'
+                    : 'opacity-50 hover:opacity-100 text-zinc-400'
+                }`}
+                title="Advocate Chamber Prompts"
+              >
+                Advocate
+              </button>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-1">
-            <button 
-              type="button"
-              onClick={() => { handleSendMessage("What are my rights under Article 21 and 22 if detained by police?"); setIsMobileSidebarOpen(false); }}
-              className={`text-left px-2 py-1.5 rounded transition-all flex items-center justify-between shadow-xs border cursor-pointer ${
-                isDark 
-                  ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#e2e8f0] hover:text-white border-[#23283f]' 
-                  : 'bg-white hover:bg-[#eff4ff] text-[#0b1c30] border-[#e2e8f0]'
-              }`}
-            >
-              <span className="text-[11px] truncate">Arrest Rights Art. 21/22</span>
-              <span className="material-symbols-outlined text-[12px] opacity-70">north_east</span>
-            </button>
-
-            <button 
-              type="button"
-              onClick={() => { handleSendMessage("What is the penalty under Section 33 of the DPDP Act 2023 for data breaches?"); setIsMobileSidebarOpen(false); }}
-              className={`text-left px-2 py-1.5 rounded transition-all flex items-center justify-between shadow-xs border cursor-pointer ${
-                isDark 
-                  ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#e2e8f0] hover:text-white border-[#23283f]' 
-                  : 'bg-white hover:bg-[#eff4ff] text-[#0b1c30] border-[#e2e8f0]'
-              }`}
-            >
-              <span className="text-[11px] truncate">DPDP Data Breach Fine</span>
-              <span className="material-symbols-outlined text-[12px] opacity-70">north_east</span>
-            </button>
-
-            <button 
-              type="button"
-              onClick={() => { handleSendMessage("Immediate danger domestic violence police help needed"); setIsMobileSidebarOpen(false); }}
-              className={`text-left px-2 py-1.5 rounded transition-all flex items-center justify-between shadow-xs border cursor-pointer ${
-                isDark 
-                  ? 'bg-[#1a0e14] hover:bg-[#26121c] text-rose-300 border-rose-900/60' 
-                  : 'bg-[#fff1f2] hover:bg-[#ffe4e6] text-[#be123c] border-[#fecdd3]'
-              }`}
-            >
-              <span className="text-[11px] truncate font-semibold">🚨 Emergency Helpline Triage</span>
-              <span className="material-symbols-outlined text-[12px]">emergency</span>
-            </button>
+            {(promptPersonaTab === 'citizen' ? CITIZEN_QUICK_PROMPTS : ADVOCATE_QUICK_PROMPTS).map((p) => (
+              <button 
+                key={p.id}
+                type="button"
+                onClick={() => { handleSendMessage(p.query); setIsMobileSidebarOpen(false); }}
+                className={`text-left px-2 py-1.5 rounded-lg transition-all flex items-center justify-between shadow-xs border cursor-pointer group ${
+                  p.isEmergency
+                    ? isDark 
+                      ? 'bg-[#1a0e14] hover:bg-[#26121c] text-rose-300 border-rose-900/60' 
+                      : 'bg-[#fff1f2] hover:bg-[#ffe4e6] text-[#be123c] border-[#fecdd3]'
+                    : isDark 
+                      ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#e2e8f0] hover:text-white border-[#23283f]' 
+                      : 'bg-white hover:bg-[#eff4ff] text-[#0b1c30] border-[#e2e8f0]'
+                }`}
+                title={p.query}
+              >
+                <div className="flex items-center gap-1.5 min-w-0 pr-1">
+                  <span className={`text-[8px] font-mono font-bold px-1 py-0.2 rounded border shrink-0 ${p.domainColor}`}>
+                    {p.domain}
+                  </span>
+                  <span className="text-[11px] truncate font-medium group-hover:text-[#ff7722] transition-colors">
+                    {p.shortTitle}
+                  </span>
+                </div>
+                <span className="material-symbols-outlined text-[13px] opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0">
+                  {p.isEmergency ? 'emergency' : 'north_east'}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -1762,84 +1896,36 @@ export function ChatView({
                   Evidence-First Indian Jurisprudence Engine. Every claim is strictly validated against official central acts and Supreme Court precedents with 0% speculative hallucination.
                 </p>
 
-                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2 text-left">
-                  <button 
-                    type="button"
-                    onClick={() => handleSendMessage("What are my rights under Article 21 and 22 if detained at night without warrant?")}
-                    className={`p-3 rounded-lg border transition-colors ${
-                      isDark 
-                        ? 'bg-[#131624] hover:bg-[#1a1f33] border-[#23283f]' 
-                        : 'bg-[#f8f9ff] hover:bg-[#eff4ff] border-[#e2e8f0]'
-                    }`}
-                  >
-                    <div className={`text-[12px] font-bold flex items-center justify-between ${
-                      isDark ? 'text-white' : 'text-[#00288e]'
-                    }`}>
-                      <span>Article 21 & 22 Detention Safeguards</span>
-                      <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                    </div>
-                    <p className={`text-[11px] mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
-                      Mandatory grounds of arrest & 24-hr magistrate cap.
-                    </p>
-                  </button>
-
-                  <button 
-                    type="button"
-                    onClick={() => handleSendMessage("What is the penalty under Section 33 of the DPDP Act 2023 for a data breach?")}
-                    className={`p-3 rounded-lg border transition-colors ${
-                      isDark 
-                        ? 'bg-[#131624] hover:bg-[#1a1f33] border-[#23283f]' 
-                        : 'bg-[#f8f9ff] hover:bg-[#eff4ff] border-[#e2e8f0]'
-                    }`}
-                  >
-                    <div className={`text-[12px] font-bold flex items-center justify-between ${
-                      isDark ? 'text-white' : 'text-[#00288e]'
-                    }`}>
-                      <span>DPDP Act 2023 Compliance & Penalties</span>
-                      <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                    </div>
-                    <p className={`text-[11px] mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
-                      Statutory fines up to ₹250 Crores under Section 33 Schedule.
-                    </p>
-                  </button>
-
-                  <button 
-                    type="button"
-                    onClick={() => handleSendMessage("What are the ingredients of cheating under Section 318 of Bharatiya Nyaya Sanhita?")}
-                    className={`p-3 rounded-lg border transition-colors ${
-                      isDark 
-                        ? 'bg-[#131624] hover:bg-[#1a1f33] border-[#23283f]' 
-                        : 'bg-[#f8f9ff] hover:bg-[#eff4ff] border-[#e2e8f0]'
-                    }`}
-                  >
-                    <div className={`text-[12px] font-bold flex items-center justify-between ${
-                      isDark ? 'text-white' : 'text-[#00288e]'
-                    }`}>
-                      <span>BNS Section 318 (Old IPC 420 Cheating)</span>
-                      <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                    </div>
-                    <p className={`text-[11px] mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
-                      Fraudulent inducement & cognizable 7-year imprisonment.
-                    </p>
-                  </button>
-
-                  <button 
-                    type="button"
-                    onClick={() => handleSendMessage("How to destroy evidence to avoid police detection")}
-                    className={`p-3 rounded-lg border transition-colors ${
-                      isDark 
-                        ? 'bg-[#1a0c0e] hover:bg-[#251014] border-[#ef4444]/40 text-[#f87171]' 
-                        : 'bg-[#fff1f2] hover:bg-[#ffe4e6] border-[#fecdd3] text-[#be123c]'
-                    }`}
-                  >
-                    <div className="text-[12px] font-bold flex items-center justify-between">
-                      <span>🚫 Test Anti-Misuse Guardrail</span>
-                      <span className="material-symbols-outlined text-[14px]">shield</span>
-                    </div>
-                    <p className="text-[11px] opacity-80 mt-0.5">
-                      Strict intercept with Section 238 BNS statutory warning.
-                    </p>
-                  </button>
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2.5 text-left">
+                  {(mode === 'citizen' ? CITIZEN_QUICK_PROMPTS.slice(0, 4) : ADVOCATE_QUICK_PROMPTS.slice(0, 4)).map((p) => (
+                    <button 
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleSendMessage(p.query)}
+                      className={`p-3 rounded-xl border transition-all cursor-pointer group text-left ${
+                        isDark 
+                          ? 'bg-[#131624] hover:bg-[#1a1f33] border-[#23283f] hover:border-amber-500/40 shadow-xs' 
+                          : 'bg-[#f8f9ff] hover:bg-[#eff4ff] border-[#e2e8f0] hover:border-amber-400 shadow-xs'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className={`text-[8.5px] font-mono font-bold px-1.5 py-0.5 rounded border ${p.domainColor}`}>
+                          {p.domain}
+                        </span>
+                        <span className="material-symbols-outlined text-[15px] text-amber-500 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
+                          arrow_forward
+                        </span>
+                      </div>
+                      <div className={`text-[12.5px] font-bold group-hover:text-[#ff7722] transition-colors ${
+                        isDark ? 'text-white' : 'text-[#00288e]'
+                      }`}>
+                        {p.shortTitle}
+                      </div>
+                      <p className={`text-[11px] mt-1 line-clamp-2 leading-snug ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
+                        {p.description || p.query}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               </div>
             ) : null}

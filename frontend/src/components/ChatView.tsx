@@ -1629,15 +1629,16 @@ export function ChatView({
             <button 
               type="button"
               onClick={handleOpenPrintStudio}
-              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md text-[11px] font-bold shadow-xs transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] font-bold shadow-xs transition-all cursor-pointer min-h-[32px] ${
                 isDark 
                   ? 'bg-white hover:bg-zinc-200 text-black' 
                   : 'bg-[#00288e] hover:bg-[#1e40af] text-white'
               }`}
               title="Open Court-Ready Legal Print & PDF Export Studio"
             >
-              <span className="material-symbols-outlined text-[14px]">picture_as_pdf</span>
-              <span className="hidden sm:inline">Export PDF</span>
+              <span className="material-symbols-outlined text-[15px]">picture_as_pdf</span>
+              <span className="inline font-bold">PDF</span>
+              <span className="hidden sm:inline">Export</span>
             </button>
           </div>
         </header>
@@ -2010,7 +2011,7 @@ export function ChatView({
                         <button 
                           type="button"
                           onClick={() => handleOpenPrintForMessage(msg.id)}
-                          className={`no-print p-1 rounded transition-colors cursor-pointer ${
+                          className={`no-print p-1.5 sm:p-1 rounded-lg transition-colors cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center ${
                             isDark 
                               ? 'hover:bg-[#131624] text-[#94a3b8] hover:text-white' 
                               : 'hover:bg-[#eff4ff] text-[#565e74] hover:text-[#0b1c30]'

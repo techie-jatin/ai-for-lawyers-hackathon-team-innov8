@@ -103,6 +103,15 @@ export function LegalPrintStudioModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  // Lock body scroll while modal is active on mobile & desktop
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   const exchanges = useMemo(() => groupMessagesIntoExchanges(messages), [messages]);
 
   // Derived filtered exchanges based on scope
@@ -141,7 +150,7 @@ export function LegalPrintStudioModal({
   return createPortal(
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      className="no-print fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-3 md:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="no-print fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-3 md:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 h-[100dvh] max-h-[100dvh] pt-[max(0.25rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))] px-[env(safe-area-inset-left)]"
     >
       <div 
         className={`w-full h-full sm:h-[94vh] sm:max-h-[920px] max-w-6xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border ${
@@ -149,25 +158,25 @@ export function LegalPrintStudioModal({
         }`}
       >
         {/* MODAL HEADER */}
-        <header className={`px-4 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between shrink-0 ${
+        <header className={`px-3.5 sm:px-6 py-2.5 sm:py-4 border-b flex items-center justify-between shrink-0 ${
           isDark ? 'bg-[#141827] border-[#22283f]' : 'bg-slate-50 border-slate-200'
         }`}>
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
               <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-[14px] sm:text-[17px] font-bold tracking-tight truncate">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h2 className="text-[13.5px] sm:text-[17px] font-bold tracking-tight truncate">
                   <span className="sm:hidden">Legal Print Studio</span>
                   <span className="hidden sm:inline">Court-Ready Legal Print & PDF Export Studio</span>
                 </h2>
-                <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                <span className="hidden xs:inline-block text-[9px] sm:text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
                   Judicial Standard
                 </span>
               </div>
-              <p className={`text-[11px] sm:text-[12px] truncate ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
-                Configure chamber memorandum parameters, selection scope, and formal letterhead
+              <p className={`text-[10.5px] sm:text-[12px] truncate ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
+                Configure chamber memorandum, selection scope, and formal letterhead
               </p>
             </div>
           </div>
@@ -188,31 +197,33 @@ export function LegalPrintStudioModal({
         </header>
 
         {/* MOBILE RESPONSIVE SEGMENTED TAB SWITCHER (< md) */}
-        <div className="md:hidden flex border-b shrink-0 px-3 py-2 gap-2 bg-slate-100/60 dark:bg-[#111422] border-slate-200 dark:border-[#22283f]">
+        <div className="md:hidden flex border-b shrink-0 px-2.5 py-1.5 gap-2 bg-slate-100/70 dark:bg-[#111422] border-slate-200 dark:border-[#22283f]">
           <button
             type="button"
             onClick={() => setActiveMobileTab('options')}
-            className={`flex-1 py-1.5 px-3 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 px-2 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeMobileTab === 'options'
                 ? 'bg-amber-500 text-black shadow-xs font-black'
                 : isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>1. Parameters & Scope</span>
+            <Sliders className="w-3.5 h-3.5 shrink-0" />
+            <span>Options</span>
+            <span className="hidden xs:inline">& Scope</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveMobileTab('preview')}
-            className={`flex-1 py-1.5 px-3 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 px-2 rounded-lg text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeMobileTab === 'preview'
                 ? 'bg-amber-500 text-black shadow-xs font-black'
                 : isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Eye className="w-3.5 h-3.5" />
-            <span>2. A4 Live Preview ({printableExchanges.length})</span>
+            <Eye className="w-3.5 h-3.5 shrink-0" />
+            <span>A4 Preview</span>
+            <span className="text-[10px] font-mono opacity-80">({printableExchanges.length})</span>
           </button>
         </div>
 
@@ -375,10 +386,10 @@ export function LegalPrintStudioModal({
               </label>
 
               <div className="space-y-2">
-                <label className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-colors ${
+                <label className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isDark ? 'bg-[#141827] border-[#22283f] hover:bg-[#1a2035]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0 pr-1">
                     <span className="text-[12.5px] font-bold">Include Inquirer Questions</span>
                     <span className={`text-[10.5px] ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
                       Print raw client questions as formal "Statement of Facts"
@@ -388,14 +399,14 @@ export function LegalPrintStudioModal({
                     type="checkbox"
                     checked={options.includeUserPrompts}
                     onChange={(e) => onOptionsChange({ ...options, includeUserPrompts: e.target.checked })}
-                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer shrink-0"
+                    className="w-5 h-5 accent-amber-500 rounded cursor-pointer shrink-0"
                   />
                 </label>
 
-                <label className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-colors ${
+                <label className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isDark ? 'bg-[#141827] border-[#22283f] hover:bg-[#1a2035]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0 pr-1">
                     <span className="text-[12.5px] font-bold">Applicable Statutory Framework Pills</span>
                     <span className={`text-[10.5px] ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
                       Display governing Act & Section badges at top of analysis
@@ -405,14 +416,14 @@ export function LegalPrintStudioModal({
                     type="checkbox"
                     checked={options.includeStatutoryPills}
                     onChange={(e) => onOptionsChange({ ...options, includeStatutoryPills: e.target.checked })}
-                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer shrink-0"
+                    className="w-5 h-5 accent-amber-500 rounded cursor-pointer shrink-0"
                   />
                 </label>
 
-                <label className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-colors ${
+                <label className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isDark ? 'bg-[#141827] border-[#22283f] hover:bg-[#1a2035]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0 pr-1">
                     <span className="text-[12.5px] font-bold">Verbatim Gazette Citations</span>
                     <span className={`text-[10.5px] ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
                       Print authentic gazette provision texts in warm parchment blockquotes
@@ -422,14 +433,14 @@ export function LegalPrintStudioModal({
                     type="checkbox"
                     checked={options.includeGazetteEvidence}
                     onChange={(e) => onOptionsChange({ ...options, includeGazetteEvidence: e.target.checked })}
-                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer shrink-0"
+                    className="w-5 h-5 accent-amber-500 rounded cursor-pointer shrink-0"
                   />
                 </label>
 
-                <label className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-colors ${
+                <label className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isDark ? 'bg-[#141827] border-[#22283f] hover:bg-[#1a2035]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0 pr-1">
                     <span className="text-[12.5px] font-bold">Binding Court Precedents</span>
                     <span className={`text-[10.5px] ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
                       Include Supreme Court ratios, factual matrices & litigation strategies
@@ -439,14 +450,14 @@ export function LegalPrintStudioModal({
                     type="checkbox"
                     checked={options.includePrecedents}
                     onChange={(e) => onOptionsChange({ ...options, includePrecedents: e.target.checked })}
-                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer shrink-0"
+                    className="w-5 h-5 accent-amber-500 rounded cursor-pointer shrink-0"
                   />
                 </label>
 
-                <label className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-colors ${
+                <label className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isDark ? 'bg-[#141827] border-[#22283f] hover:bg-[#1a2035]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0 pr-1">
                     <span className="text-[12.5px] font-bold">Chamber Security Watermark & Seal</span>
                     <span className={`text-[10.5px] ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
                       Print official digital docket watermark & verification barcode
@@ -456,14 +467,14 @@ export function LegalPrintStudioModal({
                     type="checkbox"
                     checked={options.includeChamberSeal}
                     onChange={(e) => onOptionsChange({ ...options, includeChamberSeal: e.target.checked })}
-                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer shrink-0"
+                    className="w-5 h-5 accent-amber-500 rounded cursor-pointer shrink-0"
                   />
                 </label>
 
-                <label className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-colors ${
+                <label className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isDark ? 'bg-[#141827] border-[#22283f] hover:bg-[#1a2035]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                 }`}>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0 pr-1">
                     <span className="text-[12.5px] font-bold">Advocate Signature & Endorsement Block</span>
                     <span className={`text-[10.5px] ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
                       Print formal Counsel Enrolment & Bar Council sign-off box
@@ -473,7 +484,7 @@ export function LegalPrintStudioModal({
                     type="checkbox"
                     checked={options.includeSignatureBlock}
                     onChange={(e) => onOptionsChange({ ...options, includeSignatureBlock: e.target.checked })}
-                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer shrink-0"
+                    className="w-5 h-5 accent-amber-500 rounded cursor-pointer shrink-0"
                   />
                 </label>
               </div>
@@ -565,7 +576,7 @@ export function LegalPrintStudioModal({
 
             {/* SCALED A4 DOCUMENT PREVIEW CONTAINER */}
             <div 
-              className={`w-full max-w-[620px] bg-white text-slate-900 shadow-2xl p-6 sm:p-8 rounded-sm border transition-all text-[11px] font-serif leading-normal select-none overflow-hidden ${
+              className={`w-full max-w-[620px] bg-white text-slate-900 shadow-2xl p-3.5 sm:p-8 rounded-sm border transition-all text-[11px] font-serif leading-normal select-none overflow-hidden ${
                 options.colorProfile === 'monochrome' ? 'grayscale contrast-125' : ''
               }`}
               style={{
@@ -575,7 +586,7 @@ export function LegalPrintStudioModal({
             >
               {/* COURTROOM DOUBLE BORDER INNER FRAME */}
               <div 
-                className="w-full p-4 sm:p-5 relative"
+                className="w-full p-2.5 sm:p-5 relative"
                 style={{
                   border: options.colorProfile === 'monochrome' ? '1px solid #333' : '1px solid #d97706'
                 }}
@@ -583,38 +594,38 @@ export function LegalPrintStudioModal({
                 {/* WATERMARK */}
                 {options.includeChamberSeal && (
                   <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-                    <Scale className="w-64 h-64 text-[#00288e]" />
+                    <Scale className="w-48 h-48 sm:w-64 sm:h-64 text-[#00288e]" />
                   </div>
                 )}
 
                 {/* OFFICIAL CHAMBER LETTERHEAD */}
                 <div className="border-b-2 border-black pb-3 mb-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded bg-[#00288e] text-white flex items-center justify-center font-bold text-lg font-serif">
-                        <Scale className="w-6 h-6 text-amber-400" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded bg-[#00288e] text-white flex items-center justify-center font-bold text-base sm:text-lg font-serif shrink-0">
+                        <Scale className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
                       </div>
                       <div>
-                        <div className="text-[15pt] font-serif font-black tracking-tight leading-none text-[#00288e]">
+                        <div className="text-[13pt] sm:text-[15pt] font-serif font-black tracking-tight leading-none text-[#00288e]">
                           भारत Legal Intelligence
                         </div>
-                        <div className="text-[7.5pt] font-mono text-slate-600 tracking-wider uppercase mt-0.5">
-                          Constitutional & Statutory AI Judicial Research Dossier
+                        <div className="text-[7pt] sm:text-[7.5pt] font-mono text-slate-600 tracking-wider uppercase mt-0.5">
+                          Constitutional & Statutory AI Research Dossier
                         </div>
                       </div>
                     </div>
-                    <div className="text-right text-[7.5pt] font-mono text-slate-700 leading-tight">
+                    <div className="text-left sm:text-right text-[7pt] sm:text-[7.5pt] font-mono text-slate-700 leading-tight">
                       <div><strong>Docket:</strong> #{activeThreadId.slice(0, 12).toUpperCase()}</div>
                       <div><strong>Date:</strong> {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                       <div><strong>Jurisdiction:</strong> Republic of India</div>
                     </div>
                   </div>
-                  <div className="mt-2 pt-1.5 border-t border-slate-300 flex items-center justify-between text-[7.5pt] font-mono text-slate-600">
-                    <span><strong>Consultation:</strong> {activeThreadTitle}</span>
+                  <div className="mt-2 pt-1.5 border-t border-slate-300 flex flex-wrap items-center justify-between gap-1 text-[7pt] sm:text-[7.5pt] font-mono text-slate-600">
+                    <span className="truncate max-w-[180px] sm:max-w-none"><strong>Matter:</strong> {activeThreadTitle}</span>
                     <span className="font-bold text-[#00288e]">
                       {mode === 'citizen' ? 'Citizen Legal Advisory' : 'Advocate Chamber Brief'}
                     </span>
-                    <span>Era: 2024 Sanhitas</span>
+                    <span className="hidden xs:inline">Era: 2024 Sanhitas</span>
                   </div>
                 </div>
 
@@ -630,22 +641,22 @@ export function LegalPrintStudioModal({
                         {/* STATEMENT OF FACTS (USER QUESTION) */}
                         {options.includeUserPrompts && ex.userMsg && (
                           <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-[10px]">
-                            <div className="font-bold font-mono text-[9px] uppercase tracking-wider text-slate-700 mb-1 flex items-center justify-between">
-                              <span>Memorandum of Inquiry / Statement of Facts (Turn {ex.index + 1})</span>
+                            <div className="font-bold font-mono text-[9px] uppercase tracking-wider text-slate-700 mb-1 flex flex-wrap items-center justify-between gap-1">
+                              <span>Statement of Facts (Turn {ex.index + 1})</span>
                               <span>{ex.userMsg.timestamp || 'Recorded'}</span>
                             </div>
-                            <p className="italic text-slate-800">
+                            <p className="italic text-slate-800 break-words">
                               "{ex.userMsg.text}"
                             </p>
                           </div>
                         )}
 
                         {/* LEGAL OPINION HEADER */}
-                        <div className="flex items-center justify-between text-[11px] font-bold text-[#00288e] pt-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10.5px] sm:text-[11px] font-bold text-[#00288e] pt-1">
                           <span className="uppercase tracking-tight">
                             Section {i + 1}: Statutory Advisory & Jurisprudential Ratio
                           </span>
-                          <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-900 border border-blue-200">
+                          <span className="text-[8.5pt] sm:text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-900 border border-blue-200 self-start sm:self-auto truncate max-w-full sm:max-w-[220px]">
                             {ex.assistantMsg.response?.auto_detected_domain || 'Indian Law'}
                           </span>
                         </div>
@@ -662,7 +673,7 @@ export function LegalPrintStudioModal({
                         )}
 
                         {/* LEGAL ANSWER TEXT */}
-                        <div className="text-[9.5pt] text-slate-900 leading-relaxed space-y-2">
+                        <div className="text-[9.5pt] text-slate-900 leading-relaxed space-y-2 break-words">
                           <LegalStructuredAnswer
                             answerText={ex.assistantMsg.response?.answer || ex.assistantMsg.text}
                             isDark={false}
@@ -676,7 +687,9 @@ export function LegalPrintStudioModal({
                             <span className="font-bold not-italic font-mono text-[8pt] text-amber-900 block mb-0.5">
                               Official Gazette Enactment Text ({ex.assistantMsg.response.applicable_laws[0].section_number})
                             </span>
-                            "{ex.assistantMsg.response.applicable_laws[0].text_snippet || 'Verified against Gazette of India enactment.'}"
+                            <span className="break-words">
+                              "{ex.assistantMsg.response.applicable_laws[0].text_snippet || 'Verified against Gazette of India enactment.'}"
+                            </span>
                           </div>
                         )}
 
@@ -684,10 +697,10 @@ export function LegalPrintStudioModal({
                         {options.includePrecedents && ex.assistantMsg.response?.similar_cases && ex.assistantMsg.response.similar_cases.length > 0 && (
                           <div className="p-2 rounded bg-slate-50 border border-slate-200 text-[8.5pt] space-y-1">
                             <div className="font-bold text-[#00288e] flex items-center gap-1">
-                              <Scale className="w-3 h-3 text-amber-600" />
-                              <span>Landmark Precedent: {ex.assistantMsg.response.similar_cases[0].title} ({ex.assistantMsg.response.similar_cases[0].citation})</span>
+                              <Scale className="w-3 h-3 text-amber-600 shrink-0" />
+                              <span className="break-words">Landmark Precedent: {ex.assistantMsg.response.similar_cases[0].title} ({ex.assistantMsg.response.similar_cases[0].citation})</span>
                             </div>
-                            <p className="text-slate-700">
+                            <p className="text-slate-700 break-words">
                               <strong>Holding:</strong> {ex.assistantMsg.response.similar_cases[0].court_holding}
                             </p>
                           </div>
@@ -699,7 +712,7 @@ export function LegalPrintStudioModal({
 
                 {/* SIGNATURE & ENDORSEMENT BLOCK */}
                 {options.includeSignatureBlock && (
-                  <div className="mt-8 pt-4 border-t-2 border-black grid grid-cols-2 gap-4 text-[8.5pt] font-mono">
+                  <div className="mt-8 pt-4 border-t-2 border-black grid grid-cols-1 sm:grid-cols-2 gap-4 text-[8.5pt] font-mono">
                     <div>
                       <div className="font-bold text-slate-800">CONSULTATION NATURE:</div>
                       <div className="text-slate-600 mt-0.5">
@@ -707,8 +720,8 @@ export function LegalPrintStudioModal({
                         Confidential under Advocates Act, 1961.
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="border-b border-black w-48 ml-auto pb-6 mb-1 text-slate-400">
+                    <div className="text-left sm:text-right">
+                      <div className="border-b border-black w-full sm:w-48 sm:ml-auto pb-6 mb-1 text-slate-400">
                         [Counsel Signature & Seal]
                       </div>
                       <div className="font-bold text-slate-800">Advocate / Jurist Endorsement</div>
@@ -718,10 +731,10 @@ export function LegalPrintStudioModal({
                 )}
 
                 {/* FOOTER VERIFICATION */}
-                <div className="mt-4 pt-2 border-t border-slate-300 text-[7pt] font-mono text-slate-500 text-center flex items-center justify-between">
+                <div className="mt-4 pt-2 border-t border-slate-300 text-[7pt] font-mono text-slate-500 text-center flex flex-wrap items-center justify-between gap-1">
                   <span>Ground-truth validated against Constitution of India & 2024 Sanhitas</span>
-                  <span>Docket Ref: #{activeThreadId.slice(0, 10).toUpperCase()}</span>
-                  <span>Page 1 of 1 (Preview)</span>
+                  <span className="hidden xs:inline">Docket Ref: #{activeThreadId.slice(0, 10).toUpperCase()}</span>
+                  <span>Page 1 (Preview)</span>
                 </div>
               </div>
             </div>
@@ -758,7 +771,8 @@ export function LegalPrintStudioModal({
               className="flex-2 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold bg-[#ff7722] hover:bg-[#ff8833] text-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-black"
             >
               <Printer className="w-4 h-4 text-black shrink-0" />
-              <span>Print / Save as PDF ({options.paperSize.toUpperCase()})</span>
+              <span className="sm:hidden">Print / Save PDF</span>
+              <span className="hidden sm:inline">Print / Save as PDF ({options.paperSize.toUpperCase()})</span>
             </button>
           </div>
         </footer>
@@ -861,8 +875,8 @@ export function CourtReadyPrintCanvas({
             </div>
 
             {/* METADATA STRIP */}
-            <div className="mt-3 pt-2 border-t border-slate-400 flex items-center justify-between text-[8pt] font-mono text-slate-700">
-              <span><strong>MATTER / CONSULTATION:</strong> {activeThreadTitle}</span>
+            <div className="mt-3 pt-2 border-t border-slate-400 flex flex-wrap items-center justify-between gap-1.5 text-[8pt] font-mono text-slate-700">
+              <span className="truncate max-w-[280px] sm:max-w-none"><strong>MATTER / CONSULTATION:</strong> {activeThreadTitle}</span>
               <span className="font-bold text-[#00288e]">
                 <strong>CLASSIFICATION:</strong> {mode === 'citizen' ? 'Citizen Legal Advisory Report' : 'Senior Advocate Chamber Brief'}
               </span>
@@ -877,7 +891,7 @@ export function CourtReadyPrintCanvas({
                 {/* STATEMENT OF FACTS (USER QUESTION) */}
                 {options.includeUserPrompts && ex.userMsg && (
                   <div className="print-statement-of-facts p-3.5 rounded bg-slate-50 border border-slate-300 text-[10pt]">
-                    <div className="font-bold font-mono text-[9pt] uppercase tracking-wider text-slate-700 mb-1 flex items-center justify-between">
+                    <div className="font-bold font-mono text-[9pt] uppercase tracking-wider text-slate-700 mb-1 flex flex-wrap items-center justify-between gap-1">
                       <span>Statement of Facts & Inquiry (Turn {ex.index + 1})</span>
                       <span>Recorded: {ex.userMsg.timestamp || 'Today'}</span>
                     </div>
@@ -891,7 +905,7 @@ export function CourtReadyPrintCanvas({
                 )}
 
                 {/* STATUTORY OPINION HEADER */}
-                <div className="flex items-center justify-between text-[12pt] font-bold pb-1 border-b" style={{ color: isMonochrome ? '#000000' : '#00288e' }}>
+                <div className="flex flex-wrap items-center justify-between gap-1.5 text-[12pt] font-bold pb-1 border-b" style={{ color: isMonochrome ? '#000000' : '#00288e' }}>
                   <h2 className="uppercase tracking-tight font-serif">
                     Part {idx + 1}: Statutory Advisory & Chamber Opinion
                   </h2>

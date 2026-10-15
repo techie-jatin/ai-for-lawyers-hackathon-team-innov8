@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Loader2, CheckCircle2, Scale, BookOpen, Database, Gavel, ShieldCheck, Brain } from 'lucide-react';
 import type { ChatLaunchContext } from '../App';
 import { PrecedentDossierDrawer, type RealCasePrecedentItem } from './PrecedentDossierDrawer';
 import { LegalStructuredAnswer } from './LegalMarkdownRenderer';
@@ -112,31 +113,31 @@ function LegalIntelligenceGeneratingCard({
     {
       title: 'Retrieving Central Acts & Bharatiya Sanhitas',
       detail: 'Scanning BNS 2023, BNSS 2023, BSA 2023 & Constitution of India...',
-      icon: 'menu_book',
+      Icon: BookOpen,
       badge: 'Statutes'
     },
     {
       title: 'Querying Neon pgvector Semantic Embeddings',
       detail: `Performing 768-dim HNSW vector search across ${totalProvisions}+ gazette provisions...`,
-      icon: 'database',
+      Icon: Database,
       badge: 'pgvector HNSW'
     },
     {
       title: 'Cross-Referencing Supreme Court Precedents',
       detail: 'Matching AIR, e-SCR & High Court binding ratio decidendi...',
-      icon: 'gavel',
+      Icon: Gavel,
       badge: 'AIR Precedents'
     },
     {
       title: 'Deterministic Lexical AST Verification',
       detail: 'Verifying authentic verbatim statutory citations with 0% speculative hallucination...',
-      icon: 'verified_user',
+      Icon: ShieldCheck,
       badge: 'Truth Audit'
     },
     {
       title: mode === 'professional' ? 'Synthesizing Courtroom Brief & Litigation Playbook' : 'Synthesizing Plain-Language Citizen Rights Guide',
       detail: 'Formulating legal safeguards, procedural timeline & actionable remedies...',
-      icon: 'psychology',
+      Icon: Brain,
       badge: 'Synthesis'
     }
   ];
@@ -169,15 +170,14 @@ function LegalIntelligenceGeneratingCard({
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Pulsing Glowing Emblem with Orbit Ring */}
           <div className="relative flex items-center justify-center shrink-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-[#ff7722] via-[#00288e] to-emerald-500 p-0.5 animate-spin duration-3000">
-              <div className={`w-full h-full rounded-[10px] flex items-center justify-center ${
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl p-[2px] relative overflow-hidden flex items-center justify-center shadow-md">
+              <div className="absolute inset-[-50%] bg-[conic-gradient(from_0deg,#ff7722,#00288e,#10b981,#ff7722)] animate-spin" />
+              <div className={`relative w-full h-full rounded-[10px] flex items-center justify-center ${
                 isDark ? 'bg-[#090b14]' : 'bg-white'
               }`}>
-                <span className={`material-symbols-outlined text-[17px] sm:text-[19px] ${
+                <Scale className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${
                   isDark ? 'text-amber-400' : 'text-[#00288e]'
-                }`}>
-                  balance
-                </span>
+                }`} />
               </div>
             </div>
             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -260,11 +260,13 @@ function LegalIntelligenceGeneratingCard({
                     : 'text-zinc-400 opacity-60'
                 }`}
               >
-                <span className={`material-symbols-outlined text-[14px] ${
-                  isCurrent ? 'animate-spin' : ''
-                }`}>
-                  {isCompleted ? 'check_circle' : isCurrent ? 'progress_activity' : st.icon}
-                </span>
+                {isCompleted ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                ) : isCurrent ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400 shrink-0" />
+                ) : (
+                  <st.Icon className="w-3.5 h-3.5 shrink-0" />
+                )}
                 <span className="hidden md:inline font-mono text-[9.5px]">
                   {st.badge}
                 </span>
@@ -275,9 +277,7 @@ function LegalIntelligenceGeneratingCard({
 
         {/* Live Detail Line */}
         <div className="flex items-center gap-2 text-[11px] font-mono">
-          <span className="material-symbols-outlined text-[15px] text-[#ff7722] animate-pulse">
-            psychology_alt
-          </span>
+          <Brain className="w-4 h-4 text-[#ff7722] animate-pulse shrink-0" />
           <span className={`truncate ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
             {steps[activeStep].detail}
           </span>

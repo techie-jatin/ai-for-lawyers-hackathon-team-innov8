@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export interface ChamberDossier {
   id: number;
@@ -197,7 +198,7 @@ export function DossiersDrawer({
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {loading ? (
             <div className="flex items-center justify-center py-12 gap-2 text-[13px] text-[#94a3b8]">
-              <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+              <Loader2 className="w-4 h-4 animate-spin text-zinc-400 shrink-0" />
               <span>Loading saved chamber dossiers...</span>
             </div>
           ) : filteredDossiers.length === 0 ? (

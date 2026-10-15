@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Loader2, CheckCircle2, Scale, Lightbulb, ShieldCheck } from 'lucide-react';
 import './App.css';
 import { ChatView } from './components/ChatView';
 import { ContractStudioView } from './components/ContractStudioView';
@@ -272,7 +273,7 @@ export function App() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-mono">
                   <span className={`flex items-center gap-1.5 font-semibold ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
-                    <span className="material-symbols-outlined text-[14px] text-emerald-400 animate-spin">sync</span>
+                    <Loader2 className="w-3.5 h-3.5 text-emerald-400 animate-spin shrink-0" />
                     Loading Central Acts & Landmark Precedents...
                   </span>
                   <span className={`font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>100%</span>
@@ -298,7 +299,7 @@ export function App() {
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between">
                     <span className={`flex items-center gap-1.5 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
-                      <span className="material-symbols-outlined text-[13px] text-emerald-400">check_circle</span>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       {item.label}
                     </span>
                     <span className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded ${
@@ -317,14 +318,12 @@ export function App() {
                 isDark ? 'bg-[#101424] border-[#222b48]' : 'bg-white border-[#dce9ff]'
               }`}>
                 {/* Subtle Watermark Icon */}
-                <span className="material-symbols-outlined absolute -right-6 -bottom-6 text-[150px] opacity-[0.03] select-none pointer-events-none">
-                  balance
-                </span>
+                <Scale className="absolute -right-6 -bottom-6 w-36 h-36 opacity-[0.03] select-none pointer-events-none" />
 
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-500">
-                      <span className="material-symbols-outlined text-[18px]">lightbulb</span>
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-500 shrink-0">
+                      <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />
                     </div>
                     <div>
                       <span className={`text-[10px] font-bold uppercase tracking-wider block ${
@@ -358,11 +357,9 @@ export function App() {
                 <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${
                   isDark ? 'bg-emerald-950/30 border-emerald-900/50 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
                 }`}>
-                  <span className={`material-symbols-outlined text-[18px] shrink-0 mt-0.5 ${
+                  <ShieldCheck className={`w-4.5 h-4.5 shrink-0 mt-0.5 ${
                     isDark ? 'text-emerald-400' : 'text-emerald-700'
-                  }`}>
-                    verified
-                  </span>
+                  }`} />
                   <div className="text-[12px] leading-relaxed">
                     <strong className="block font-bold mb-0.5">Citizen / Advocate Practice Mandate:</strong>
                     <span>{splashTip.actionableTip}</span>
@@ -419,8 +416,8 @@ export function App() {
               <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-zinc-800' : 'bg-slate-200'}`}>
                 <div className="h-full bg-gradient-to-r from-[#ff7722] via-[#00288e] to-emerald-400 rounded-full w-full animate-pulse"></div>
               </div>
-              <span className="text-[9.5px] sm:text-[10px] font-mono text-zinc-400 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px] animate-spin text-emerald-400">sync</span>
+              <span className="text-[9.5px] sm:text-[10px] font-mono text-zinc-400 flex items-center gap-1.5">
+                <Loader2 className="w-3 h-3 animate-spin text-emerald-400 shrink-0" />
                 Loading Central Acts & Landmark Precedents...
               </span>
             </div>
@@ -431,7 +428,7 @@ export function App() {
             }`}>
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-1.5">
-                  <span className={`material-symbols-outlined text-[15px] ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>lightbulb</span>
+                  <Lightbulb className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-amber-400' : 'text-amber-700'}`} />
                   <span className={`text-[9.5px] font-bold uppercase tracking-wider ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
                     Daily Law for Everyday Use
                   </span>
@@ -457,7 +454,7 @@ export function App() {
               <div className={`p-2 rounded-lg text-[10px] flex items-center gap-1.5 ${
                 isDark ? 'bg-emerald-950/30 border border-emerald-900/40 text-emerald-300' : 'bg-emerald-50 border border-emerald-200 text-emerald-800'
               }`}>
-                <span className={`material-symbols-outlined text-[13px] shrink-0 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>verified</span>
+                <ShieldCheck className={`w-3.5 h-3.5 shrink-0 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`} />
                 <span className="truncate"><strong>Rule:</strong> {splashTip.actionableTip}</span>
               </div>
             </div>

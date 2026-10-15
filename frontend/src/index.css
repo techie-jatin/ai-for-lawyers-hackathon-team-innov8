@@ -59,6 +59,8 @@ html.light {
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'liga';
   text-rendering: optimizeLegibility;
+  overflow: hidden;
+  vertical-align: middle;
 }
 
 #root {

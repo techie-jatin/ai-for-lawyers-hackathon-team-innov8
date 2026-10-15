@@ -856,11 +856,11 @@ export function CourtReadyPrintCanvas({
           }}
         >
           {/* OFFICIAL CHAMBER LETTERHEAD */}
-          <header className="border-b-2 border-black pb-4 mb-6">
+          <div className="court-print-letterhead border-b-2 border-black pb-4 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3.5">
                 <div 
-                  className="w-12 h-12 rounded flex items-center justify-center font-bold"
+                  className="w-12 h-12 rounded flex items-center justify-center font-bold shrink-0"
                   style={{
                     backgroundColor: isMonochrome ? '#000000' : '#00288e',
                     color: '#ffffff'
@@ -869,37 +869,37 @@ export function CourtReadyPrintCanvas({
                   <Scale className="w-8 h-8 text-amber-400" />
                 </div>
                 <div>
-                  <h1 
+                  <div 
                     className="text-[20pt] font-serif font-black tracking-tight leading-none"
                     style={{ color: isMonochrome ? '#000000' : '#00288e' }}
                   >
                     भारत Legal Intelligence
-                  </h1>
-                  <p className="text-[8.5pt] font-mono text-slate-700 tracking-wider uppercase mt-1">
-                    National Constitutional & Statutory AI Jurisprudence Platform
-                  </p>
+                  </div>
+                  <div className="text-[8.5pt] font-mono text-slate-700 tracking-wider uppercase mt-1">
+                    Constitutional & Statutory AI Research Dossier
+                  </div>
                 </div>
               </div>
 
               <div className="text-right text-[8.5pt] font-mono text-slate-800 leading-tight">
-                <div><strong>DOCKET REF:</strong> #{activeThreadId.slice(0, 16).toUpperCase()}</div>
-                <div><strong>DATE & TIME:</strong> {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })} | {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} IST</div>
-                <div><strong>JURISDICTION:</strong> Republic of India (Bharatiya Sanhitas 2024)</div>
+                <div><strong>Docket:</strong> #{activeThreadId.startsWith('#') ? activeThreadId.slice(1) : (activeThreadId.startsWith('THREAD-') ? activeThreadId : activeThreadId.slice(0, 16).toUpperCase())}</div>
+                <div><strong>Date:</strong> {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                <div><strong>Jurisdiction:</strong> Republic of India</div>
               </div>
             </div>
 
             {/* METADATA STRIP */}
             <div className="mt-3 pt-2 border-t border-slate-400 flex flex-wrap items-center justify-between gap-1.5 text-[8pt] font-mono text-slate-700">
-              <span className="truncate max-w-[280px] sm:max-w-none"><strong>MATTER / CONSULTATION:</strong> {activeThreadTitle}</span>
+              <span className="truncate max-w-[280px] sm:max-w-none"><strong>Matter:</strong> {activeThreadTitle}</span>
               <span className="font-bold text-[#00288e]">
-                <strong>CLASSIFICATION:</strong> {mode === 'citizen' ? 'Citizen Legal Advisory Report' : 'Senior Advocate Chamber Brief'}
+                {mode === 'citizen' ? 'Citizen Legal Advisory' : 'Advocate Chamber Brief'}
               </span>
-              <span><strong>GROUNDING:</strong> 100% Neon pgvector Gazette Verified</span>
+              <span>Era: 2024 Sanhitas • 100% Neon pgvector Gazette Verified</span>
             </div>
-          </header>
+          </div>
 
           {/* PRINTABLE EXCHANGES STREAM */}
-          <main className="space-y-6">
+          <div className="court-print-body space-y-6">
             {printableExchanges.map((ex, idx) => (
               <section key={idx} className="print-exchange-block space-y-4 pb-6 border-b border-dashed border-slate-400 last:border-b-0">
                 {/* STATEMENT OF FACTS (USER QUESTION) */}
@@ -994,11 +994,11 @@ export function CourtReadyPrintCanvas({
                 )}
               </section>
             ))}
-          </main>
+          </div>
 
           {/* ADVOCATE ENDORSEMENT & SIGNATURE BLOCK */}
           {options.includeSignatureBlock && (
-            <footer className="print-signature-block mt-8 pt-6 border-t-2 border-black grid grid-cols-2 gap-8 text-[9pt] font-mono">
+            <div className="print-signature-block mt-8 pt-6 border-t-2 border-black grid grid-cols-2 gap-8 text-[9pt] font-mono">
               <div>
                 <div className="font-bold text-slate-900">CHAMBER CONSULTATION NATURE:</div>
                 <div className="text-slate-700 mt-1 leading-relaxed">
@@ -1015,7 +1015,7 @@ export function CourtReadyPrintCanvas({
                 <div className="text-slate-700 text-[8.5pt]">State Bar Council Enrolment No.: ____________________</div>
                 <div className="text-slate-700 text-[8.5pt]">Chamber Docket Verification: Validated</div>
               </div>
-            </footer>
+            </div>
           )}
 
           {/* STATUTORY AI DISCLOSURE NOTICE */}

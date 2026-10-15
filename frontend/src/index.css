@@ -260,11 +260,11 @@ code {
   #root,
   #app-header,
   #statutory-ticker,
-  header,
-  aside,
-  nav,
-  button,
-  form,
+  #root header,
+  #root aside,
+  #root nav,
+  #root button,
+  #root form,
   .no-print,
   #floating-input-dock {
     display: none !important;
@@ -294,9 +294,22 @@ code {
     font-family: Georgia, 'Times New Roman', Cambria, serif !important;
   }
 
+  #court-ready-print-canvas,
   #court-ready-print-canvas * {
+    visibility: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  #court-ready-print-canvas .court-print-letterhead,
+  #court-ready-print-canvas header,
+  #court-ready-print-canvas footer,
+  #court-ready-print-canvas .print-signature-block {
+    display: block !important;
+    visibility: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    opacity: 1 !important;
   }
 
   /* Courtroom Royal Navy & Gold Theme */

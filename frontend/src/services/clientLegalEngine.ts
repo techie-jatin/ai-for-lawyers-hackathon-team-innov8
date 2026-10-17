@@ -1536,10 +1536,18 @@ export function extractActiveCaseMemory(history?: Array<{ role: string; text: st
 export function resolveContextualQuery(query: string, history?: Array<{ role: string; text: string }>): string {
   if (!history || history.length === 0) return query;
 
-  const qLower = query.toLowerCase().trim();
+  const qTrim = query.trim();
+  const words = qTrim.split(/\s+/);
+
+  // Standalone factual inquiries (> 18 words) are self-contained and must NEVER inherit stale conversation history
+  if (words.length > 18 && !/^\s*(?:what about|can (?:i|he|she|they)|is it|what is the (?:penalty|punishment|remedy))\b/i.test(qTrim)) {
+    return query;
+  }
+
+  const qLower = qTrim.toLowerCase();
   const needsCoref = (
-    qLower.split(/\s+/).length <= 15 ||
-    /\b(this|that|it|these|those|again|more|elaborate|clarify|penalty|punishment|bail|appeal|fine|arrest|quash|period|limitation|clause|sub-clause|article|section|act|him|her|them|he|she|his|their|what if|how can i|how to|order|injunction|stay|stop|protect|action|remedy|court|step|lock|evict|money|dues)\b/i.test(qLower)
+    words.length <= 12 ||
+    /\b(this|that|it|these|those|again|more|elaborate|clarify|penalty|punishment|bail|appeal|fine|arrest|quash|period|limitation|clause|sub-clause|what if|how can i|remedy)\b/i.test(qLower)
   );
 
   if (!needsCoref) return query;

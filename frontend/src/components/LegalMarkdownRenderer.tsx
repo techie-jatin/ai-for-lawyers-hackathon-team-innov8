@@ -103,13 +103,15 @@ export const InlineMarkdown: React.FC<{ text: string; isDark?: boolean }> = ({ t
           return (
             <span 
               key={idx} 
-              className={`inline-flex items-center font-semibold rounded px-1.5 py-0.2 mx-0.5 text-[11.5px] border ${
+              title="Statutory Authority • Verified against Central Acts & 2024 Sanhitas"
+              className={`inline-flex items-center gap-1 font-semibold rounded px-1.5 py-0.5 mx-0.5 text-[11.5px] font-mono border shadow-2xs transition-all ${
                 isDark 
-                  ? 'bg-[#131b2e] text-amber-300 border-amber-500/30' 
-                  : 'bg-[#eff6ff] text-[#1e3a8a] border-[#bfdbfe]'
+                  ? 'bg-[#131b2e] hover:bg-[#1a253e] text-amber-300 border-amber-500/30' 
+                  : 'bg-[#eff6ff] hover:bg-[#dbeafe] text-[#1e3a8a] border-[#bfdbfe]'
               }`}
             >
-              {token.content}
+              <span className="material-symbols-outlined text-[12px] text-amber-500 shrink-0">verified</span>
+              <span>{token.content}</span>
             </span>
           );
         }

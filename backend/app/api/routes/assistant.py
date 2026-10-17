@@ -10,7 +10,7 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=4000, description="User legal query (max 4000 chars)")
-    mode: Optional[str] = Field("citizen", pattern=r"^(citizen|professional)$")
+    mode: Optional[str] = Field("citizen", pattern=r"^(citizen|professional|advocate)$")
     context_filter: Optional[str] = Field(None, max_length=100)
     gemini_api_key: Optional[str] = Field(None, max_length=128)
     history: Optional[List[Dict[str, str]]] = None  # Multi-turn context: [{"role": "user", "text": "..."}, ...]

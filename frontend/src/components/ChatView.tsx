@@ -6,6 +6,7 @@ import { LegalStructuredAnswer } from './LegalMarkdownRenderer';
 import { generateAutonomousLegalResponse, extractActiveCaseMemory } from '../services/clientLegalEngine';
 import { LegalPrintStudioModal, CourtReadyPrintCanvas, groupMessagesIntoExchanges, type PrintStudioOptions } from './LegalPrintStudioModal';
 import { parseUploadedDocument, type ParsedDocumentResult } from '../utils/documentParser';
+import { LegalAidDirectoryModal } from './LegalAidDirectoryModal';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -417,6 +418,9 @@ interface ChatInputFormProps {
   onSendMessage: (query: string) => void;
   externalText: string | null;
   onClearExternalText: () => void;
+  voiceStreamingText?: string;
+  isListening?: boolean;
+  onStopDictation?: () => void;
 }
 
 function ChatInputForm({
@@ -425,12 +429,37 @@ function ChatInputForm({
   isDark,
   onSendMessage,
   externalText,
-  onClearExternalText
+  onClearExternalText,
+  voiceStreamingText,
+  isListening,
+  onStopDictation
 }: ChatInputFormProps) {
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const baseTextBeforeVoiceRef = useRef<string>('');
 
-  // Sync external text (from voice dictation, document attachment, or drawer launches)
+  // Save whatever user had already typed before microphone dictation started
+  useEffect(() => {
+    if (isListening) {
+      baseTextBeforeVoiceRef.current = text.trim();
+    }
+  }, [isListening]);
+
+  // Seamlessly stream speech recognition into input field without dropping prior text
+  useEffect(() => {
+    if (isListening && voiceStreamingText !== undefined && voiceStreamingText !== '') {
+      const base = baseTextBeforeVoiceRef.current;
+      const combined = base ? `${base} ${voiceStreamingText}` : voiceStreamingText;
+      setText(combined);
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
+        }
+      }, 15);
+    }
+  }, [isListening, voiceStreamingText]);
+
+  // Sync external text (from quick prompt chips or precedent drawer actions)
   useEffect(() => {
     if (externalText !== null && externalText !== undefined && externalText !== '') {
       setText(prev => prev ? `${prev}\n\n${externalText}` : externalText);
@@ -443,6 +472,9 @@ function ChatInputForm({
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (isListening && onStopDictation) {
+      onStopDictation();
+    }
     if (!text.trim() || loading) return;
     const queryToSend = text.trim();
     setText('');
@@ -557,8 +589,15 @@ export function ChatView({
   const [isContextDropdownOpen, setIsContextDropdownOpen] = useState(false);
   const contextDropdownRef = useRef<HTMLDivElement>(null);
 
+  // NALSA Free Legal Aid Directory Modal State
+  const [isLegalAidModalOpen, setIsLegalAidModalOpen] = useState(false);
+
   // Voice Dictation Streaming & Bilingual Support State
   const recognitionRef = useRef<any>(null);
+  const userRequestedStopRef = useRef(false);
+  const isListeningRef = useRef(false);
+  const accumulatedBeforeRestartRef = useRef('');
+  const [voiceStreamingText, setVoiceStreamingText] = useState('');
   const [speechLang, setSpeechLang] = useState<'en-IN' | 'hi-IN'>('en-IN');
   const [interimTranscript, setInterimTranscript] = useState<string>('');
 
@@ -1079,13 +1118,24 @@ export function ChatView({
 
       recognition.onstart = () => {
         setIsListening(true);
+        isListeningRef.current = true;
         setMicBlockedHelp(false);
         setDictationNotice(null);
         setInterimTranscript('');
       };
 
       recognition.onend = () => {
+        // Auto-restart across pauses if the user has not explicitly clicked stop
+        if (!userRequestedStopRef.current && isListeningRef.current) {
+          try {
+            recognition.start();
+            return;
+          } catch {
+            // Browser might require explicit user gesture if permission dropped
+          }
+        }
         setIsListening(false);
+        isListeningRef.current = false;
         setInterimTranscript('');
       };
 
@@ -1093,26 +1143,29 @@ export function ChatView({
         if (e?.error === 'not-allowed') {
           setMicBlockedHelp(true);
           setIsListening(false);
+          isListeningRef.current = false;
+          userRequestedStopRef.current = true;
         } else if (e?.error !== 'no-speech') {
           setDictationNotice(`Speech recognition notice: ${e?.error || 'ended'}`);
           setTimeout(() => setDictationNotice(null), 4000);
           setIsListening(false);
+          isListeningRef.current = false;
         }
       };
 
       recognition.onresult = (event: any) => {
         let interim = '';
-        let finalChunk = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        let finals = '';
+        for (let i = 0; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
-            finalChunk += event.results[i][0].transcript + ' ';
+            finals += event.results[i][0].transcript + ' ';
           } else {
             interim += event.results[i][0].transcript;
           }
         }
-        if (finalChunk.trim()) {
-          setExternalInput(finalChunk.trim());
-        }
+        const accumulated = (accumulatedBeforeRestartRef.current + ' ' + finals).trim();
+        const fullCurrent = (accumulated + ' ' + interim).trim();
+        setVoiceStreamingText(fullCurrent);
         setInterimTranscript(interim);
       };
 
@@ -1120,19 +1173,29 @@ export function ChatView({
     } catch (err) {
       console.error('Speech recognition initialization error:', err);
       setIsListening(false);
+      isListeningRef.current = false;
     }
   };
 
   // Voice Dictation Trigger with Clean Click-to-Stop & Permission Prompting
   const handleStartDictation = () => {
     if (isListening) {
+      userRequestedStopRef.current = true;
+      isListeningRef.current = false;
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
       }
       setIsListening(false);
       setInterimTranscript('');
+      setVoiceStreamingText('');
+      accumulatedBeforeRestartRef.current = '';
       return;
     }
+
+    userRequestedStopRef.current = false;
+    isListeningRef.current = true;
+    accumulatedBeforeRestartRef.current = '';
+    setVoiceStreamingText('');
 
     const hasAuthorized = localStorage.getItem('bharat_mic_permission_granted') === 'true';
     if (!hasAuthorized) {
@@ -1473,17 +1536,14 @@ export function ChatView({
         <button 
           type="button"
           onClick={handleNewThread}
-          className={`group flex items-center justify-between w-full px-3 py-2.5 rounded-lg shadow-md transition-all cursor-pointer font-bold ${
+          className={`group flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg shadow-md transition-all cursor-pointer font-bold ${
             isDark 
               ? 'bg-white text-black hover:bg-zinc-200' 
               : 'bg-[#00288e] text-white hover:bg-[#1e40af]'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[19px] transition-transform group-hover:rotate-90">add</span>
-            <span className="text-[13px] font-bold tracking-tight">New Research Thread</span>
-          </div>
-          <span className="text-[10px] opacity-75 font-mono">⌘N</span>
+          <span className="material-symbols-outlined text-[19px] transition-transform group-hover:rotate-90">add</span>
+          <span className="text-[13px] font-bold tracking-tight">New Research Thread</span>
         </button>
 
         {/* Free Tier Quota Alert if at limit */}
@@ -2012,6 +2072,32 @@ export function ChatView({
                       All responses, statutory analyses, and draft contracts are generated by Artificial Intelligence for legal research and preliminary assessment only. They do not constitute formal attorney-client legal counsel. Always consult an enrolled Advocate for judicial representation.
                     </p>
                   </div>
+                </div>
+
+                {/* NALSA FREE LEGAL AID CITIZEN CALLOUT */}
+                <div 
+                  onClick={() => setIsLegalAidModalOpen(true)}
+                  className={`w-full max-w-xl mx-auto mb-4 p-3 rounded-xl border flex items-center justify-between gap-3 text-left transition-all cursor-pointer ${
+                    isDark 
+                      ? 'bg-[#121626] hover:bg-[#181e33] border-blue-500/30 text-slate-200 shadow-xs' 
+                      : 'bg-[#eff6ff] hover:bg-[#e0efff] border-blue-200 text-slate-900 shadow-xs'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#00288e] text-white flex items-center justify-center shrink-0">
+                      <Scale className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-xs flex items-center gap-1.5">
+                        <span>Need a Free Court-Appointed Advocate?</span>
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-emerald-500/20 text-emerald-400 font-semibold">100% Free</span>
+                      </div>
+                      <div className={`text-[10.5px] ${isDark ? 'text-zinc-400' : 'text-slate-600'}`}>
+                        Dial 15100 or explore the National Legal Services Authority (NALSA) State Directory
+                      </div>
+                    </div>
+                  </div>
+                  <span className="material-symbols-outlined text-[18px] text-amber-500">arrow_forward</span>
                 </div>
 
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2.5 text-left">
@@ -2749,6 +2835,21 @@ export function ChatView({
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
+                  onClick={() => setIsLegalAidModalOpen(true)}
+                  className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
+                    isDark 
+                      ? 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30' 
+                      : 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200'
+                  }`}
+                  title="NALSA 24/7 Free Legal Aid Directory (Dial 15100)"
+                >
+                  <Scale className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="hidden md:inline">Free Legal Aid</span>
+                  <span className="font-mono text-[9.5px]">15100</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
                   className={`px-2 py-1 rounded-lg text-[10.5px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
                     speechLang === 'hi-IN'
@@ -2917,6 +3018,20 @@ export function ChatView({
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
+                  onClick={() => setIsLegalAidModalOpen(true)}
+                  className={`px-1.5 py-1 rounded-lg text-[10px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-0.5 ${
+                    isDark 
+                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' 
+                      : 'bg-amber-50 text-amber-950 border-amber-200'
+                  }`}
+                  title="NALSA 24/7 Free Legal Aid (15100)"
+                >
+                  <Scale className="w-3 h-3 text-amber-500" />
+                  <span className="font-mono text-[9px]">15100</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
                   className={`px-1.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
                     speechLang === 'hi-IN'
@@ -3075,44 +3190,57 @@ export function ChatView({
 
             {/* Attached Legal Document Preview Chip */}
             {attachedDoc && !isParsingDoc && (
-              <div className={`mx-2 mb-2 p-2.5 rounded-xl border flex items-center justify-between gap-2 text-[11.5px] animate-in fade-in ${
+              <div className={`mx-2 mb-2 p-2.5 rounded-xl border flex flex-col gap-1.5 text-[11.5px] animate-in fade-in ${
                 isDark ? 'bg-[#141a2c] border-[#293556] text-slate-200' : 'bg-[#eef4ff] border-[#b9d2fe] text-[#00288e]'
               }`}>
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${
-                    attachedDoc.fileType === 'pdf'
-                      ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                      : attachedDoc.fileType === 'docx'
-                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                        : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  }`}>
-                    {attachedDoc.fileType.toUpperCase()}
-                  </span>
-                  <div className="min-w-0">
-                    <div className="font-semibold truncate">{attachedDoc.fileName}</div>
-                    <div className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                      {attachedDoc.formattedSize} • ~{attachedDoc.wordCount.toLocaleString()} words
-                      {attachedDoc.characterCount > 0 && ` • ${attachedDoc.characterCount.toLocaleString()} chars`}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${
+                      attachedDoc.fileType === 'pdf'
+                        ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                        : attachedDoc.fileType === 'docx'
+                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    }`}>
+                      {attachedDoc.fileType.toUpperCase()}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="font-semibold truncate">{attachedDoc.fileName}</div>
+                      <div className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        {attachedDoc.formattedSize} • ~{attachedDoc.wordCount.toLocaleString()} words
+                        {attachedDoc.characterCount > 0 && ` • ${attachedDoc.characterCount.toLocaleString()} chars`}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                      attachedDoc.isScannedOrEmpty
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        : isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {attachedDoc.isScannedOrEmpty ? 'Image Only' : 'Ready for Ingestion'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAttachedDoc(null)}
+                      className={`p-1 rounded-md transition-colors cursor-pointer ${
+                        isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-200 text-slate-600 hover:text-black'
+                      }`}
+                      title="Remove attached document"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">close</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                    isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+
+                {attachedDoc.isScannedOrEmpty && (
+                  <div className={`p-2 rounded-lg text-[10.5px] flex items-center gap-1.5 ${
+                    isDark ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' : 'bg-amber-100 text-amber-950 border border-amber-300'
                   }`}>
-                    Ready for Ingestion
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setAttachedDoc(null)}
-                    className={`p-1 rounded-md transition-colors cursor-pointer ${
-                      isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-200 text-slate-600 hover:text-black'
-                    }`}
-                    title="Remove attached document"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">close</span>
-                  </button>
-                </div>
+                    <span className="material-symbols-outlined text-[15px] text-amber-500 shrink-0">warning</span>
+                    <span>Scanned or image-only PDF detected with no selectable digital text layer. Please type or paste your key complaint facts or FIR number below for statutory legal research.</span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -3124,6 +3252,9 @@ export function ChatView({
               onSendMessage={handleSendMessage}
               externalText={externalInput}
               onClearExternalText={() => setExternalInput(null)}
+              voiceStreamingText={voiceStreamingText}
+              isListening={isListening}
+              onStopDictation={handleStartDictation}
             />
 
             {/* Bottom Footer AI Warning & Ground-Truth Verification */}
@@ -3288,6 +3419,13 @@ export function ChatView({
           options={printStudioOptions}
           onOptionsChange={setPrintStudioOptions}
           onTriggerPrint={handleTriggerSystemPrint}
+        />
+
+        {/* NALSA FREE LEGAL AID DIRECTORY & CLINIC LOCATOR MODAL */}
+        <LegalAidDirectoryModal
+          isOpen={isLegalAidModalOpen}
+          onClose={() => setIsLegalAidModalOpen(false)}
+          isDark={isDark}
         />
 
         {/* COURT-READY PRINT CANVAS (Visible only during window.print()) */}

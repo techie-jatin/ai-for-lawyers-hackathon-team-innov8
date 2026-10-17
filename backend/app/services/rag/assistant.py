@@ -21,9 +21,41 @@ class GeminiSynthesizer:
     def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = (api_key or getattr(settings, "GEMINI_API_KEY", "") or os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GOOGLE_API_KEY", "")).strip()
         self.model = model or getattr(settings, "GEMINI_MODEL", "gemini-1.5-flash")
+        self.groq_api_key = (getattr(settings, "GROQ_API_KEY", "") or os.environ.get("GROQ_API_KEY", "")).strip()
+        self.groq_model = getattr(settings, "GROQ_MODEL", "openai/gpt-oss-120b")
+        self.timeout = float(getattr(settings, "LLM_REQUEST_TIMEOUT_SECONDS", 12.0))
 
     def is_available(self) -> bool:
-        return bool(self.api_key and len(self.api_key) > 10)
+        return bool((self.api_key and len(self.api_key) > 10) or (self.groq_api_key and len(self.groq_api_key) > 10))
+
+    def _clean_and_sanitize_response(self, text: str) -> str:
+        if not text:
+            return ""
+        # 1. Strip markdown horizontal rule lines (--- or *** or ___)
+        cleaned = re.sub(r'^\s*[-*_]{3,}\s*$', '', text, flags=re.MULTILINE)
+        # 1b. Normalize non-standard unicode whitespace (narrow no-break spaces \u202f, non-breaking space \u00a0, etc.)
+        cleaned = re.sub(r'[\u2000-\u200f\u202f\u00a0\ufeff]', ' ', cleaned)
+        
+        # 2. Modern Sanhita conversions for legacy slips
+        replacements = [
+            (r'\b(?:Section|Sec\.?)\s*506\s*(?:of\s+)?(?:the\s+)?(?:Indian\s+Penal\s+Code|IPC)\b', 'Section 351(2) of Bharatiya Nyaya Sanhita, 2023 (formerly Sec 506 IPC)'),
+            (r'\b(?:Section|Sec\.?)\s*420\s*(?:of\s+)?(?:the\s+)?(?:Indian\s+Penal\s+Code|IPC)\b', 'Section 318(4) of Bharatiya Nyaya Sanhita, 2023 (formerly Sec 420 IPC)'),
+            (r'\b(?:Section|Sec\.?)\s*302\s*(?:of\s+)?(?:the\s+)?(?:Indian\s+Penal\s+Code|IPC)\b', 'Section 103(1) of Bharatiya Nyaya Sanhita, 2023 (formerly Sec 302 IPC)'),
+            (r'\b(?:Section|Sec\.?)\s*498A\s*(?:of\s+)?(?:the\s+)?(?:Indian\s+Penal\s+Code|IPC)\b', 'Section 85 of Bharatiya Nyaya Sanhita, 2023 (formerly Sec 498A IPC)'),
+            (r'\b(?:Section|Sec\.?)\s*482\s*(?:of\s+)?(?:the\s+)?(?:Code\s+of\s+Criminal\s+Procedure|CrPC)\b', 'Section 528 of Bharatiya Nagarik Suraksha Sanhita, 2023 (formerly Sec 482 CrPC)'),
+            (r'\b(?:Section|Sec\.?)\s*438\s*(?:of\s+)?(?:the\s+)?(?:Code\s+of\s+Criminal\s+Procedure|CrPC)\b', 'Section 482 of Bharatiya Nagarik Suraksha Sanhita, 2023 (formerly Sec 438 CrPC)'),
+            (r'\b(?:Section|Sec\.?)\s*437\s*(?:of\s+)?(?:the\s+)?(?:Code\s+of\s+Criminal\s+Procedure|CrPC)\b', 'Section 480 of Bharatiya Nagarik Suraksha Sanhita, 2023 (formerly Sec 437 CrPC)'),
+            (r'\b(?:Section|Sec\.?)\s*439\s*(?:of\s+)?(?:the\s+)?(?:Code\s+of\s+Criminal\s+Procedure|CrPC)\b', 'Section 483 of Bharatiya Nagarik Suraksha Sanhita, 2023 (formerly Sec 439 CrPC)'),
+            (r'\b(?:Section|Sec\.?)\s*41A\s*(?:of\s+)?(?:the\s+)?(?:Code\s+of\s+Criminal\s+Procedure|CrPC)\b', 'Section 35(3) of Bharatiya Nagarik Suraksha Sanhita, 2023 (formerly Sec 41A CrPC)'),
+            (r'\b(?:Section|Sec\.?)\s*154\s*(?:of\s+)?(?:the\s+)?(?:Code\s+of\s+Criminal\s+Procedure|CrPC)\b', 'Section 173 of Bharatiya Nagarik Suraksha Sanhita, 2023 (formerly Sec 154 CrPC)'),
+            (r'\b(?:Section|Sec\.?)\s*65B\s*(?:of\s+)?(?:the\s+)?(?:Indian\s+Evidence\s+Act|IEA)\b', 'Section 63 of Bharatiya Sakshya Adhiniyam, 2023 (formerly Sec 65B IEA)')
+        ]
+        for pattern, repl in replacements:
+            cleaned = re.sub(pattern, repl, cleaned, flags=re.IGNORECASE)
+            
+        # 3. Collapse multiple blank lines
+        cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
+        return cleaned.strip()
 
     def synthesize(
         self,
@@ -88,94 +120,110 @@ class GeminiSynthesizer:
                 evidence_text += f"- {h.service_name} [Dial {h.short_code}] ({h.hours}): {h.description}\n"
             evidence_text += "\n"
 
-        if mode == "professional":
+        if mode in ["professional", "advocate"]:
             system_prompt = (
                 "You are an elite Senior Legal Jurist, Senior Advocate, and Supreme Court of India legal intelligence engine "
                 "for 'भारत Legal Intelligence'. Your duty is to deliver an exhaustive, highly detailed, courtroom-ready "
                 "statutory and jurisprudential analysis of Indian law.\n\n"
-                "STRICT GROUNDING & JURISPRUDENTIAL DIRECTIVES:\n"
-                "1. Base all assertions strictly on the provided Statutory Evidence, Concordance Matrix, and Indian jurisprudence.\n"
-                "2. Provide deep, granular analysis. Do not abbreviate or give superficial bullet points.\n"
-                "3. Quote verbatim provision text and section numbers from the evidence.\n"
-                "4. Accurately map the transition from colonial statutes (IPC 1860, CrPC 1973, IEA 1872) to the modern criminal sanhitas "
-                "(Bharatiya Nyaya Sanhita 2023 [BNS], Bharatiya Nagarik Suraksha Sanhita 2023 [BNSS], and Bharatiya Sakshya Adhiniyam 2023 [BSA]).\n"
-                "5. REAL-WORLD CASE FACTS & UNIQUE INQUIRY RESOLUTION DIRECTIVE:\n"
-                "   Even if the user presents a completely novel, unusual, or unique factual scenario (e.g., emerging cyber frauds, drone surveillance, cryptocurrency, deepfakes, unusual commercial contracts, workplace harassment, or non-standard disputes), you MUST extract and provide concrete real-world case facts and judicial precedents from Indian jurisprudence:\n"
-                "   - State the authentic Factual Matrix of analogous landmark cases (what actually happened between the parties in court).\n"
-                "   - Detail the Legal Controversy and how the Judges ruled (Operative Ratio & Relief granted).\n"
-                "   - Provide Winning Advocate Strategies (threshold defense objections, evidentiary moves under Section 63 BSA, quashing petitions under Section 528 BNSS).\n"
-                "   - Seamlessly bridge the facts to modern 2024 Sanhitas (BNS, BNSS, BSA 2023).\n"
-                "   If matching precedents are provided in the Evidence Dossier, ground your case ratios in them; for unique factual nuances, summon established Supreme Court of India and High Court authorities to resolve the controversy decisively.\n"
-                "6. JURISPRUDENTIAL SCOPE & ANTI-DRIFT DIRECTIVE:\n"
-                "   You are strictly and exclusively a specialized statutory legal intelligence engine for Indian Law and Constitutional Jurisprudence. "
-                "   Under NO circumstances should you act as a general-purpose software programmer, write non-legal code, solve academic homework, "
-                "   or act as a generic ChatGPT clone. If an inquiry is completely unrelated to law (e.g. asking to write Python scripts, fiction, or math problems), "
-                "   you must courteously decline and state that this chamber is dedicated exclusively to Indian law, the Constitution, and legal dispute analysis.\n\n"
+                "UNIVERSAL SENIOR ADVOCATE JURISPRUDENTIAL REASONING DIRECTIVES:\n"
+                "1. FIRST-PRINCIPLES SUBSTANTIVE CLASSIFICATION:\n"
+                "   - Determine the true substantive nature of the dispute (Contract, Tort, Crime, Constitutional, Commercial, Tenancy/License, Service/Employment, Family, Consumer, Regulatory).\n"
+                "   - Distinguish carefully between legal categories (e.g. License under Section 52 Indian Easements Act vs. Tenancy; Civil breach of contract under Section 73 Contract Act vs. Criminal Cheating under Section 318 BNS).\n"
+                "2. UNIVERSAL ADHESION CONTRACT & CLAUSE INVALIDATION ENGINE:\n"
+                "   - If any party relies on an unfair, one-sided, or boilerplate clause ('non-refundable', '10-month lock-in', 'service bond recovery', 'forfeiture of earnest money', 'arbitrary escalation fee', 'jurisdiction exclusion'):\n"
+                "   - Apply the universal invalidation doctrines of Indian jurisprudence:\n"
+                "     * Section 74 Indian Contract Act, 1872: Unreasonable forfeiture without proof of actual loss is an unlawful penalty and void ab initio (Supreme Court Kailash Nath Associates v. DDA & Fateh Chand v. Balkishan Das).\n"
+                "     * Section 27 Indian Contract Act, 1872: Restraint of trade/employment is void (Niranjan Shankar Golikari v. Century Spg & Mfg).\n"
+                "     * Section 23 & 28 Indian Contract Act, 1872: Agreements contrary to public policy or barring statutory legal remedies are void.\n"
+                "     * Section 2(46) & 2(47) Consumer Protection Act, 2019: Adhesion clauses imposing unreasonable obligations constitute an 'Unfair Contract' and 'Unfair Trade Practice' (Central Inland Water Transport Corp v. Brojo Nath Ganguly).\n"
+                "3. ACCURATELY MAP COLONIAL STATUTES TO 2024 MODERN SANHITAS:\n"
+                "   - Always use Bharatiya Nyaya Sanhita 2023 [BNS], Bharatiya Nagarik Suraksha Sanhita 2023 [BNSS], and Bharatiya Sakshya Adhiniyam 2023 [BSA].\n"
+                "   - Annotate legacy colonial sections alongside modern Sanhitas (e.g., Section 318(4) BNS [formerly Sec 420 IPC]).\n"
+                "4. PLEADING FOUNDATION DIRECTIVE:\n"
+                "   - Formulate exact Cause of Action accrual facts, Limitation period under the Limitation Act 1963, and Territorial/Pecuniary Jurisdiction under CPC / CPA / NI Act / RERA.\n"
+                "5. REAL-WORLD CASE FACTS & OPERATIVE PRECEDENT DIRECTIVE:\n"
+                "   - Quote real Supreme Court and High Court reported decisions with factual matrix, legal controversy, operative ratio, and winning counsel strategies.\n"
+                "6. FORMATTING & SCOPE DIRECTIVE:\n"
+                "   - Do NOT output horizontal rule lines (--- or ***).\n"
+                "   - Dedicated strictly to Indian law and courtroom pleadings. Decline non-legal programming or homework prompts.\n\n"
                 "MANDATORY REPORT STRUCTURE (Use exact GitHub Markdown headers):\n\n"
                 "### Executive Legal Summary & Jurisdictional Matrix\n"
-                "- **Governing Offense/Subject**: Precise statutory designation.\n"
+                "- **Governing Subject/Offense & Substantive Character**: Precise statutory classification.\n"
                 "- **Cognizable / Non-Cognizable**: Legal status under First Schedule of BNSS.\n"
                 "- **Bailable / Non-Bailable**: Legal status and bail eligibility under BNSS.\n"
-                "- **Compounding Status**: Compoundable with/without permission of court, or non-compoundable.\n"
-                "- **Competent Trial Court**: Court of Session / Chief Judicial Magistrate / Magistrate of First Class.\n"
-                "- **Statutory Penal Liabilities**: Maximum term of imprisonment, fine, or community service.\n\n"
+                "- **Compounding Status & Civil/Criminal Overlap**: Compoundable status and civil breach distinction.\n"
+                "- **Competent Trial Court / Forum**: Court of Session / Magistrate / DCDRC Consumer Commission / RERA / High Court.\n"
+                "- **Statutory Penal Liabilities & Relief Thresholds**: Imprisonment, fine, restitution, or damages.\n\n"
+                "### Pleading Foundation: Cause of Action & Jurisdiction\n"
+                "- **Cause of Action**: Date of accrual, bundle of facts giving rise to right to sue.\n"
+                "- **Limitation Period**: Applicable Article under Limitation Act, 1963.\n"
+                "- **Territorial & Pecuniary Jurisdiction**: Governing venue provision (Sec 20 CPC / Sec 34/35 CPA / Sec 142(2) NI Act).\n\n"
                 "### Substantive Statutory Foundation & Verbatim Provisions\n"
-                "- Detailed reproduction and statutory analysis of governing sections from the Evidence Dossier.\n"
-                "- Scope, legislative intent, and legal definitions.\n\n"
+                "- Reproduction and analysis of governing sections from BNS, BNSS, BSA, or Central Acts.\n"
+                "- Detailed invalidation analysis of any unfair, one-sided, or penalty clauses under Section 74 Contract Act and Section 2(46) CPA.\n\n"
                 "### Essential Legal Ingredients & Burden of Proof\n"
-                "- **Actus Reus**: The physical overt act, prohibited omission, or conduct required.\n"
-                "- **Mens Rea**: Culpable mental state (dishonesty, fraudulent intention, knowledge, negligence).\n"
-                "- **Evidentiary Threshold**: Burden and standard of proof under Bharatiya Sakshya Adhiniyam, 2023 (BSA).\n\n"
+                "- **Actus Reus**: Physical overt act, omission, or contractual breach.\n"
+                "- **Mens Rea**: Culpable mental state (fraudulent intention ab initio required for cheating).\n"
+                "- **Evidentiary Threshold**: Standard of proof under Bharatiya Sakshya Adhiniyam, 2023 (BSA).\n\n"
                 "### Colonial Concordance & 2024 Legislative Evolution\n"
-                "- Exact comparative table or cross-reference between old colonial provisions and modern Bharatiya Sanhitas.\n"
-                "- Key legislative alterations introduced in 2024 (e.g., electronic evidence recognition, community service provisions, altered thresholds).\n\n"
-                "### Procedural Mandate & BNSS Framework\n"
-                "- Procedural compliance required by investigating agencies.\n"
-                "- Safeguards regarding arrest: Mandatory Notice of Appearance under Section 35(3) BNSS (formerly 41A CrPC) where punishment is 7 years or less.\n"
-                "- Forensic and videography compliance under Section 176(3) BNSS.\n"
-                "- Zero FIR procedure under Section 173 BNSS.\n\n"
-                "### Binding Supreme Court Precedents & Jurisprudential Benchmarks\n"
-                "- Landmark Supreme Court of India ratio decidendi, benchmarks, and constitutional doctrines (e.g., Arnesh Kumar guidelines, D.K. Basu guidelines, Maneka Gandhi liberty test, Lalita Kumari mandatory FIR registration, Satender Kumar Antil bail categories, or K.S. Puttaswamy privacy doctrine).\n\n"
-                "### Chamber Advisory & Actionable Litigation Strategy\n"
-                "- Practical playbook for Advocate and Chamber Counsel:\n"
-                "  * Pre-arrest strategy: Seeking Anticipatory Bail under Section 482 BNSS (formerly 438 CrPC).\n"
-                "  * Post-arrest strategy: Regular Bail under Section 480 / 483 BNSS (formerly 437 / 439 CrPC).\n"
-                "  * Quashing petitions: Invoking High Court inherent powers under Section 528 BNSS (formerly 482 CrPC).\n"
-                "  * Statutory notices, evidentiary preservation (electronic certificates under Sec 63 BSA), and compliance audits."
+                "- Comparative table mapping colonial provisions to 2024 Sanhitas with legislative changes noted.\n\n"
+                "### Procedural Mandates & BNSS Safeguards\n"
+                "- Section 35(3) BNSS mandatory Notice of Appearance (formerly 41A CrPC).\n"
+                "- Section 105 / 176(3) BNSS videography and digital forensics.\n"
+                "- Section 173 BNSS Zero FIR registration procedure.\n\n"
+                "### Binding Supreme Court Precedents & Ratio Decidendi\n"
+                "- Authentic reported judgments with factual matrix, controversy, and operative ratio.\n\n"
+                "### Chamber Litigation Strategy & Actionable Trial Playbook\n"
+                "- Interim relief strategy (Order 39 CPC injunction or Section 38 CPA interim order).\n"
+                "- Quashing under Section 528 BNSS or pre-arrest Anticipatory Bail under Section 482 BNSS.\n"
+                "- Statutory Section 63 BSA electronic evidence certificate preparation."
             )
         else:
             system_prompt = (
-                "You are a compassionate, authoritative Citizen Legal Rights Guide for 'भारत Legal Intelligence'. "
-                "Your mission is to empower citizens with comprehensive, crystal-clear legal knowledge without dense confusing jargon. "
-                "Provide an exhaustive, empowering, and step-by-step advisory.\n\n"
-                "STRICT CITIZEN GUIDANCE DIRECTIVES:\n"
-                "1. Explain the law in plain, supportive, and accessible language while maintaining 100% statutory precision.\n"
-                "2. Clearly demystify what the citizen's rights are, what the police/authorities can and cannot do, and how to stay safe.\n"
-                "3. CONSTITUTIONAL CLAUSE FIDELITY: Never state an Article has 'N distinct clauses' unless you detail all N clauses. Clearly distinguish between constitutional clauses and institutional categories (e.g., Article 28 has 3 constitutional clauses that classify institutions into 4 categories). Always use sequential numbers (1., 2., 3., 4., etc.) for enumerated clauses or action steps.\n"
-                "4. FORMATTING DIRECTIVE: Do NOT output horizontal rule lines (--- or ***) between sections or at the end of your response.\n"
-                "5. STRICT CITIZEN DOMAIN BOUNDARY & ANTI-DRIFT DIRECTIVE: You are strictly and exclusively 'भारत Legal Intelligence', dedicated to Indian Law, the Constitution of India, and citizen legal rights. Under no circumstances should you act as a general programming assistant, coding bot, homework solver, or lifestyle chat assistant. If an inquiry has no connection to law or rights, politely clarify your dedicated legal scope and guide the citizen toward legal questions.\n"
-                "6. Structure your response clearly in GitHub-style Markdown with:\n\n"
-                "### Plain Language Summary\n"
-                "- Direct, clear answer explaining what the situation means under Indian law.\n\n"
+                "You are an authoritative, compassionate Citizen Legal Rights Guide for 'भारत Legal Intelligence', "
+                "delivering advice with the strategic depth, legal rigor, and tactical power of a Senior Indian Advocate, "
+                "translated into crystal-clear, reassuring, plain language without dense legalese.\n\n"
+                "UNIVERSAL SENIOR ADVOCATE CITIZEN EMPOWERMENT DIRECTIVES:\n"
+                "1. EMPATHETIC OPENING & IMMEDIATE LEGAL VERDICT:\n"
+                "   - Your very first sentence must de-escalate anxiety, validate the citizen's situation, and deliver an unambiguous legal verdict.\n"
+                "   - For example: 'You are fully protected under Indian law. The manager\\'s demand or refusal has no legal standing...'\n"
+                "2. UNIVERSAL INVALIDATION OF ONE-SIDED / ADHESION CLAUSES:\n"
+                "   - Clearly demystify why unfair clauses ('security deposit non-refundable', '10-month lock-in', 'service bond recovery', 'fees once paid cannot be refunded') are VOID and UNLAWFUL in India under Section 74 of the Indian Contract Act (illegal penalties without actual damage) and Section 2(46) of the Consumer Protection Act, 2019 (unfair contracts).\n"
+                "3. 3-TIER ACTION HIERARCHY (BYPASSING SLOW CIVIL SUITS):\n"
+                "   - Tier 1: Local / Administrative Redressal (District Collectorate, Student Welfare Cells e.g. Kota 0744-2325342, Labour Commissioners, Banking/Insurance Ombudsman, 1930 Cybercell, 15100 NALSA).\n"
+                "   - Tier 2: Fast-Track & Low-Cost Tribunals (Online filing on e-Daakhil consumer commission without hiring an expensive lawyer, RERA § 18).\n"
+                "   - Tier 3: Police & Criminal Safeguards (Zero FIR under Sec 173 BNSS, Protection against intimidation under Sec 351(2) BNS, Protection against arbitrary arrest under Sec 35(3) BNSS).\n"
+                "4. READY-TO-SEND FORMAL DEMAND NOTICE:\n"
+                "   - You MUST generate a structured, ready-to-copy 3-paragraph formal notice formatted for WhatsApp, Email, or Speed Post that the citizen can immediately send to the opposing party (manager, landlord, employer, vendor) demanding compliance within 7 days and warning of statutory damages and consumer court liability.\n"
+                "5. STRICT FORMATTING & QUALITY DIRECTIVES:\n"
+                "   - Do NOT output horizontal rule lines (--- or ***) anywhere in your response.\n"
+                "   - Use sequential numbers (1., 2., 3., 4., etc.) for action steps.\n"
+                "   - Always use modern 2024 Sanhita provisions (BNS, BNSS, BSA 2023); never cite dead colonial sections like Section 506 IPC or Section 482 CrPC.\n"
+                "   - Dedicated strictly to Indian law and citizen empowerment.\n\n"
+                "MANDATORY CITIZEN REPORT STRUCTURE (Use exact GitHub Markdown headers):\n\n"
+                "### Plain Language Summary & Immediate Legal Verdict\n"
+                "- Direct, reassuring answer explaining what the law says and why the opponent's demand is legally invalid.\n\n"
                 "### What the Law Specifically Mandates\n"
-                "- Explanation of governing sections from Bharatiya Nyaya Sanhita (BNS) / Central Acts.\n"
-                "- Explain what is legal and what is an offense in everyday terms.\n\n"
+                "- Structured table comparing Governing Law, Key Provision, and What it Means in Everyday Terms.\n"
+                "- Explanation of why one-sided clauses and arbitrary forfeitures are void under Indian law.\n\n"
                 "### Your Constitutional & Procedural Safeguards\n"
-                "- Protection under Article 21 (Right to Life & Liberty) and Article 22 (Protection against Arbitrary Arrest).\n"
-                "- Right to know the grounds of arrest in writing.\n"
-                "- Right to consult and be defended by a legal practitioner.\n"
-                "- Police cannot arrest arbitrarily without prior notice under Section 35(3) BNSS for offenses punishable with up to 7 years.\n"
-                "- Mandatory production before a Magistrate within 24 hours.\n\n"
+                "- Protection under Article 21 (Life, Liberty & Property) and Article 22 (Protection against Arbitrary Coercion).\n"
+                "- Protection against illegal lockouts, seizure of belongings, or threats under Section 351(2) BNS and Section 329 BNS.\n"
+                "- Protection against arbitrary police arrest without prior notice under Section 35(3) BNSS.\n\n"
                 "### Step-by-Step Citizen Action Plan\n"
-                "1. Immediate steps to take (documenting evidence, lodging complaints).\n"
-                "2. How to file a Zero FIR if the police station says 'not in our jurisdiction' (mandated under Section 173 BNSS).\n"
-                "3. How to file online complaints (e.g. National Cyber Crime Reporting Portal at cybercrime.gov.in).\n"
-                "4. How to secure free legal aid if unable to afford a private lawyer under Article 39A.\n\n"
+                "1. Immediate evidence gathering (receipts, WhatsApp chats, photos, written demands).\n"
+                "2. How to send the formal demand notice.\n"
+                "3. How to approach local administrative authorities (District Collectorate, Student Cell, Labour Office).\n"
+                "4. How to file a free or low-cost online complaint on e-Daakhil (consumer commission) without hiring an expensive lawyer.\n"
+                "5. How to contact NALSA on 15100 for a free government-appointed legal aid lawyer under Article 39A.\n\n"
+                "### Ready-to-Send Formal Demand Notice (WhatsApp / Speed Post / Email)\n"
+                "- A complete, copy-pasteable 3-paragraph formal legal notice with placeholders [Your Name], [Amount], [Date] citing statutory provisions.\n\n"
                 "### Official Government Helplines & Legal Aid Access\n"
                 "- National Legal Services Authority (NALSA): Dial 15100 (24/7 Free Legal Aid across India).\n"
-                "- National Cyber Crime Helpline: Dial 1930 (Immediate financial freeze & complaint registration).\n"
+                "- National Consumer Helpline: Dial 1915 or use consumerhelpline.gov.in.\n"
+                "- National Cyber Crime Helpline: Dial 1930 (Immediate fraud reporting).\n"
                 "- Women Helpline: Dial 1091 / 181.\n"
-                "- National Consumer Helpline: Dial 1915."
+                "- Relevant local administrative distress contacts (e.g. Student Distress Cells, District Collectorates)."
             )
 
         pillar_section = ""
@@ -215,29 +263,69 @@ class GeminiSynthesizer:
             }
         }
 
-        models_to_try = [self.model]
-        for fallback in ["gemini-flash-latest", "gemini-3.8-flash", "gemini-flash-lite-latest"]:
-            if fallback not in models_to_try:
-                models_to_try.append(fallback)
+        # Tier 1: Google Gemini (Primary)
+        if self.api_key and len(self.api_key) > 10:
+            models_to_try = [self.model]
+            for fallback in ["gemini-flash-latest", "gemini-3.8-flash", "gemini-flash-lite-latest"]:
+                if fallback not in models_to_try:
+                    models_to_try.append(fallback)
 
-        for target_model in models_to_try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:generateContent?key={self.api_key}"
-            try:
-                with httpx.Client(timeout=6.0) as client:
-                    resp = client.post(url, json=payload)
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        candidates = data.get("candidates", [])
-                        if candidates:
-                            parts = candidates[0].get("content", {}).get("parts", [])
-                            if parts:
-                                ans = parts[0].get("text", "").strip()
+            for target_model in models_to_try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:generateContent?key={self.api_key}"
+                try:
+                    gemini_timeout = min(self.timeout, 5.0)
+                    with httpx.Client(timeout=gemini_timeout) as client:
+                        resp = client.post(url, json=payload)
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            candidates = data.get("candidates", [])
+                            if candidates:
+                                parts = candidates[0].get("content", {}).get("parts", [])
+                                if parts:
+                                    ans = parts[0].get("text", "").strip()
+                                    if ans:
+                                        return self._clean_and_sanitize_response(ans)
+                        else:
+                            print(f"Gemini model {target_model} returned status {resp.status_code}: {resp.text[:120]}")
+                except Exception as e:
+                    print(f"Gemini model {target_model} call failed: {e}")
+
+        # Tier 2: Groq High-Speed API Fallback (Independent Quota)
+        if self.groq_api_key and len(self.groq_api_key) > 10:
+            groq_url = "https://api.groq.com/openai/v1/chat/completions"
+            groq_models = [self.groq_model]
+            for fb_m in ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b", "llama-3.3-70b-versatile"]:
+                if fb_m not in groq_models:
+                    groq_models.append(fb_m)
+
+            for g_model in groq_models:
+                groq_payload = {
+                    "model": g_model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_content}
+                    ],
+                    "temperature": 0.1,
+                    "max_tokens": 4096
+                }
+                try:
+                    with httpx.Client(timeout=self.timeout) as client:
+                        resp = client.post(
+                            groq_url,
+                            json=groq_payload,
+                            headers={"Authorization": f"Bearer {self.groq_api_key}"}
+                        )
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            choices = data.get("choices", [])
+                            if choices:
+                                ans = choices[0].get("message", {}).get("content", "").strip()
                                 if ans:
-                                    return ans
-                    else:
-                        print(f"Gemini model {target_model} returned status {resp.status_code}: {resp.text[:120]}")
-            except Exception as e:
-                print(f"Gemini model {target_model} call failed: {e}")
+                                    return self._clean_and_sanitize_response(ans)
+                        else:
+                            print(f"Groq model {g_model} returned status {resp.status_code}: {resp.text[:120]}")
+                except Exception as e:
+                    print(f"Groq model {g_model} call failed: {e}")
 
         return None
 
@@ -348,7 +436,9 @@ def resolve_contextual_query(query: str, history: Optional[List[Dict[str, str]]]
     if not history or len(history) == 0:
         return query
 
-    q_lower = query.lower().strip()
+    # Normalize unicode whitespace in query
+    norm_query = re.sub(r'[\u2000-\u200f\u202f\u00a0\ufeff]', ' ', query).strip()
+    q_lower = norm_query.lower()
     needs_coref = (
         len(q_lower.split()) <= 15 or
         any(re.search(r'\b' + re.escape(w) + r'\b', q_lower) for w in [
@@ -361,29 +451,41 @@ def resolve_contextual_query(query: str, history: Optional[List[Dict[str, str]]]
         ])
     )
     if not needs_coref:
-        return query
+        return norm_query
 
-    # Traverse history backwards (user and assistant messages)
+    # 1. Prioritize previous user messages first to anchor on user intent
     for m in reversed(history):
-        text = m.get("text", "")
-        # Look for explicit provision references in history (e.g., Article 28, Section 138, etc.)
+        if m.get("role") == "user":
+            text = re.sub(r'[\u2000-\u200f\u202f\u00a0\ufeff]', ' ', m.get("text", ""))
+            prov_match = re.search(r'\b(Article\s+\d+[A-Z]?|Section\s+\d+[A-Za-z]?(?:\([0-9a-z]+\))?|Order\s+[0-9IVXLCDM]+\s*Rule\s+\d+)\b', text, re.IGNORECASE)
+            statute_match = re.search(r'\b(Constitution(?: of India)?|BNS|BNSS|BSA|Bharatiya Nyaya Sanhita|Bharatiya Nagarik Suraksha Sanhita|Bharatiya Sakshya Adhiniyam|IPC|CrPC|IEA|Negotiable Instruments Act|NI Act|Consumer Protection Act|Motor Vehicles Act|RERA|Arbitration Act|Hindu Marriage Act|Specific Relief Act|Digital Personal Data Protection Act|DPDP|IT Act|Right to Information Act|RTI Act|Payment of Gratuity Act|Income Tax Act)\b', text, re.IGNORECASE)
+            extracted = []
+            if prov_match:
+                extracted.append(re.sub(r'\s+', ' ', prov_match.group(1)).strip())
+            if statute_match:
+                extracted.append(re.sub(r'\s+', ' ', statute_match.group(1)).strip())
+            if extracted:
+                return f"{norm_query} {' '.join(extracted)}"
+
+    # 2. Traverse all history backwards (user and assistant messages)
+    for m in reversed(history):
+        text = re.sub(r'[\u2000-\u200f\u202f\u00a0\ufeff]', ' ', m.get("text", ""))
         prov_match = re.search(r'\b(Article\s+\d+[A-Z]?|Section\s+\d+[A-Za-z]?(?:\([0-9a-z]+\))?|Order\s+[0-9IVXLCDM]+\s*Rule\s+\d+)\b', text, re.IGNORECASE)
         statute_match = re.search(r'\b(Constitution(?: of India)?|BNS|BNSS|BSA|Bharatiya Nyaya Sanhita|Bharatiya Nagarik Suraksha Sanhita|Bharatiya Sakshya Adhiniyam|IPC|CrPC|IEA|Negotiable Instruments Act|NI Act|Consumer Protection Act|Motor Vehicles Act|RERA|Arbitration Act|Hindu Marriage Act|Specific Relief Act|Digital Personal Data Protection Act|DPDP|IT Act|Right to Information Act|RTI Act|Payment of Gratuity Act|Income Tax Act)\b', text, re.IGNORECASE)
         
         extracted = []
         if prov_match:
-            extracted.append(prov_match.group(1))
+            extracted.append(re.sub(r'\s+', ' ', prov_match.group(1)).strip())
         if statute_match:
-            extracted.append(statute_match.group(1))
+            extracted.append(re.sub(r'\s+', ' ', statute_match.group(1)).strip())
             
         if extracted:
-            return f"{query} {' '.join(extracted)}"
+            return f"{norm_query} {' '.join(extracted)}"
             
-        # If no explicit provision, check if there was a user question with substantive text
         if m.get("role") == "user" and len(text.strip().split()) >= 3:
-            return f"{query} {text.strip()}"
+            return f"{norm_query} {text.strip()}"
 
-    return query
+    return norm_query
 
 class LegalAssistantService:
     def __init__(self, db: Session):
@@ -444,7 +546,7 @@ class LegalAssistantService:
         candidate_scores = {}  # provision_id -> (provision, score)
         
         # Multi-turn query augmentation: resolve referents like 'this article' from history
-        augmented_query = resolve_contextual_query(query, history)
+        augmented_query = re.sub(r'[\u2000-\u200f\u202f\u00a0\ufeff]', ' ', resolve_contextual_query(query, history))
         q_lower = augmented_query.lower()
 
         # Check for statute/case mentions in query
@@ -476,7 +578,7 @@ class LegalAssistantService:
         match = re.search(r'\b(Article\s+\d+[A-Z]?|Section\s+\d+[A-Za-z]?(?:\([0-9a-z]+\))?|Order\s+[0-9IVXLCDM]+\s*Rule\s+\d+)\b', augmented_query, re.IGNORECASE)
         has_exact_provision_match = False
         if match:
-            term = match.group(1).strip()
+            term = re.sub(r'\s+', ' ', match.group(1)).strip()
             exact_provs = self.db.query(LegalProvision).filter(
                 or_(
                     LegalProvision.section_number.ilike(term),
@@ -789,7 +891,75 @@ class LegalAssistantService:
         gazettes = self.retrieve_gazette_context(augmented_query)
         helplines = self.retrieve_helpline_context(augmented_query)
         
+        # 4. Synthesizer initialization
+        synthesizer = GeminiSynthesizer(api_key=gemini_api_key)
+
         if not provisions:
+            # If no local provisions were retrieved from the static database,
+            # allow the Universal Senior Advocate synthesizer (Gemini / Groq cascade) to resolve the dispute.
+            if synthesizer.is_available():
+                ai_answer = synthesizer.synthesize(
+                    query=query,
+                    provisions=[],
+                    mode=mode,
+                    concordance_items=concordance_items,
+                    gazettes=gazettes,
+                    helplines=helplines,
+                    precedents=precedents,
+                    context_filter=context_filter,
+                    history=history
+                )
+                if ai_answer:
+                    similar_cases_payload = []
+                    for p in (precedents or []):
+                        if hasattr(p, "id"):
+                            similar_cases_payload.append({
+                                "id": getattr(p, "id", None),
+                                "title": getattr(p, "title", ""),
+                                "citation": getattr(p, "citation", ""),
+                                "court": getattr(p, "court", ""),
+                                "bench": getattr(p, "bench", ""),
+                                "decision_year": getattr(p, "decision_year", None),
+                                "category": getattr(p, "category", ""),
+                                "governing_provisions": getattr(p, "governing_provisions", []) or [],
+                                "factual_matrix": getattr(p, "factual_matrix", ""),
+                                "legal_controversy": getattr(p, "legal_controversy", ""),
+                                "court_holding": getattr(p, "court_holding", ""),
+                                "advocate_strategy": getattr(p, "advocate_strategy", ""),
+                                "sanhita_mapping_2024": getattr(p, "sanhita_mapping_2024", ""),
+                                "key_takeaways": getattr(p, "key_takeaways", []) or [],
+                                "official_databank": "Supreme Court Canonical Repository",
+                                "source_url": "https://www.aironline.in/"
+                            })
+                        elif isinstance(p, dict):
+                            similar_cases_payload.append(p)
+
+                    if len(similar_cases_payload) < 2 and synthesizer.is_available():
+                        try:
+                            ai_cases = synthesizer.discover_official_precedents_ai(query=query, context_filter=context_filter)
+                            if ai_cases:
+                                existing_titles = {c.get("title", "").lower() for c in similar_cases_payload}
+                                for ac in ai_cases:
+                                    if ac.get("title", "").lower() not in existing_titles:
+                                        similar_cases_payload.append(ac)
+                                        if len(similar_cases_payload) >= 3:
+                                            break
+                        except Exception:
+                            pass
+
+                    return {
+                        "is_emergency": False,
+                        "mode": mode,
+                        "query": query,
+                        "answer": ai_answer,
+                        "applicable_laws": [],
+                        "similar_cases": similar_cases_payload,
+                        "citations": [],
+                        "trust_score": 0.95,
+                        "limitations": "Synthesized by Universal Senior Advocate Engine grounded in Indian statutory and constitutional jurisprudence.",
+                        "ai_engine": "Universal Senior Advocate Engine (Multi-Tier Resilience)"
+                    }
+
             return {
                 "is_emergency": False,
                 "mode": mode,

@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     SUPABASE_ANON_KEY: str = ""
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-flash-latest"
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
+    LLM_REQUEST_TIMEOUT_SECONDS: float = 12.0
     
     model_config = SettingsConfigDict(
         env_file=[backend_env, root_env, ".env"],

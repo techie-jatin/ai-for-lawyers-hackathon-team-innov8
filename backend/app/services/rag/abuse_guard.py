@@ -34,7 +34,12 @@ class AbuseGuard:
                 r"\b(?:how\s+(?:to|can\s+(?:i|we)|do\s+(?:i|we)|could\s+(?:i|we))|ways\s+to|can\s+(?:i|we))\s*"
                 r"(?:frame|trap|falsely\s+implicate|implicate|entrap)\b.*?\b(?:someone|innocent|anyone|person|people|him|her|them|enemy|rival)\b|"
                 r"\b(?:how\s+(?:to|can\s+(?:i|we)|do\s+(?:i|we)|could\s+(?:i|we))|ways\s+to|can\s+(?:i|we))\s*"
-                r"(?:fabricate|manufacture|fake|forge|plant)\b.*?\b(?:evidence|proof|document|documents|witness|witnesses|testimony|statement)\b"
+                r"(?:fabricate|manufacture|fake|forge|plant)\b.*?\b(?:evidence|proof|document|documents|witness|witnesses|testimony|statement)\b|"
+                r"\b(?:in\s+(?:a\s+)?(?:fictional|fiction|movie|film|screenplay|script|novel|story|play)|hypothetically|for\s+(?:a\s+)?(?:story|script|screenplay|research))\b.*?\b(?:file|lodge|register|put|make|use|submit)\b.*?\b(?:false|fake|bogus|fabricated|trumped[\s-]*up)\b.*?\b(?:case|cases|fir|complaint|complaints|498a|rape|dowry)\b|"
+                r"\b(?:what\s+is\s+(?:the\s+)?(?:best\s+way|way|method|strategy|tactic)\s+to\s+file\s+a\s+(?:false|fake|bogus|fabricated)\b.*?\b(?:case|cases|fir|complaint|complaints|498a|dowry|charges?))\b|"
+                r"\b(?:how\s+(?:to|can\s+(?:i|we)|do\s+(?:i|we)|could\s+(?:i|we))|ways\s+to|can\s+(?:i|we))\s*(?:legally\s+)?(?:harass|torment|trouble|extort|intimidate|pester|pressure|ruin|target)\b.*?\b(?:using|with|through|via)\b.*?\b(?:police|complaint|complaints|fir|court|cases?|litigation)\b|"
+                r"\b(?:kisi\s+(?:par|pe|ko)\s+)?(?:jhu(?:t|th)[aoei]|nakli|fake)\s+(?:fir|case|mukadma|complaint)\b.*?\b(?:kaise\s+kare|kare|karwaye|karaye|karna\s+hai)\b|"
+                r"\b(?:jhu(?:t|th)[aoei]|nakli|fake)\s+(?:fir|case|mukadma|complaint)\b.*?\b(?:taki|taaki)\b.*?\b(?:jail|andar)\b"
             ),
             "title": "Abuse of Legal Process & Malicious Prosecution Blocked",
             "statutory_warning": (

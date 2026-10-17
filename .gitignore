@@ -30,3 +30,6 @@ Thumbs.db
 # Database & SQLite
 *.sqlite3
 *.db
+
+# Scratch and Temporary Test Files
+scratch/

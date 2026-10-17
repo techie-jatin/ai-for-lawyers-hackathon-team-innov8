@@ -203,7 +203,7 @@ code {
 /* Dedicated Multi-Page Print Stylesheet: Export only legal consultation transcript with official graphics */
 @media print {
   @page {
-    margin: 15mm 15mm 20mm 15mm;
+    margin: 8mm 10mm 12mm 10mm;
     size: A4 portrait;
   }
 
@@ -215,70 +215,36 @@ code {
     print-color-adjust: exact !important;
   }
 
-  /* Reset ancestral containers to regular block flow to prevent flexbox clipping */
+  /* Reset body and html flow to prevent page clipping */
   html,
-  body,
-  #root,
-  #root > div,
-  main,
-  #printable-legal-dossier,
-  #printable-legal-dossier > div,
-  #court-ready-deed-printable,
-  #court-ready-deed-printable > div {
+  body {
     display: block !important;
     float: none !important;
     position: static !important;
     overflow: visible !important;
-    overflow-x: visible !important;
-    overflow-y: visible !important;
     height: auto !important;
     min-height: auto !important;
     max-height: none !important;
     width: 100% !important;
-    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
     color: #0f172a !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
   }
 
-  /* Override any Tailwind fixed height or overflow rules in print mode */
-  [class*="overflow-"],
-  [class*="h-full"],
-  [class*="h-\["],
-  [class*="min-h-"],
-  [class*="max-w-"] {
-    overflow: visible !important;
-    height: auto !important;
-    min-height: auto !important;
-    max-height: none !important;
-  }
-
-  /* Hide entire website root, chrome, navigation, interactive controls, and docks */
+  /* Hide entire interactive application root and UI chrome */
   #root,
   #app-header,
   #statutory-ticker,
-  #root header,
-  #root aside,
-  #root nav,
-  #root button,
-  #root form,
   .no-print,
-  #floating-input-dock {
+  #floating-input-dock,
+  #printable-legal-dossier {
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;
     max-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
-  }
-
-  /* Hide legacy chat scrollable canvas during printing */
-  #printable-legal-dossier {
-    display: none !important;
-    visibility: hidden !important;
   }
 
   /* Court-Ready Dedicated Legal Print & PDF Engine */

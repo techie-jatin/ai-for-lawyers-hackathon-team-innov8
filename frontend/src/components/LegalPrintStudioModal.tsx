@@ -624,13 +624,13 @@ export function LegalPrintStudioModal({
                       </div>
                     </div>
                     <div className="text-left sm:text-right text-[7pt] sm:text-[7.5pt] font-mono text-slate-700 leading-tight">
-                      <div><strong>Docket:</strong> #{activeThreadId.slice(0, 12).toUpperCase()}</div>
+                      <div><strong>Docket:</strong> {formatDocketId(activeThreadId)}</div>
                       <div><strong>Date:</strong> {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                       <div><strong>Jurisdiction:</strong> Republic of India</div>
                     </div>
                   </div>
                   <div className="mt-2 pt-1.5 border-t border-slate-300 flex flex-wrap items-center justify-between gap-1 text-[7pt] sm:text-[7.5pt] font-mono text-slate-600">
-                    <span className="truncate max-w-[180px] sm:max-w-none"><strong>Matter:</strong> {activeThreadTitle}</span>
+                    <span className="truncate max-w-[180px] sm:max-w-none"><strong>Matter:</strong> {activeThreadTitle || 'Citizen Legal Advisory'}</span>
                     <span className="font-bold text-[#00288e]">
                       {mode === 'citizen' ? 'Citizen Legal Advisory' : 'Advocate Chamber Brief'}
                     </span>
@@ -808,6 +808,13 @@ export interface CourtReadyPrintCanvasProps {
   options: PrintStudioOptions;
 }
 
+export function formatDocketId(threadId?: string): string {
+  if (!threadId) return '#THREAD-17920';
+  const clean = threadId.replace(/^#/, '');
+  if (clean.toUpperCase().startsWith('THREAD-')) return `#${clean.toUpperCase()}`;
+  return `#THREAD-${clean.slice(0, 10).toUpperCase()}`;
+}
+
 export function CourtReadyPrintCanvas({
   messages,
   activeThreadTitle,
@@ -831,6 +838,7 @@ export function CourtReadyPrintCanvas({
   if (printableExchanges.length === 0 || typeof document === 'undefined') return null;
 
   const isMonochrome = options.colorProfile === 'monochrome';
+  const formattedDocket = formatDocketId(activeThreadId);
 
   return createPortal(
     <div 
@@ -842,7 +850,7 @@ export function CourtReadyPrintCanvas({
     >
       {/* HIGH COURT DOUBLE BORDER WRAPPER */}
       <div 
-        className="court-double-border w-full p-6 sm:p-8"
+        className="court-double-border w-full p-4"
         style={{
           border: isMonochrome ? '3px double #000000' : '3px double #00288e',
           minHeight: '100%'
@@ -850,47 +858,47 @@ export function CourtReadyPrintCanvas({
       >
         {/* INNER HAIRLINE BORDER */}
         <div 
-          className="court-inner-frame w-full p-4 sm:p-6"
+          className="court-inner-frame w-full p-3 sm:p-4"
           style={{
             border: isMonochrome ? '1px solid #444444' : '1px solid #d97706'
           }}
         >
           {/* OFFICIAL CHAMBER LETTERHEAD */}
-          <div className="court-print-letterhead border-b-2 border-black pb-4 mb-6">
+          <div className="court-print-letterhead border-b-2 border-black pb-3 mb-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3.5">
+              <div className="flex items-center gap-3">
                 <div 
-                  className="w-12 h-12 rounded flex items-center justify-center font-bold shrink-0"
+                  className="w-11 h-11 rounded flex items-center justify-center font-bold shrink-0"
                   style={{
                     backgroundColor: isMonochrome ? '#000000' : '#00288e',
                     color: '#ffffff'
                   }}
                 >
-                  <Scale className="w-8 h-8 text-amber-400" />
+                  <Scale className="w-7 h-7 text-amber-400" />
                 </div>
                 <div>
                   <div 
-                    className="text-[20pt] font-serif font-black tracking-tight leading-none"
+                    className="text-[18pt] font-serif font-black tracking-tight leading-none"
                     style={{ color: isMonochrome ? '#000000' : '#00288e' }}
                   >
                     भारत Legal Intelligence
                   </div>
-                  <div className="text-[8.5pt] font-mono text-slate-700 tracking-wider uppercase mt-1">
+                  <div className="text-[8pt] font-mono text-slate-700 tracking-wider uppercase mt-1">
                     Constitutional & Statutory AI Research Dossier
                   </div>
                 </div>
               </div>
 
-              <div className="text-right text-[8.5pt] font-mono text-slate-800 leading-tight">
-                <div><strong>Docket:</strong> #{activeThreadId.startsWith('#') ? activeThreadId.slice(1) : (activeThreadId.startsWith('THREAD-') ? activeThreadId : activeThreadId.slice(0, 16).toUpperCase())}</div>
+              <div className="text-right text-[8pt] font-mono text-slate-800 leading-tight">
+                <div><strong>Docket:</strong> {formattedDocket}</div>
                 <div><strong>Date:</strong> {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                 <div><strong>Jurisdiction:</strong> Republic of India</div>
               </div>
             </div>
 
             {/* METADATA STRIP */}
-            <div className="mt-3 pt-2 border-t border-slate-400 flex flex-wrap items-center justify-between gap-1.5 text-[8pt] font-mono text-slate-700">
-              <span className="truncate max-w-[280px] sm:max-w-none"><strong>Matter:</strong> {activeThreadTitle}</span>
+            <div className="mt-2.5 pt-1.5 border-t border-slate-400 flex flex-wrap items-center justify-between gap-1.5 text-[7.5pt] font-mono text-slate-700">
+              <span className="truncate max-w-[280px] sm:max-w-none"><strong>Matter:</strong> {activeThreadTitle || 'Citizen Legal Advisory'}</span>
               <span className="font-bold text-[#00288e]">
                 {mode === 'citizen' ? 'Citizen Legal Advisory' : 'Advocate Chamber Brief'}
               </span>

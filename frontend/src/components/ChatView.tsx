@@ -3104,175 +3104,10 @@ export function ChatView({
               className="hidden" 
             />
 
-            {/* Desktop & Tablet: Quick Context Category Chips (>= sm) + Action Tools on Right */}
-            <div className="hidden sm:flex items-center justify-between gap-2 pb-1 px-1">
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none flex-1 min-w-0">
-                <span className={`font-mono text-[9px] uppercase font-bold shrink-0 mr-1 ${
-                  isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
-                }`}>
-                  Context:
-                </span>
-                {CONTEXT_CATEGORIES.map(c => (
-                  <button
-                    key={c.name}
-                    type="button"
-                    onClick={() => setContextFilter(c.name)}
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap shrink-0 transition-colors flex items-center gap-1 cursor-pointer ${
-                      contextFilter === c.name
-                        ? isDark 
-                          ? 'bg-white text-black font-bold border border-white' 
-                          : 'bg-[#00288e] text-white font-bold border border-[#00288e]'
-                        : isDark 
-                          ? 'bg-[#131624] text-[#94a3b8] hover:text-white hover:bg-[#1a1f33] border border-[#23283f]' 
-                          : 'bg-[#eff4ff] text-[#444653] hover:bg-[#e5eeff] border border-[#dce9ff]'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[13px]">{c.icon}</span>
-                    <span>{c.name}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Action Buttons (Right side of Context on Desktop) */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsLegalAidModalOpen(true)}
-                  className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                    isDark 
-                      ? 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30' 
-                      : 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200'
-                  }`}
-                  title="NALSA 24/7 Free Legal Aid Directory (Dial 15100)"
-                >
-                  <Scale className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="hidden md:inline">Free Legal Aid</span>
-                  <span className="font-mono text-[9.5px]">15100</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-                    setPleadingInitialFacts(activeNarrative);
-                    setIsPleadingStudioOpen(true);
-                  }}
-                  className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                    isDark 
-                      ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30' 
-                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-200'
-                  }`}
-                  title="Court-Ready Pleading & Notice Studio (High Court Parchment)"
-                >
-                  <Gavel className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="hidden md:inline">Pleadings Studio</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const rawUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-                    const latestUserText = rawUserText.toLowerCase();
-                    setTimelineInitialFacts(rawUserText);
-                    if (latestUserText.includes('cheque') || latestUserText.includes('138') || latestUserText.includes('dishonor') || latestUserText.includes('dishonour') || latestUserText.includes('bounce')) {
-                      setTimelineArchetype('cheque_bounce_138_ni');
-                    } else if (latestUserText.includes('consumer') || latestUserText.includes('defect') || latestUserText.includes('cpa') || latestUserText.includes('service')) {
-                      setTimelineArchetype('consumer_complaint_35_cpa');
-                    } else if (latestUserText.includes('deposit') || latestUserText.includes('rent') || latestUserText.includes('tenan') || latestUserText.includes('hostel') || latestUserText.includes('contract')) {
-                      setTimelineArchetype('contract_breach_deposit_refund');
-                    } else if (latestUserText.includes('fir') || latestUserText.includes('arrest') || latestUserText.includes('bail') || latestUserText.includes('police') || latestUserText.includes('bnss')) {
-                      setTimelineArchetype('criminal_investigation_bnss');
-                    } else if (latestUserText.includes('arbitrat')) {
-                      setTimelineArchetype('commercial_arbitration_act');
-                    } else if (latestUserText.includes('accident') || latestUserText.includes('mact') || latestUserText.includes('vehicle')) {
-                      setTimelineArchetype('motor_accident_mact');
-                    } else if (latestUserText.includes('rti') || latestUserText.includes('cpio') || latestUserText.includes('information')) {
-                      setTimelineArchetype('rti_appeal_lifecycle');
-                    }
-                    setIsTimelineModalOpen(true);
-                  }}
-                  className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                    isDark 
-                      ? 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border-blue-500/30' 
-                      : 'bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-200'
-                  }`}
-                  title="Interactive Dispute Timeline & Limitation Visualizer (Limitation Act 1963)"
-                >
-                  <span className="material-symbols-outlined text-[14px] text-blue-500">timeline</span>
-                  <span className="hidden md:inline">Dispute Timeline</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-                    setCounterStrategyInitialFacts(activeNarrative);
-                    setIsCounterStrategyModalOpen(true);
-                  }}
-                  className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                    isDark 
-                      ? 'bg-red-500/15 hover:bg-red-500/25 text-red-300 border-red-500/30' 
-                      : 'bg-red-50 hover:bg-red-100 text-red-950 border-red-200'
-                  }`}
-                  title="Defensive Counter-Strategy Generator (Anti-Vexatious Sanctions & Cross-Complaints)"
-                >
-                  <span className="material-symbols-outlined text-[14px] text-red-500">shield_with_heart</span>
-                  <span className="hidden md:inline">Counter-Offensive</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
-                  className={`px-2 py-1 rounded-lg text-[10.5px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
-                    speechLang === 'hi-IN'
-                      ? isDark 
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' 
-                        : 'bg-amber-100 text-amber-900 border-amber-300'
-                      : isDark 
-                        ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#94a3b8] hover:text-white border-[#23283f]' 
-                        : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#444653] hover:text-[#0b1c30] border-[#dce9ff]'
-                  }`}
-                  title={`Dictation Language: ${speechLang === 'en-IN' ? 'English (India)' : 'हिन्दी (India)'} - Click to switch`}
-                >
-                  {speechLang === 'en-IN' ? 'EN' : 'हिन्दी'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`p-1.5 rounded-lg transition-colors border cursor-pointer shrink-0 ${
-                    isDark 
-                      ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#94a3b8] hover:text-white border-[#23283f]' 
-                      : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#444653] hover:text-[#0b1c30] border-[#dce9ff]'
-                  }`}
-                  title="Attach Legal Notice / FIR / Brief (.txt, .pdf, .docx)"
-                >
-                  <span className="material-symbols-outlined text-[17px]">attach_file</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleStartDictation}
-                  className={`p-1.5 rounded-lg transition-colors border cursor-pointer shrink-0 ${
-                    isListening
-                      ? 'bg-red-500 text-white animate-pulse border-red-600'
-                      : isDark 
-                        ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#94a3b8] hover:text-white border-[#23283f]' 
-                        : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#444653] hover:text-[#0b1c30] border-[#dce9ff]'
-                  }`}
-                  title={isListening ? "Listening... (Click to stop)" : "Voice Dictation (Speech-to-Text)"}
-                >
-                  <span className="material-symbols-outlined text-[17px]">
-                    {isListening ? 'graphic_eq' : 'mic'}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* Small Screen: Compact Upward Context Dropdown + Studios Button on Left, Tools on Right (< sm) */}
-            <div className="flex sm:hidden items-center justify-between gap-1.5 px-1 pb-1">
+            {/* Unified Upward Context Dropdown + Studios Dropdown on Left, Tools on Right (All Screen Sizes) */}
+            <div className="flex items-center justify-between gap-1.5 sm:gap-2 px-1 pb-1">
               {/* Left Side: Context Dropdown & Studios Menu Trigger */}
-              <div className="flex items-center gap-1.5 min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                 {/* Context Dropdown */}
                 <div className="relative flex items-center min-w-0" ref={contextDropdownRef}>
                   <button
@@ -3283,7 +3118,7 @@ export function ChatView({
                         ? (isContextDropdownOpen ? '#1c2237' : '#131624') 
                         : (isContextDropdownOpen ? '#e0edff' : '#eff4ff') 
                     }}
-                    className={`flex items-center gap-1 py-1 px-2 rounded-lg text-[10.5px] font-semibold border transition-all cursor-pointer max-w-[130px] xs:max-w-[160px] truncate ${
+                    className={`flex items-center gap-1 sm:gap-1.5 py-1 sm:py-1.5 px-2 sm:px-2.5 rounded-lg text-[10.5px] sm:text-[11.5px] font-semibold border transition-all cursor-pointer max-w-[140px] xs:max-w-[180px] sm:max-w-[220px] md:max-w-[260px] truncate ${
                       isDark 
                         ? isContextDropdownOpen
                           ? 'text-amber-300 border-amber-500/50 shadow-xs'
@@ -3294,11 +3129,11 @@ export function ChatView({
                     }`}
                     title="Change Legal Context Pillar (Opens Upward)"
                   >
-                    <span className="material-symbols-outlined text-[13px] text-amber-500 shrink-0">
+                    <span className="material-symbols-outlined text-[13px] sm:text-[14px] text-amber-500 shrink-0">
                       {CONTEXT_CATEGORIES.find(c => c.name === contextFilter)?.icon || 'gavel'}
                     </span>
                     <span className="truncate">{contextFilter}</span>
-                    <span className={`material-symbols-outlined text-[14px] transition-transform duration-150 shrink-0 ${
+                    <span className={`material-symbols-outlined text-[13px] sm:text-[14px] transition-transform duration-150 shrink-0 ${
                       isContextDropdownOpen ? 'rotate-180 text-amber-500' : isDark ? 'text-slate-400' : 'text-slate-600'
                     }`}>
                       expand_less
@@ -3312,7 +3147,7 @@ export function ChatView({
                         backgroundColor: isDark ? '#0f121e' : '#ffffff',
                         opacity: 1 
                       }}
-                      className={`absolute bottom-full mb-2 left-0 w-64 xs:w-72 rounded-xl p-2 shadow-2xl border z-[100] animate-in fade-in slide-in-from-bottom-2 duration-150 ${
+                      className={`absolute bottom-full mb-2 left-0 w-64 xs:w-72 sm:w-80 rounded-xl p-2 shadow-2xl border z-[100] animate-in fade-in slide-in-from-bottom-2 duration-150 ${
                         isDark
                           ? 'border-[#2e3752] text-white shadow-black'
                           : 'border-[#cbd5e1] text-[#0b1c30] shadow-slate-900/25'
@@ -3328,7 +3163,7 @@ export function ChatView({
                           <span className="material-symbols-outlined text-[14px] text-amber-500">balance</span>
                           Select Legal Pillar
                         </span>
-                        <span className="text-[9px] font-mono text-amber-500 font-semibold">5 Pillars</span>
+                        <span className="text-[9px] font-mono text-amber-500 font-semibold">{CONTEXT_CATEGORIES.length} Domains</span>
                       </div>
 
                       <div className="space-y-1">
@@ -3349,7 +3184,7 @@ export function ChatView({
                                   ? (isDark ? '#262015' : '#eff4ff') 
                                   : undefined
                               }}
-                              className={`w-full p-2.5 rounded-lg text-left transition-all flex items-center justify-between cursor-pointer ${
+                              className={`w-full p-2 sm:p-2.5 rounded-lg text-left transition-all flex items-center justify-between cursor-pointer ${
                                 isSelected
                                   ? isDark
                                     ? 'text-amber-300 border border-amber-500/50 font-bold'
@@ -3367,7 +3202,7 @@ export function ChatView({
                                 }`}>
                                   <span className="material-symbols-outlined text-[14px]">{c.icon}</span>
                                 </span>
-                                <span className="text-[12px] truncate">{c.name}</span>
+                                <span className="text-[11.5px] sm:text-[12px] truncate">{c.name}</span>
                               </div>
                               {isSelected && (
                                 <span className="material-symbols-outlined text-[16px] text-amber-500 shrink-0">
@@ -3382,12 +3217,12 @@ export function ChatView({
                   )}
                 </div>
 
-                {/* Studios 4-in-1 Quick Trigger Button & Upward Menu */}
+                {/* Studios 5-in-1 Quick Trigger Button & Upward Menu */}
                 <div className="relative shrink-0" ref={studiosDropdownRef}>
                   <button
                     type="button"
                     onClick={() => { setIsStudiosDropdownOpen(!isStudiosDropdownOpen); setIsContextDropdownOpen(false); }}
-                    className={`flex items-center gap-1 py-1 px-2 rounded-lg text-[10.5px] font-bold border transition-all cursor-pointer ${
+                    className={`flex items-center gap-1 sm:gap-1.5 py-1 sm:py-1.5 px-2 sm:px-2.5 rounded-lg text-[10.5px] sm:text-[11.5px] font-bold border transition-all cursor-pointer ${
                       isDark 
                         ? isStudiosDropdownOpen
                           ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-xs'
@@ -3396,11 +3231,11 @@ export function ChatView({
                         ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-xs'
                         : 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200'
                     }`}
-                    title="Open Chamber Legal Studios (Pleadings, Dispute Timeline, Counter-Offensive, Legal Aid)"
+                    title="Open Chamber Legal Studios (Pleadings, Dispute Timeline, Counter-Offensive, Legal Aid, Constitution)"
                   >
-                    <span className="material-symbols-outlined text-[13px] text-amber-500">balance</span>
+                    <span className="material-symbols-outlined text-[13px] sm:text-[14px] text-amber-500">balance</span>
                     <span>Studios</span>
-                    <span className={`material-symbols-outlined text-[13px] transition-transform duration-150 ${isStudiosDropdownOpen ? 'rotate-180' : ''}`}>
+                    <span className={`material-symbols-outlined text-[13px] sm:text-[14px] transition-transform duration-150 ${isStudiosDropdownOpen ? 'rotate-180' : ''}`}>
                       expand_less
                     </span>
                   </button>
@@ -3409,7 +3244,7 @@ export function ChatView({
                   {isStudiosDropdownOpen && (
                     <div
                       style={{ backgroundColor: isDark ? '#0f121e' : '#ffffff', opacity: 1 }}
-                      className={`absolute bottom-full mb-1.5 left-0 w-48 sm:w-52 rounded-xl p-1 shadow-xl border z-[100] animate-in fade-in slide-in-from-bottom-1 duration-150 ${
+                      className={`absolute bottom-full mb-1.5 left-0 w-52 sm:w-60 rounded-xl p-1 sm:p-1.5 shadow-xl border z-[100] animate-in fade-in slide-in-from-bottom-1 duration-150 ${
                         isDark ? 'border-[#2e3752] text-white shadow-black/60' : 'border-[#cbd5e1] text-[#0b1c30] shadow-slate-900/20'
                       }`}
                     >
@@ -3430,7 +3265,7 @@ export function ChatView({
                           <div className="w-5 h-5 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
                             <Gavel className="w-3 h-3 text-emerald-500" />
                           </div>
-                          <span className="text-[11px] font-semibold truncate">Pleadings Studio</span>
+                          <span className="text-[11px] sm:text-[11.5px] font-semibold truncate">Pleadings Studio</span>
                         </button>
 
                         {/* 2. Dispute Timeline */}
@@ -3465,7 +3300,7 @@ export function ChatView({
                           <div className="w-5 h-5 rounded-md bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shrink-0">
                             <span className="material-symbols-outlined text-[13px] text-blue-500">timeline</span>
                           </div>
-                          <span className="text-[11px] font-semibold truncate">Dispute Timeline</span>
+                          <span className="text-[11px] sm:text-[11.5px] font-semibold truncate">Dispute Timeline</span>
                         </button>
 
                         {/* 3. Counter-Offensive */}
@@ -3484,7 +3319,7 @@ export function ChatView({
                           <div className="w-5 h-5 rounded-md bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0">
                             <span className="material-symbols-outlined text-[13px] text-red-500">shield_with_heart</span>
                           </div>
-                          <span className="text-[11px] font-semibold truncate">Counter-Offensive</span>
+                          <span className="text-[11px] sm:text-[11.5px] font-semibold truncate">Counter-Offensive</span>
                         </button>
 
                         {/* 4. Free Legal Aid */}
@@ -3501,7 +3336,7 @@ export function ChatView({
                           <div className="w-5 h-5 rounded-md bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
                             <Scale className="w-3 h-3 text-amber-500" />
                           </div>
-                          <span className="text-[11px] font-semibold truncate">Free Legal Aid (15100)</span>
+                          <span className="text-[11px] sm:text-[11.5px] font-semibold truncate">Free Legal Aid (15100)</span>
                         </button>
 
                         {/* 5. Complete Constitution Studio (456+ Articles) */}
@@ -3520,7 +3355,7 @@ export function ChatView({
                               <span className="material-symbols-outlined text-[13px] text-emerald-500">account_balance</span>
                             </div>
                             <div className="min-w-0 flex-1 flex items-center justify-between">
-                              <span className="text-[11px] font-semibold truncate">Constitution of India</span>
+                              <span className="text-[11px] sm:text-[11.5px] font-semibold truncate">Constitution of India</span>
                               <span className="text-[8.5px] font-mono px-1 rounded bg-emerald-500/20 text-emerald-400 font-bold shrink-0">456+</span>
                             </div>
                           </button>
@@ -3531,12 +3366,12 @@ export function ChatView({
                 </div>
               </div>
 
-              {/* Right Side: Language, Attach & Mic Buttons on Right of Context Dropdown */}
-              <div className="flex items-center gap-1.5 shrink-0">
+              {/* Right Side: Language, Attach & Mic Buttons */}
+              <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
-                  className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
+                  className={`px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
                     speechLang === 'hi-IN'
                       ? isDark 
                         ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' 
@@ -3545,7 +3380,7 @@ export function ChatView({
                         ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#94a3b8] hover:text-white border-[#23283f]' 
                         : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#444653] hover:text-[#0b1c30] border-[#dce9ff]'
                   }`}
-                  title={`Dictation Language: ${speechLang === 'en-IN' ? 'English' : 'हिन्दी'} - Click to switch`}
+                  title={`Dictation Language: ${speechLang === 'en-IN' ? 'English (India)' : 'हिन्दी (India)'} - Click to switch`}
                 >
                   {speechLang === 'en-IN' ? 'EN' : 'हिन्दी'}
                 </button>
@@ -3553,20 +3388,20 @@ export function ChatView({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className={`p-1.5 rounded-lg transition-colors border cursor-pointer shrink-0 ${
+                  className={`p-1 sm:p-1.5 rounded-lg transition-colors border cursor-pointer shrink-0 ${
                     isDark 
                       ? 'bg-[#131624] hover:bg-[#1a1f33] text-[#94a3b8] hover:text-white border-[#23283f]' 
                       : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#444653] hover:text-[#0b1c30] border-[#dce9ff]'
                   }`}
-                  title="Attach Legal Notice / FIR / Brief (.txt, .pdf, .docx)"
+                  title="Attach Legal Notice / FIR / Brief (.txt, .pdf, .docx, images)"
                 >
-                  <span className="material-symbols-outlined text-[17px]">attach_file</span>
+                  <span className="material-symbols-outlined text-[16px] sm:text-[17px]">attach_file</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleStartDictation}
-                  className={`p-1.5 rounded-lg transition-colors border cursor-pointer shrink-0 ${
+                  className={`p-1 sm:p-1.5 rounded-lg transition-colors border cursor-pointer shrink-0 ${
                     isListening
                       ? 'bg-red-500 text-white animate-pulse border-red-600'
                       : isDark 
@@ -3575,7 +3410,7 @@ export function ChatView({
                   }`}
                   title={isListening ? "Listening... (Click to stop)" : "Voice Dictation (Speech-to-Text)"}
                 >
-                  <span className="material-symbols-outlined text-[17px]">
+                  <span className="material-symbols-outlined text-[16px] sm:text-[17px]">
                     {isListening ? 'graphic_eq' : 'mic'}
                   </span>
                 </button>

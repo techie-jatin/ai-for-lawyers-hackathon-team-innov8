@@ -15,10 +15,13 @@ const DesignPresetContext = createContext<DesignPresetContextType | undefined>(u
 export function DesignPresetProvider({ children }: { children: React.ReactNode }) {
   const [designPreset, setDesignPresetState] = useState<DesignPreset>(() => {
     try {
+      if (localStorage.getItem('bharat_design_preset') === 'institutional') {
+        localStorage.removeItem('bharat_design_preset');
+      }
       const saved = localStorage.getItem('bharat_design_preset');
-      return (saved === 'classic' || saved === 'institutional') ? saved : 'institutional';
+      return saved === 'institutional' ? 'institutional' : 'classic';
     } catch {
-      return 'institutional';
+      return 'classic';
     }
   });
 

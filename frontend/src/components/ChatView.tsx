@@ -2191,12 +2191,12 @@ export function ChatView({
               const activeMemory = extractActiveCaseMemory(messages);
               if (!activeMemory) return null;
               return (
-                <div className={`no-print w-full p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl border flex items-center justify-between gap-3 text-[11px] font-mono shadow-xs mb-3 transition-all ${
+                <div className={`no-print w-full p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 text-[11px] font-mono shadow-xs mb-3 transition-all ${
                   isDark 
                     ? 'bg-[#0f1322] border-[#222a44] text-zinc-300' 
                     : 'bg-white border-[#dce9ff] text-slate-700 shadow-sm'
                 }`}>
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-wrap">
                     <div className="w-6 h-6 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 shrink-0">
                       <Brain className="w-3.5 h-3.5 text-indigo-400" />
                     </div>
@@ -2211,7 +2211,7 @@ export function ChatView({
                           {activeMemory.topicPillarLabel}
                         </span>
                       )}
-                      <span className={`font-semibold truncate max-w-[200px] sm:max-w-[340px] ${isDark ? 'text-white' : 'text-[#00288e]'}`} title={activeMemory.rootFactAnchor}>
+                      <span className={`font-semibold truncate max-w-[180px] xs:max-w-[240px] sm:max-w-[340px] ${isDark ? 'text-white' : 'text-[#00288e]'}`} title={activeMemory.rootFactAnchor}>
                         {activeMemory.rootFactAnchor}
                       </span>
                       {activeMemory.provisions.length > 0 && (
@@ -2223,7 +2223,7 @@ export function ChatView({
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] text-zinc-400 shrink-0">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 text-[10px] text-zinc-400 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200/50 dark:border-slate-800/50 shrink-0">
                     <button
                       type="button"
                       onClick={() => {
@@ -2240,10 +2240,12 @@ export function ChatView({
                       <span className="material-symbols-outlined text-[13px] text-[#ff7722]">swords</span>
                       <span className="font-extrabold">Battle-Room</span>
                     </button>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span className="hidden sm:inline font-semibold text-emerald-500">
-                      Turn {activeMemory.turnCount} Synced
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span className="font-semibold text-emerald-500">
+                        Turn {activeMemory.turnCount} Synced
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -2292,29 +2294,30 @@ export function ChatView({
                   </div>
                 ) : (
                   /* ASSISTANT RESPONSE CARD */
-                  <div className={`print-card-break print-assistant-card w-full rounded-xl shadow-lg p-4 sm:p-5 space-y-4 border transition-colors ${
+                  <div className={`print-card-break print-assistant-card w-full rounded-xl shadow-lg p-3.5 sm:p-5 space-y-3.5 sm:space-y-4 border transition-colors ${
                     isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0]'
                   }`}>
                     {/* Assistant Header */}
-                    <div className={`flex items-center justify-between pb-2 border-b ${
+                    <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-2.5 sm:pb-3 border-b min-w-0 ${
                       isDark ? 'border-[#1f2438]' : 'border-[#f1f5f9]'
                     }`}>
-                      <div className="flex items-center gap-2 sm:gap-2.5">
+                      {/* Left: Brand Identity & AI Attribution */}
+                      <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                         <img 
                           src="/logo.png" 
                           alt="भारत Legal Intelligence" 
-                          className={`w-7 h-7 rounded-lg object-contain p-0.5 border shadow-xs ${
+                          className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg object-contain p-0.5 border shadow-xs shrink-0 ${
                             isDark ? 'bg-[#131624] border-[#23283f]' : 'bg-white border-[#e2e8f0]'
                           }`} 
                         />
-                        <div className="flex flex-col">
+                        <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-bold text-[14px] text-[#ff7722]">भारत</span>
-                            <span className={`font-bold text-[14px] ${isDark ? 'text-white' : 'text-[#00288e]'}`}>
+                            <span className="font-bold text-[13px] sm:text-[14px] text-[#ff7722] shrink-0">भारत</span>
+                            <span className={`font-bold text-[13px] sm:text-[14px] truncate ${isDark ? 'text-white' : 'text-[#00288e]'}`}>
                               Legal Intelligence
                             </span>
                             <span 
-                              className={`text-[9.5px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border flex items-center gap-1 ${
+                              className={`text-[9px] sm:text-[9.5px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border inline-flex items-center gap-1 shrink-0 ${
                                 isDark 
                                   ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' 
                                   : 'bg-amber-50 text-amber-800 border-amber-300'
@@ -2325,7 +2328,7 @@ export function ChatView({
                               AI Generated
                             </span>
                           </div>
-                          <span className={`text-[10px] hidden xs:inline ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
+                          <span className={`text-[10px] hidden xs:inline truncate ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
                             {msg.response?.ai_engine ? (
                               <span className="inline-flex items-center gap-1 font-mono font-semibold text-amber-400">
                                 <span className="material-symbols-outlined text-[12px]">auto_awesome</span>
@@ -2338,109 +2341,120 @@ export function ChatView({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        {msg.response?.is_blocked ? (
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold border ${
-                            isDark 
-                              ? 'bg-[#1a0c0e] text-[#f87171] border-[#ef4444]/40' 
-                              : 'bg-[#fef2f2] text-[#991b1b] border-[#fca5a5]'
-                          }`}>
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]"></span>
-                            <span className="hidden sm:inline">Safety Guardrail Intercept</span>
-                            <span className="sm:hidden">Blocked</span>
-                          </span>
-                        ) : msg.response?.is_emergency ? (
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold border ${
-                            isDark 
-                              ? 'bg-[#240a10] text-[#fb7185] border-[#f43f5e]/40' 
-                              : 'bg-[#fff1f2] text-[#be123c] border-[#fecdd3]'
-                          }`}>
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#f43f5e]"></span>
-                            Emergency Triage
-                          </span>
-                        ) : (
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold border ${
-                            isDark 
-                              ? 'bg-[#0b1f17] text-emerald-300 border-emerald-800/60' 
-                              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                          }`}>
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                            <span className="hidden sm:inline">100% Authentic Citation • Zero Hallucination</span>
-                            <span className="sm:hidden">100% Verified</span>
-                          </span>
-                        )}
+                      {/* Right: Verification Status Badge + Action Toolbar */}
+                      <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200/50 dark:border-slate-800/50">
+                        {/* Status / Safety Pill */}
+                        <div className="shrink-0">
+                          {msg.response?.is_blocked ? (
+                            <span className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-full font-mono text-[9.5px] sm:text-[10px] font-bold border ${
+                              isDark 
+                                ? 'bg-[#1a0c0e] text-[#f87171] border-[#ef4444]/40' 
+                                : 'bg-[#fef2f2] text-[#991b1b] border-[#fca5a5]'
+                            }`}>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]"></span>
+                              <span className="hidden sm:inline">Safety Guardrail Intercept</span>
+                              <span className="sm:hidden">Blocked</span>
+                            </span>
+                          ) : msg.response?.is_emergency ? (
+                            <span className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-full font-mono text-[9.5px] sm:text-[10px] font-bold border ${
+                              isDark 
+                                ? 'bg-[#240a10] text-[#fb7185] border-[#f43f5e]/40' 
+                                : 'bg-[#fff1f2] text-[#be123c] border-[#fecdd3]'
+                            }`}>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#f43f5e]"></span>
+                              Emergency Triage
+                            </span>
+                          ) : (
+                            <span className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-full font-mono text-[9.5px] sm:text-[10px] font-bold border ${
+                              isDark 
+                                ? 'bg-[#0b1f17] text-emerald-300 border-emerald-800/60' 
+                                : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                            }`}>
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                              <span className="hidden sm:inline">100% Authentic Citation • Zero Hallucination</span>
+                              <span className="sm:hidden">100% Verified</span>
+                            </span>
+                          )}
+                        </div>
 
-                        <button 
-                          type="button"
-                          onClick={() => handleCopy(msg.response?.answer || msg.text, msg.id)}
-                          className={`no-print p-1 rounded transition-colors cursor-pointer ${
-                            isDark 
-                              ? 'hover:bg-[#131624] text-[#94a3b8] hover:text-white' 
-                              : 'hover:bg-[#eff4ff] text-[#565e74] hover:text-[#0b1c30]'
-                          }`}
-                          title="Copy Analysis"
-                        >
-                          <span className="material-symbols-outlined text-[17px]">
-                            {copiedId === msg.id ? 'check' : 'content_copy'}
-                          </span>
-                        </button>
+                        {/* Action Buttons Toolbar */}
+                        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                          <button 
+                            type="button"
+                            onClick={() => handleCopy(msg.response?.answer || msg.text, msg.id)}
+                            className={`no-print w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                              isDark 
+                                ? 'hover:bg-[#131624] text-[#94a3b8] hover:text-white' 
+                                : 'hover:bg-[#eff4ff] text-[#565e74] hover:text-[#0b1c30]'
+                            }`}
+                            title="Copy Analysis"
+                            aria-label="Copy Analysis"
+                          >
+                            <span className="material-symbols-outlined text-[16px] sm:text-[17px]">
+                              {copiedId === msg.id ? 'check' : 'content_copy'}
+                            </span>
+                          </button>
 
-                        <button 
-                          type="button"
-                          onClick={() => handleOpenPrintForMessage(msg.id)}
-                          className={`no-print p-1.5 sm:p-1 rounded-lg transition-colors cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center ${
-                            isDark 
-                              ? 'hover:bg-[#131624] text-[#94a3b8] hover:text-white' 
-                              : 'hover:bg-[#eff4ff] text-[#565e74] hover:text-[#0b1c30]'
-                          }`}
-                          title="Print / Export this Legal Exchange"
-                        >
-                          <span className="material-symbols-outlined text-[17px]">
-                            picture_as_pdf
-                          </span>
-                        </button>
+                          <button 
+                            type="button"
+                            onClick={() => handleOpenPrintForMessage(msg.id)}
+                            className={`no-print w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                              isDark 
+                                ? 'hover:bg-[#131624] text-[#94a3b8] hover:text-white' 
+                                : 'hover:bg-[#eff4ff] text-[#565e74] hover:text-[#0b1c30]'
+                            }`}
+                            title="Print / Export this Legal Exchange"
+                            aria-label="Print or Export this Legal Exchange"
+                          >
+                            <span className="material-symbols-outlined text-[16px] sm:text-[17px]">
+                              picture_as_pdf
+                            </span>
+                          </button>
 
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            const curIdx = messages.findIndex(m => m.id === msg.id);
-                            const userMsg = messages.slice(0, curIdx).reverse().find(m => m.role === 'user');
-                            const narrativeText = userMsg?.text || msg.response?.query || msg.response?.answer || msg.text || '';
-                            setReaModalNarrative(narrativeText);
-                            setIsReaModalOpen(true);
-                          }}
-                          className={`no-print p-1.5 sm:p-1 rounded-lg transition-colors cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center ${
-                            isDark 
-                              ? 'hover:bg-[#131624] text-amber-400 hover:text-amber-300' 
-                              : 'hover:bg-amber-50 text-amber-700 hover:text-amber-900'
-                          }`}
-                          title="Tri-Perspective Chamber Battle-Room (REA Engine)"
-                        >
-                          <span className="material-symbols-outlined text-[17px]">
-                            swords
-                          </span>
-                        </button>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const curIdx = messages.findIndex(m => m.id === msg.id);
+                              const userMsg = messages.slice(0, curIdx).reverse().find(m => m.role === 'user');
+                              const narrativeText = userMsg?.text || msg.response?.query || msg.response?.answer || msg.text || '';
+                              setReaModalNarrative(narrativeText);
+                              setIsReaModalOpen(true);
+                            }}
+                            className={`no-print w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                              isDark 
+                                ? 'hover:bg-[#131624] text-amber-400 hover:text-amber-300' 
+                                : 'hover:bg-amber-50 text-amber-700 hover:text-amber-900'
+                            }`}
+                            title="Tri-Perspective Chamber Battle-Room (REA Engine)"
+                            aria-label="Tri-Perspective Chamber Battle-Room"
+                          >
+                            <span className="material-symbols-outlined text-[16px] sm:text-[17px]">
+                              swords
+                            </span>
+                          </button>
 
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            const curIdx = messages.findIndex(m => m.id === msg.id);
-                            const userMsg = messages.slice(0, curIdx).reverse().find(m => m.role === 'user');
-                            const narrativeText = userMsg?.text || msg.response?.query || msg.response?.answer || msg.text || '';
-                            setPleadingInitialFacts(narrativeText);
-                            setIsPleadingStudioOpen(true);
-                          }}
-                          className={`no-print p-1.5 sm:p-1 rounded-lg transition-colors cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center ${
-                            isDark 
-                              ? 'hover:bg-[#131624] text-emerald-400 hover:text-emerald-300' 
-                              : 'hover:bg-emerald-50 text-emerald-700 hover:text-emerald-900'
-                          }`}
-                          title="Draft Court-Ready Pleading / Notice (High Court Parchment)"
-                        >
-                          <span className="material-symbols-outlined text-[17px]">
-                            gavel
-                          </span>
-                        </button>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const curIdx = messages.findIndex(m => m.id === msg.id);
+                              const userMsg = messages.slice(0, curIdx).reverse().find(m => m.role === 'user');
+                              const narrativeText = userMsg?.text || msg.response?.query || msg.response?.answer || msg.text || '';
+                              setPleadingInitialFacts(narrativeText);
+                              setIsPleadingStudioOpen(true);
+                            }}
+                            className={`no-print w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                              isDark 
+                                ? 'hover:bg-[#131624] text-emerald-400 hover:text-emerald-300' 
+                                : 'hover:bg-emerald-50 text-emerald-700 hover:text-emerald-900'
+                            }`}
+                            title="Draft Court-Ready Pleading / Notice (High Court Parchment)"
+                            aria-label="Draft Court-Ready Pleading"
+                          >
+                            <span className="material-symbols-outlined text-[16px] sm:text-[17px]">
+                              gavel
+                            </span>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -2478,42 +2492,42 @@ export function ChatView({
                                 <strong>💡 Lawful Alternative:</strong> {msg.response.lawful_alternative}
                               </div>
                             )}
-                            <div className="flex items-center gap-3 pt-1 text-[10px] font-mono opacity-80">
-                              <span className="flex items-center gap-1 font-bold">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1 text-[10px] font-mono opacity-80">
+                              <span className="flex items-center gap-1 font-bold shrink-0">
                                 <span className="material-symbols-outlined text-[14px]">report_problem</span>
                                 Bar Council Ethics Applied
                               </span>
-                              <span>•</span>
-                              <span>Section 238 & 249 BNS 2023</span>
+                              <span className="hidden xs:inline">•</span>
+                              <span className="shrink-0">Section 238 & 249 BNS 2023</span>
                             </div>
                           </div>
                         </div>
                       </div>
                     ) : msg.response?.is_emergency ? (
                       /* EMERGENCY SAFETY TRIAGE CARD */
-                      <div className={`print-emergency-card w-full rounded-lg p-4 space-y-3 border ${
+                      <div className={`print-emergency-card w-full rounded-lg p-3.5 sm:p-4 space-y-3 border ${
                         isDark 
                           ? 'bg-[#1e0a12] border-[#f43f5e]/40' 
                           : 'bg-[#fff1f2] border-[#fecdd3]'
                       }`}>
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-2.5 sm:gap-3">
                           <div className="p-2 rounded-lg bg-[#e11d48] text-white shrink-0">
                             <span className="material-symbols-outlined text-[20px]">emergency</span>
                           </div>
-                          <div className="space-y-2 w-full">
-                            <h4 className={`text-[14px] font-bold ${isDark ? 'text-[#fb7185]' : 'text-[#9f1239]'}`}>
+                          <div className="space-y-2 w-full min-w-0">
+                            <h4 className={`text-[13px] sm:text-[14px] font-bold break-words ${isDark ? 'text-[#fb7185]' : 'text-[#9f1239]'}`}>
                               {msg.response.title || 'IMMEDIATE POLICE & EMERGENCY ASSISTANCE PROTOCOL'}
                             </h4>
-                            <p className={`text-[13px] leading-relaxed ${isDark ? 'text-[#fecdd3]' : 'text-[#9f1239]'}`}>
+                            <p className={`text-[12px] sm:text-[13px] leading-relaxed break-words ${isDark ? 'text-[#fecdd3]' : 'text-[#9f1239]'}`}>
                               {msg.response.message}
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                               {msg.response.emergency_contacts?.map((contact, i) => (
-                                <div key={i} className={`p-2.5 rounded border flex flex-col ${
+                                <div key={i} className={`p-2 sm:p-2.5 rounded border flex flex-col ${
                                   isDark ? 'bg-[#0f111a] border-[#f43f5e]/30' : 'bg-white border-[#fecdd3]'
                                 }`}>
-                                  <span className={`text-[11px] ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>{contact.name}</span>
-                                  <span className="text-[16px] font-bold text-[#e11d48] font-mono">{contact.number}</span>
+                                  <span className={`text-[11px] truncate ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>{contact.name}</span>
+                                  <span className="text-[15px] sm:text-[16px] font-bold text-[#e11d48] font-mono">{contact.number}</span>
                                   <span className={`text-[10px] font-medium ${
                                     isDark ? 'text-emerald-400' : 'text-emerald-700'
                                   }`}>{contact.available}</span>
@@ -2528,20 +2542,22 @@ export function ChatView({
                       <>
                         {/* Autonomous Domain & Archetype Indicator */}
                         {msg.response?.auto_detected_domain && (
-                          <div className={`flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-lg border text-xs ${
+                          <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 px-3 py-2 rounded-lg border text-xs min-w-0 ${
                             isDark ? 'bg-[#121626] border-blue-900/50 text-blue-200' : 'bg-blue-50/80 border-blue-200 text-blue-900'
                           }`}>
-                            <div className="flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[16px] text-blue-400">
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                              <span className="material-symbols-outlined text-[16px] text-blue-400 shrink-0">
                                 {msg.response.detected_archetype === 'PROVISION_LOOKUP' ? 'auto_stories' : 'alt_route'}
                               </span>
-                              <span className="font-semibold">
+                              <span className="font-semibold shrink-0 text-[11px] sm:text-xs">
                                 {msg.response.detected_archetype === 'PROVISION_LOOKUP' ? 'Gazette Lexicon Dossier' : 'Autonomous Legal Routing'}:
                               </span>
-                              <span className="font-mono text-[11px] font-medium">{msg.response.auto_detected_domain}</span>
+                              <span className="font-mono text-[10.5px] sm:text-[11px] font-medium break-words bg-blue-500/10 dark:bg-blue-400/10 px-1.5 py-0.5 rounded border border-blue-500/20 max-w-full">
+                                {msg.response.auto_detected_domain}
+                              </span>
                             </div>
                             {msg.response.domain_switched && msg.response.original_filter && (
-                              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                              <span className={`text-[9.5px] sm:text-[10px] font-mono px-2 py-0.5 rounded-full border shrink-0 self-start sm:self-auto ${
                                 isDark ? 'bg-amber-950/40 border-amber-800 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'
                               }`}>
                                 Auto-routed from "{msg.response.original_filter}"
@@ -2770,19 +2786,24 @@ export function ChatView({
                               ? 'bg-[#0b0c10] border-[#23283f]' 
                               : 'bg-[#fdfbf7] border-[#fef3c7]'
                           }`}>
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
                               <button
                                 type="button"
                                 onClick={() => toggleSourceExpand(msg.id)}
-                                className={`no-print inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-mono text-[10px] font-bold border transition-colors cursor-pointer ${
+                                className={`no-print inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-mono text-[10px] font-bold border transition-colors cursor-pointer max-w-full ${
                                   isDark 
                                     ? 'bg-[#0b1f17] text-emerald-300 border-emerald-800/60 hover:bg-[#102a20]' 
                                     : 'bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100'
                                 }`}
                               >
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                {Boolean(expandedSources[msg.id]) ? 'Verified Gazette Authority • Neon pgvector Validated' : 'Verified Gazette Authority • Neon pgvector Validated (Click to Expand)'}
-                                <span className="material-symbols-outlined text-[13px] ml-0.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                                <span className="hidden sm:inline">
+                                  {Boolean(expandedSources[msg.id]) ? 'Verified Gazette Authority • Neon pgvector Validated' : 'Verified Gazette Authority • Neon pgvector Validated (Click to Expand)'}
+                                </span>
+                                <span className="sm:hidden">
+                                  {Boolean(expandedSources[msg.id]) ? 'Verified Gazette Authority' : 'Verified Gazette Authority (Expand)'}
+                                </span>
+                                <span className="material-symbols-outlined text-[13px] ml-0.5 shrink-0">
                                   {Boolean(expandedSources[msg.id]) ? 'expand_less' : 'expand_more'}
                                 </span>
                               </button>
@@ -2790,7 +2811,7 @@ export function ChatView({
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                                 Verified Gazette Authority • Neon pgvector Validated
                               </div>
-                              <span className={`cite-bench font-mono text-[10px] font-bold ${
+                              <span className={`cite-bench font-mono text-[10px] font-bold shrink-0 ${
                                 isDark ? 'text-[#fbbf24]' : 'text-[#743d00]'
                               }`}>
                                 AIR / SCC Bench Sync

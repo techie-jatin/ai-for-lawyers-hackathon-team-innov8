@@ -8,6 +8,7 @@ import { LegalPrintStudioModal, CourtReadyPrintCanvas, groupMessagesIntoExchange
 import { parseUploadedDocument, type ParsedDocumentResult } from '../utils/documentParser';
 import { LegalAidDirectoryModal } from './LegalAidDirectoryModal';
 import { ReaChamberModal } from './ReaChamberModal';
+import { CourtPleadingStudio } from './CourtPleadingStudio';
 import { clientStorage } from '../services/clientStorage';
 
 export interface ApplicableLaw {
@@ -597,6 +598,10 @@ export function ChatView({
   // REA Tri-Perspective Chamber Battle-Room State
   const [isReaModalOpen, setIsReaModalOpen] = useState(false);
   const [reaModalNarrative, setReaModalNarrative] = useState('');
+
+  // Court-Ready Pleading & Notice Studio Modal State
+  const [isPleadingStudioOpen, setIsPleadingStudioOpen] = useState(false);
+  const [pleadingInitialFacts, setPleadingInitialFacts] = useState('');
 
   // Voice Dictation Streaming & Bilingual Support State
   const recognitionRef = useRef<any>(null);
@@ -2386,6 +2391,27 @@ export function ChatView({
                             swords
                           </span>
                         </button>
+
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const curIdx = messages.findIndex(m => m.id === msg.id);
+                            const userMsg = messages.slice(0, curIdx).reverse().find(m => m.role === 'user');
+                            const narrativeText = userMsg?.text || msg.response?.query || msg.response?.answer || msg.text || '';
+                            setPleadingInitialFacts(narrativeText);
+                            setIsPleadingStudioOpen(true);
+                          }}
+                          className={`no-print p-1.5 sm:p-1 rounded-lg transition-colors cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center ${
+                            isDark 
+                              ? 'hover:bg-[#131624] text-emerald-400 hover:text-emerald-300' 
+                              : 'hover:bg-emerald-50 text-emerald-700 hover:text-emerald-900'
+                          }`}
+                          title="Draft Court-Ready Pleading / Notice (High Court Parchment)"
+                        >
+                          <span className="material-symbols-outlined text-[17px]">
+                            gavel
+                          </span>
+                        </button>
                       </div>
                     </div>
 
@@ -2909,6 +2935,24 @@ export function ChatView({
                   <Scale className="w-3.5 h-3.5 text-amber-500" />
                   <span className="hidden md:inline">Free Legal Aid</span>
                   <span className="font-mono text-[9.5px]">15100</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                    setPleadingInitialFacts(activeNarrative);
+                    setIsPleadingStudioOpen(true);
+                  }}
+                  className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
+                    isDark 
+                      ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30' 
+                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-200'
+                  }`}
+                  title="Court-Ready Pleading & Notice Studio (High Court Parchment)"
+                >
+                  <Gavel className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="hidden md:inline">Pleadings Studio</span>
                 </button>
 
                 <button
@@ -3499,6 +3543,20 @@ export function ChatView({
           isDark={isDark}
           apiBase={apiBase}
         />
+
+        {/* COURT-READY PLEADING & NOTICE STUDIO MODAL */}
+        {isPleadingStudioOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-6xl h-[92vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+              <CourtPleadingStudio
+                isDark={isDark}
+                apiBase={apiBase}
+                initialFacts={pleadingInitialFacts}
+                onClose={() => setIsPleadingStudioOpen(false)}
+              />
+            </div>
+          </div>
+        )}
 
         {/* COURT-READY PRINT CANVAS (Visible only during window.print()) */}
         <CourtReadyPrintCanvas

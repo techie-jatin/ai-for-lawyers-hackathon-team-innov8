@@ -23,6 +23,28 @@ class DraftContractRequest(BaseModel):
     specific_covenants: Optional[str] = Field(None, max_length=5000)
     gemini_api_key: Optional[str] = Field(None, max_length=128)
 
+class DraftPleadingRequest(BaseModel):
+    pleading_type: str = Field(..., max_length=50)
+    court_name: Optional[str] = Field(None, max_length=200)
+    petitioner_name: str = Field(..., min_length=1, max_length=200)
+    petitioner_details: Optional[str] = Field(None, max_length=500)
+    respondent_name: str = Field(..., min_length=1, max_length=200)
+    respondent_details: Optional[str] = Field(None, max_length=500)
+    state_name: Optional[str] = Field("State (NCT of Delhi)", max_length=100)
+    case_number: Optional[str] = Field(None, max_length=100)
+    police_station: Optional[str] = Field(None, max_length=100)
+    dispute_amount: Optional[str] = Field(None, max_length=100)
+    incident_date: Optional[str] = Field(None, max_length=100)
+    cause_of_action: Optional[str] = Field(None, max_length=500)
+    facts_summary: Optional[str] = Field(None, max_length=5000)
+    bank_name: Optional[str] = Field(None, max_length=100)
+    return_memo_date: Optional[str] = Field(None, max_length=100)
+    dishonour_reason: Optional[str] = Field(None, max_length=200)
+    advocate_name: Optional[str] = Field(None, max_length=200)
+    advocate_enrolment: Optional[str] = Field(None, max_length=100)
+    advocate_office: Optional[str] = Field(None, max_length=300)
+    gemini_api_key: Optional[str] = Field(None, max_length=128)
+
 class RiskItem(BaseModel):
     id: str
     severity: str  # "critical", "warning", "safe"
@@ -266,6 +288,21 @@ Signature: __________________________        Signature: ________________________
 """
     }
 }
+
+from app.services.pleading_service import PleadingService
+
+@router.get("/pleadings/templates")
+def list_pleading_templates() -> Dict[str, Any]:
+    """Returns available Indian court-ready pleading and statutory notice presets."""
+    return {"templates": PleadingService.get_available_templates()}
+
+@router.post("/pleadings/draft")
+def draft_pleading(req: DraftPleadingRequest) -> Dict[str, Any]:
+    """
+    Generates an authentic Court-Ready Pleading or Statutory Legal Notice adhering strictly to
+    High Court rules, BNSS/BNS 2023 provisions, and Supreme Court precedent benchmarks.
+    """
+    return PleadingService.draft_pleading(req.model_dump(), gemini_api_key=req.gemini_api_key)
 
 @router.get("/templates")
 def list_templates() -> Dict[str, Any]:

@@ -212,6 +212,7 @@ interface ChatViewProps {
   geminiApiKey?: string;
   activeTab?: 'chat' | 'contracts' | 'search' | 'info';
   onSelectTab?: (tab: 'chat' | 'contracts' | 'search' | 'info') => void;
+  onOpenConstitutionModal?: () => void;
 }
 
 interface GeneratingCardProps {
@@ -550,7 +551,8 @@ export function ChatView({
   onClearLaunchContext,
   geminiApiKey,
   activeTab = 'chat',
-  onSelectTab
+  onSelectTab,
+  onOpenConstitutionModal
 }: ChatViewProps) {
   const isDark = theme === 'dark';
   const storageKey = `bharat_chat_threads_${guestId}`;
@@ -3501,6 +3503,28 @@ export function ChatView({
                           </div>
                           <span className="text-[11px] font-semibold truncate">Free Legal Aid (15100)</span>
                         </button>
+
+                        {/* 5. Complete Constitution Studio (456+ Articles) */}
+                        {onOpenConstitutionModal && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onOpenConstitutionModal();
+                              setIsStudiosDropdownOpen(false);
+                            }}
+                            className={`w-full px-2 py-1.5 rounded-lg text-left transition-all flex items-center gap-2 cursor-pointer ${
+                              isDark ? 'hover:bg-[#1a2033] text-slate-200 hover:text-white' : 'hover:bg-emerald-50 text-slate-800'
+                            }`}
+                          >
+                            <div className="w-5 h-5 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                              <span className="material-symbols-outlined text-[13px] text-emerald-500">account_balance</span>
+                            </div>
+                            <div className="min-w-0 flex-1 flex items-center justify-between">
+                              <span className="text-[11px] font-semibold truncate">Constitution of India</span>
+                              <span className="text-[8.5px] font-mono px-1 rounded bg-emerald-500/20 text-emerald-400 font-bold shrink-0">456+</span>
+                            </div>
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}

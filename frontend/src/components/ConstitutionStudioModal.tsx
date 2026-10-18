@@ -32,6 +32,7 @@ export function ConstitutionStudioModal({
   const [selectedPart, setSelectedPart] = useState('ALL');
   const [selectedClassification, setSelectedClassification] = useState('ALL');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [mobileExplorerView, setMobileExplorerView] = useState<'list' | 'detail'>('list');
 
   // Default article to display
   const [selectedArticle, setSelectedArticle] = useState<ConstitutionalArticleAST>(() => {
@@ -64,6 +65,11 @@ export function ConstitutionStudioModal({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleSelectArticle = (art: ConstitutionalArticleAST) => {
+    setSelectedArticle(art);
+    setMobileExplorerView('detail');
+  };
+
   const handleRunAnalysis = () => {
     if (!analyzerInput.trim()) return;
     const res = analyzeClientConstitutionalControversy(analyzerInput);
@@ -77,33 +83,33 @@ export function ConstitutionStudioModal({
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       className="fixed inset-0 z-[10050] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in font-sans"
     >
-      <div className={`w-full sm:max-w-6xl h-[95dvh] sm:h-[92dvh] sm:max-h-[920px] rounded-t-2xl sm:rounded-2xl flex flex-col shadow-2xl border overflow-hidden transition-all ${
+      <div className={`w-full sm:max-w-6xl h-full sm:h-[92dvh] sm:max-h-[920px] rounded-none sm:rounded-2xl flex flex-col shadow-2xl border-0 sm:border overflow-hidden transition-all ${
         isDark ? 'bg-[#0c0f1d] border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
       }`}>
         {/* ================= MODAL HEADER ================= */}
-        <div className={`p-3.5 sm:p-5 border-b shrink-0 flex flex-col gap-2.5 sm:gap-3 ${
+        <div className={`p-3 sm:p-4 md:p-5 border-b shrink-0 flex flex-col gap-2.5 sm:gap-3 ${
           isDark ? 'bg-[#101426] border-slate-800' : 'bg-slate-50 border-slate-200'
         }`}>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md ${
+          <div className="flex items-start sm:items-center justify-between gap-2.5 sm:gap-3">
+            <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md ${
                 isDark ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-[#00288e]/10 text-[#00288e] border border-[#00288e]/20'
               }`}>
-                <span className="material-symbols-outlined text-[22px] sm:text-[24px]">account_balance</span>
+                <span className="material-symbols-outlined text-[20px] sm:text-[24px]">account_balance</span>
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  <h2 className="text-[15px] sm:text-[17px] font-black tracking-tight flex items-center gap-1.5 truncate">
+                  <h2 className="text-[14px] sm:text-[17px] font-black tracking-tight flex items-center gap-1.5 text-inherit">
                     <span>Constitution of India</span>
-                    <span className="text-[10px] font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/25">
-                      Supreme Code
-                    </span>
                   </h2>
-                  <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/25">
+                  <span className="text-[9.5px] sm:text-[10px] font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/25 shrink-0">
+                    Supreme Code
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/25 shrink-0">
                     25 Parts • 456+ Articles • 12 Schedules
                   </span>
                 </div>
-                <p className={`text-[11px] sm:text-[12px] mt-0.5 truncate ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                <p className={`text-[10.5px] sm:text-[12px] mt-0.5 leading-snug sm:leading-normal sm:truncate ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                   Fundamental Rights, Writ Remedies, Precedents & Doctrines.
                 </p>
               </div>
@@ -112,21 +118,22 @@ export function ConstitutionStudioModal({
             <button
               type="button"
               onClick={onClose}
-              className={`p-1.5 rounded-lg border transition-all cursor-pointer shrink-0 ${
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg border flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                 isDark ? 'bg-[#171b30] hover:bg-red-950/40 text-slate-400 hover:text-red-400 border-slate-700' : 'bg-white hover:bg-red-50 text-slate-500 hover:text-red-600 border-slate-300'
               }`}
               title="Close Constitution Studio"
+              aria-label="Close Constitution Studio"
             >
-              <span className="material-symbols-outlined text-[19px]">close</span>
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">close</span>
             </button>
           </div>
 
           {/* Navigation Mode Bar */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none pt-1 border-t border-slate-200 dark:border-slate-800 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar scrollbar-none pt-1 border-t border-slate-200 dark:border-slate-800 shrink-0">
             <button
               type="button"
-              onClick={() => setActiveTab('explorer')}
-              className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              onClick={() => { setActiveTab('explorer'); setMobileExplorerView('list'); }}
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === 'explorer'
                   ? isDark ? 'bg-amber-500 text-black font-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                   : isDark ? 'text-slate-400 hover:text-white bg-[#14182a]' : 'text-slate-600 hover:text-slate-900 bg-slate-100'
@@ -139,20 +146,21 @@ export function ConstitutionStudioModal({
             <button
               type="button"
               onClick={() => setActiveTab('analyzer')}
-              className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === 'analyzer'
                   ? isDark ? 'bg-amber-500 text-black font-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                   : isDark ? 'text-slate-400 hover:text-white bg-[#14182a]' : 'text-slate-600 hover:text-slate-900 bg-slate-100'
               }`}
             >
               <span className="material-symbols-outlined text-[14px]">psychology</span>
-              <span>Constitutional Analyzer</span>
+              <span className="hidden xs:inline">Constitutional</span>
+              <span>Analyzer</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('preamble')}
-              className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === 'preamble'
                   ? isDark ? 'bg-amber-500 text-black font-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                   : isDark ? 'text-slate-400 hover:text-white bg-[#14182a]' : 'text-slate-600 hover:text-slate-900 bg-slate-100'
@@ -165,7 +173,7 @@ export function ConstitutionStudioModal({
             <button
               type="button"
               onClick={() => setActiveTab('schedules')}
-              className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === 'schedules'
                   ? isDark ? 'bg-amber-500 text-black font-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                   : isDark ? 'text-slate-400 hover:text-white bg-[#14182a]' : 'text-slate-600 hover:text-slate-900 bg-slate-100'
@@ -182,12 +190,40 @@ export function ConstitutionStudioModal({
           {/* TAB 1: ARTICLE & PART EXPLORER */}
           {activeTab === 'explorer' && (
             <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-              {/* Left Column: Filter & Article Rail (5 Cols) */}
-              <div className={`w-full lg:w-[42%] border-r flex flex-col overflow-hidden shrink-0 ${
-                isDark ? 'border-slate-800 bg-[#0f1222]' : 'border-slate-200 bg-slate-50'
-              }`}>
+              {/* Mobile Segmented Switcher (< lg only) */}
+              <div className="lg:hidden flex items-center p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-[#121628] shrink-0 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setMobileExplorerView('list')}
+                  className={`flex-1 py-1.5 px-2.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    mobileExplorerView === 'list'
+                      ? isDark ? 'bg-amber-500 text-black shadow-xs font-black' : 'bg-[#00288e] text-white shadow-xs'
+                      : isDark ? 'bg-[#181d33] text-slate-300 hover:text-white' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[14px]">format_list_bulleted</span>
+                  <span>Articles List ({searchResults.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileExplorerView('detail')}
+                  className={`flex-1 py-1.5 px-2.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    mobileExplorerView === 'detail'
+                      ? isDark ? 'bg-amber-500 text-black shadow-xs font-black' : 'bg-[#00288e] text-white shadow-xs'
+                      : isDark ? 'bg-[#181d33] text-slate-300 hover:text-white' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[14px]">article</span>
+                  <span className="truncate">{selectedArticle.article_number} Dossier</span>
+                </button>
+              </div>
+
+              {/* Left Column: Filter & Article Rail */}
+              <div className={`w-full lg:w-[40%] xl:w-[38%] border-r flex flex-col overflow-hidden shrink-0 ${
+                mobileExplorerView === 'detail' ? 'hidden lg:flex' : 'flex flex-1'
+              } ${isDark ? 'border-slate-800 bg-[#0f1222]' : 'border-slate-200 bg-slate-50'}`}>
                 {/* Search & Filter Bar */}
-                <div className={`p-3 border-b space-y-2 shrink-0 ${
+                <div className={`p-2.5 sm:p-3 border-b space-y-2 shrink-0 ${
                   isDark ? 'border-slate-800 bg-[#121628]' : 'border-slate-200 bg-white'
                 }`}>
                   <div className="relative">
@@ -199,17 +235,17 @@ export function ConstitutionStudioModal({
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search Article (e.g. 21, privacy, 300A, arrest)..."
-                      className={`w-full text-[12.5px] pl-8 pr-3 py-1.5 rounded-lg border focus:outline-none ${
+                      className={`w-full text-[12px] sm:text-[12.5px] pl-8 pr-3 py-1.5 rounded-lg border focus:outline-none ${
                         isDark ? 'bg-[#181d33] border-slate-700 text-white focus:border-amber-500' : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-[#00288e]'
                       }`}
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-1.5 sm:gap-2">
                     <select
                       value={selectedPart}
                       onChange={(e) => setSelectedPart(e.target.value)}
-                      className={`text-[11px] p-1.5 rounded-lg border focus:outline-none ${
+                      className={`text-[10.5px] sm:text-[11px] p-1.5 rounded-lg border focus:outline-none ${
                         isDark ? 'bg-[#181d33] border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
                       }`}
                     >
@@ -224,7 +260,7 @@ export function ConstitutionStudioModal({
                     <select
                       value={selectedClassification}
                       onChange={(e) => setSelectedClassification(e.target.value)}
-                      className={`text-[11px] p-1.5 rounded-lg border focus:outline-none ${
+                      className={`text-[10.5px] sm:text-[11px] p-1.5 rounded-lg border focus:outline-none ${
                         isDark ? 'bg-[#181d33] border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800'
                       }`}
                     >
@@ -244,9 +280,9 @@ export function ConstitutionStudioModal({
 
                 {/* Article List Rail */}
                 <div className="flex-1 overflow-y-auto p-2 space-y-1.5 scrollbar-thin">
-                  <div className="px-2 py-1 text-[11px] font-mono text-slate-400 flex items-center justify-between">
+                  <div className="px-2 py-1 text-[10.5px] sm:text-[11px] font-mono text-slate-400 flex items-center justify-between">
                     <span>Matches: {searchResults.length} Articles</span>
-                    {selectedPart !== 'ALL' && <span>Filter: {selectedPart}</span>}
+                    {selectedPart !== 'ALL' && <span>Part: {selectedPart}</span>}
                   </div>
 
                   {searchResults.map((art) => {
@@ -254,8 +290,8 @@ export function ConstitutionStudioModal({
                     return (
                       <div
                         key={art.article_id}
-                        onClick={() => setSelectedArticle(art)}
-                        className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
+                        onClick={() => handleSelectArticle(art)}
+                        className={`p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer ${
                           isSelected
                             ? isDark
                               ? 'bg-amber-500/15 border-amber-500 text-white shadow-sm ring-1 ring-amber-500/30'
@@ -266,12 +302,12 @@ export function ConstitutionStudioModal({
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className={`text-[12px] font-black font-mono ${
+                          <span className={`text-[11.5px] sm:text-[12px] font-black font-mono ${
                             isSelected ? (isDark ? 'text-amber-400' : 'text-[#00288e]') : ''
                           }`}>
                             {art.article_number}
                           </span>
-                          <span className={`text-[9.5px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                          <span className={`text-[9px] sm:text-[9.5px] font-mono font-bold px-1.5 py-0.2 rounded truncate max-w-[130px] ${
                             art.classification === 'FUNDAMENTAL_RIGHT'
                               ? 'bg-red-500/15 text-red-500 border border-red-500/30'
                               : art.classification === 'PROCEDURAL_REMEDY'
@@ -281,8 +317,8 @@ export function ConstitutionStudioModal({
                             {art.classification.replace('_', ' ')}
                           </span>
                         </div>
-                        <h4 className="text-[12px] font-bold line-clamp-1">{art.heading}</h4>
-                        <p className={`text-[11px] line-clamp-1 mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <h4 className="text-[11.5px] sm:text-[12px] font-bold line-clamp-1">{art.heading}</h4>
+                        <p className={`text-[10.5px] sm:text-[11px] line-clamp-1 mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                           {art.plain_explanation}
                         </p>
                       </div>
@@ -291,52 +327,70 @@ export function ConstitutionStudioModal({
                 </div>
               </div>
 
-              {/* Right Column: Complete Article Dossier (7 Cols) */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 scrollbar-thin">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-500 border border-amber-500/25">
+              {/* Right Column: Complete Article Dossier */}
+              <div className={`flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-6 space-y-4 sm:space-y-5 scrollbar-thin ${
+                mobileExplorerView === 'list' ? 'hidden lg:block' : 'block'
+              }`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+                  <div className="min-w-0 flex-1">
+                    {/* Mobile Back Button (< lg only) */}
+                    <div className="lg:hidden mb-2">
+                      <button
+                        type="button"
+                        onClick={() => setMobileExplorerView('list')}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                          isDark ? 'bg-[#181c2f] hover:bg-[#222740] text-amber-400 border-amber-500/30' : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">arrow_back</span>
+                        <span>Back to Articles ({searchResults.length})</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <span className="text-[10px] sm:text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-500 border border-amber-500/25">
                         {selectedArticle.part_number}: {selectedArticle.part_title}
                       </span>
                       {selectedArticle.chapter_title && (
-                        <span className={`text-[11px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <span className={`text-[10px] sm:text-[11px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                           • {selectedArticle.chapter_title}
                         </span>
                       )}
                     </div>
-                    <h3 className="text-[20px] font-black tracking-tight mt-1 text-[#ff7722]">
+                    <h3 className="text-[16px] sm:text-[20px] font-black tracking-tight mt-1 text-[#ff7722] break-words">
                       {selectedArticle.article_number} — {selectedArticle.heading}
                     </h3>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleCopyCitation(selectedArticle)}
-                      className={`px-3 py-1.5 rounded-lg text-[11.5px] font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-[11.5px] font-bold flex items-center gap-1 sm:gap-1.5 border transition-all cursor-pointer ${
                         copiedId === selectedArticle.article_id
                           ? 'bg-emerald-500 text-white border-emerald-600'
                           : isDark
                             ? 'bg-[#181c2f] hover:bg-[#222740] text-slate-200 border-slate-700'
                             : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
                       }`}
+                      title="Copy Article Citation"
                     >
-                      <span className="material-symbols-outlined text-[15px]">
+                      <span className="material-symbols-outlined text-[14px] sm:text-[15px]">
                         {copiedId === selectedArticle.article_id ? 'check' : 'content_copy'}
                       </span>
-                      <span>{copiedId === selectedArticle.article_id ? 'Copied!' : 'Copy Citation'}</span>
+                      <span>{copiedId === selectedArticle.article_id ? 'Copied!' : 'Copy'}</span>
                     </button>
 
                     {onLaunchPleadingWithArticle && (
                       <button
                         type="button"
                         onClick={() => onLaunchPleadingWithArticle(selectedArticle)}
-                        className={`px-3 py-1.5 rounded-lg text-[11.5px] font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                        className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-[11.5px] font-bold flex items-center gap-1 sm:gap-1.5 border transition-all cursor-pointer ${
                           isDark ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300'
                         }`}
+                        title="Draft Court-Ready Writ Petition"
                       >
-                        <span className="material-symbols-outlined text-[15px]">edit_document</span>
+                        <span className="material-symbols-outlined text-[14px] sm:text-[15px]">edit_document</span>
                         <span>Draft Writ</span>
                       </button>
                     )}
@@ -348,12 +402,13 @@ export function ConstitutionStudioModal({
                           `Explain the practical application and High Court petition remedies under ${selectedArticle.article_number} of the Constitution of India regarding ${selectedArticle.heading}.`,
                           selectedArticle.article_number
                         )}
-                        className={`px-3 py-1.5 rounded-lg text-[11.5px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                        className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-[11.5px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer ${
                           isDark ? 'bg-amber-500 hover:bg-amber-400 text-black font-black' : 'bg-[#00288e] hover:bg-blue-900 text-white'
                         }`}
+                        title="Discuss in Chamber AI"
                       >
-                        <span className="material-symbols-outlined text-[15px]">chat</span>
-                        <span>Discuss in Chamber</span>
+                        <span className="material-symbols-outlined text-[14px] sm:text-[15px]">chat</span>
+                        <span>Chamber AI</span>
                       </button>
                     )}
                   </div>
@@ -477,35 +532,35 @@ export function ConstitutionStudioModal({
 
           {/* TAB 2: SENIOR ADVOCATE CONSTITUTIONAL ANALYZER */}
           {activeTab === 'analyzer' && (
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 scrollbar-thin">
-              <div className={`p-4 rounded-xl border space-y-3 ${
+            <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-6 space-y-3.5 sm:space-y-5 scrollbar-thin">
+              <div className={`p-3.5 sm:p-4 rounded-xl border space-y-2.5 sm:space-y-3 ${
                 isDark ? 'bg-[#131626] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
               }`}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-amber-500 text-[22px]">psychology</span>
-                    <h3 className="text-[14px] font-black uppercase tracking-wider">
+                    <span className="material-symbols-outlined text-amber-500 text-[20px] sm:text-[22px]">psychology</span>
+                    <h3 className="text-[13px] sm:text-[14px] font-black uppercase tracking-wider">
                       Real-Time Constitutional Threat & Controversy Decompiler
                     </h3>
                   </div>
-                  <span className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  <span className={`text-[10px] sm:text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                     Zero Hardcoding • Analyzes any government action, demolition, arrest or tender dispute
                   </span>
                 </div>
 
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={analyzerInput}
                   onChange={(e) => setAnalyzerInput(e.target.value)}
                   placeholder="Paste raw narrative of controversy: e.g. police detained citizen without warrant, municipal bulldozer demolition without notice, arbitrary tender cancellation, internet shutdown, employee dismissed without inquiry..."
-                  className={`w-full text-[12.5px] p-3 rounded-xl border font-sans focus:outline-none transition-all ${
+                  className={`w-full text-[12px] sm:text-[12.5px] p-2.5 sm:p-3 rounded-xl border font-sans focus:outline-none transition-all ${
                     isDark ? 'bg-[#181c2f] border-slate-700 text-white focus:border-amber-500' : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-[#00288e]'
                   }`}
                 />
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className={`text-[11px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Quick Samples:</span>
+                    <span className={`text-[10.5px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Quick Samples:</span>
                     {[
                       { label: 'Bulldozer Demolition', text: 'Municipal authorities brought bulldozers and demolished my residential building without any prior notice, compensation, or hearing opportunity.' },
                       { label: 'Illegal 36h Arrest', text: 'Police arrested my brother without warrant last evening and have not produced him before any Magistrate for 36 hours.' },
@@ -519,7 +574,7 @@ export function ConstitutionStudioModal({
                           setAnalyzerInput(s.text);
                           setAnalysisResult(analyzeClientConstitutionalControversy(s.text));
                         }}
-                        className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold border transition-all cursor-pointer ${
+                        className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-[10.5px] font-bold border transition-all cursor-pointer ${
                           isDark ? 'bg-[#181c2f] hover:bg-[#232840] border-slate-700 text-slate-300' : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
                         }`}
                       >
@@ -531,7 +586,7 @@ export function ConstitutionStudioModal({
                   <button
                     type="button"
                     onClick={handleRunAnalysis}
-                    className={`px-4 py-2 rounded-xl text-[12px] font-black flex items-center gap-1.5 transition-all cursor-pointer ${
+                    className={`w-full sm:w-auto px-4 py-2 sm:py-2.5 rounded-xl text-[11.5px] sm:text-[12px] font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 ${
                       isDark ? 'bg-amber-500 hover:bg-amber-400 text-black shadow-md' : 'bg-[#00288e] hover:bg-blue-900 text-white shadow-md'
                     }`}
                   >
@@ -542,53 +597,53 @@ export function ConstitutionStudioModal({
               </div>
 
               {/* Analysis Result Display */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                <div className="lg:col-span-7 space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+                <div className="lg:col-span-7 space-y-3 sm:space-y-4">
                   {/* Strategic Remedy Banner */}
-                  <div className={`p-4 rounded-xl border space-y-2 ${
+                  <div className={`p-3.5 sm:p-4 rounded-xl border space-y-2 ${
                     isDark ? 'bg-[#101426] border-emerald-900/50 text-emerald-100' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
                   }`}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      <span className="text-[10.5px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400">
                         Recommended Prerogative Writ
                       </span>
-                      <span className="text-[12px] font-black font-mono px-2 py-0.5 rounded bg-emerald-500 text-white">
+                      <span className="text-[11px] sm:text-[12px] font-black font-mono px-2 py-0.5 rounded bg-emerald-500 text-white shrink-0">
                         {analysisResult.recommended_writ}
                       </span>
                     </div>
-                    <h4 className="text-[15px] font-black">{analysisResult.recommended_forum}</h4>
-                    <p className="text-[12px] leading-relaxed opacity-90">
+                    <h4 className="text-[14px] sm:text-[15px] font-black">{analysisResult.recommended_forum}</h4>
+                    <p className="text-[11.5px] sm:text-[12px] leading-relaxed opacity-90">
                       {analysisResult.advocate_pleading_summary}
                     </p>
                   </div>
 
                   {/* Scrutiny Standard */}
-                  <div className={`p-4 rounded-xl border space-y-1.5 ${
+                  <div className={`p-3.5 sm:p-4 rounded-xl border space-y-1.5 ${
                     isDark ? 'bg-[#131628] border-slate-800' : 'bg-white border-slate-200'
                   }`}>
-                    <span className="text-[10.5px] font-mono font-black uppercase text-amber-500">
+                    <span className="text-[10px] sm:text-[10.5px] font-mono font-black uppercase text-amber-500">
                       Judicial Scrutiny Standard
                     </span>
-                    <p className="text-[12.5px] leading-relaxed font-serif">
+                    <p className="text-[11.5px] sm:text-[12.5px] leading-relaxed font-serif">
                       {analysisResult.scrutiny_standard}
                     </p>
                   </div>
 
                   {/* Precedents Card */}
-                  <div className={`p-4 rounded-xl border space-y-2.5 ${
+                  <div className={`p-3.5 sm:p-4 rounded-xl border space-y-2.5 ${
                     isDark ? 'bg-[#131628] border-slate-800' : 'bg-white border-slate-200'
                   }`}>
-                    <span className="text-[10.5px] font-mono font-black uppercase text-blue-400">
+                    <span className="text-[10px] sm:text-[10.5px] font-mono font-black uppercase text-blue-400">
                       Binding Constitution Bench Precedents
                     </span>
                     <div className="space-y-2">
                       {analysisResult.key_precedents.map((p, idx) => (
-                        <div key={idx} className={`p-2.5 rounded-lg border text-[11.5px] ${
+                        <div key={idx} className={`p-2.5 rounded-lg border text-[11px] sm:text-[11.5px] ${
                           isDark ? 'bg-[#181c30] border-slate-700' : 'bg-slate-50 border-slate-200'
                         }`}>
-                          <div className="flex items-center justify-between font-bold">
+                          <div className="flex flex-wrap items-center justify-between gap-1 font-bold">
                             <span className="text-amber-400">{p.case_title}</span>
-                            <span className="font-mono text-[10px] text-slate-400">{p.neutral_citation}</span>
+                            <span className="font-mono text-[9.5px] sm:text-[10px] text-slate-400">{p.neutral_citation}</span>
                           </div>
                           <p className="text-[11px] mt-1 text-slate-300">{p.ratio_decidendi}</p>
                         </div>
@@ -598,31 +653,31 @@ export function ConstitutionStudioModal({
                 </div>
 
                 {/* Right Column: Invoked Constitutional Articles */}
-                <div className="lg:col-span-5 space-y-3">
-                  <h4 className={`text-[12px] font-black uppercase tracking-wider ${
+                <div className="lg:col-span-5 space-y-2.5 sm:space-y-3">
+                  <h4 className={`text-[11.5px] sm:text-[12px] font-black uppercase tracking-wider ${
                     isDark ? 'text-slate-300' : 'text-slate-700'
                   }`}>
                     Invoked Constitutional Provisions ({analysisResult.invoked_articles.length})
                   </h4>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2 sm:space-y-2.5">
                     {analysisResult.invoked_articles.map((art) => (
                       <div
                         key={art.article_id}
-                        className={`p-3 rounded-xl border space-y-1 ${
+                        className={`p-2.5 sm:p-3 rounded-xl border space-y-1 ${
                           isDark ? 'bg-[#131628] border-slate-800' : 'bg-white border-slate-200'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[13px] font-black text-amber-400 font-mono">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[12px] sm:text-[13px] font-black text-amber-400 font-mono">
                             {art.article_number}
                           </span>
-                          <span className="text-[9.5px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-500 border border-amber-500/25">
+                          <span className="text-[9px] sm:text-[9.5px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-500 border border-amber-500/25 truncate max-w-[140px]">
                             {art.classification}
                           </span>
                         </div>
-                        <h5 className="text-[12px] font-bold">{art.heading}</h5>
-                        <p className={`text-[11px] line-clamp-2 leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                        <h5 className="text-[11.5px] sm:text-[12px] font-bold line-clamp-1">{art.heading}</h5>
+                        <p className={`text-[10.5px] sm:text-[11px] line-clamp-2 leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                           {art.plain_explanation}
                         </p>
                       </div>
@@ -635,17 +690,17 @@ export function ConstitutionStudioModal({
 
           {/* TAB 3: PREAMBLE & BASIC STRUCTURE */}
           {activeTab === 'preamble' && (
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 max-w-4xl mx-auto scrollbar-thin">
-              <div className={`p-6 sm:p-8 rounded-2xl border text-center space-y-4 shadow-lg ${
+            <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 md:p-8 space-y-4 sm:space-y-6 max-w-4xl mx-auto scrollbar-thin">
+              <div className={`p-4 sm:p-6 md:p-8 rounded-2xl border text-center space-y-3 sm:space-y-4 shadow-lg ${
                 isDark ? 'bg-[#121526] border-amber-500/30' : 'bg-amber-50/50 border-amber-200'
               }`}>
-                <span className="text-[11px] font-mono font-black uppercase tracking-widest text-amber-500">
+                <span className="text-[10px] sm:text-[11px] font-mono font-black uppercase tracking-widest text-amber-500">
                   The Preamble to the Constitution of India
                 </span>
-                <p className="text-[16px] sm:text-[18px] font-serif leading-loose tracking-wide text-amber-100 dark:text-amber-200">
+                <p className="text-[13px] sm:text-[16px] md:text-[18px] font-serif leading-relaxed sm:leading-loose tracking-wide text-amber-100 dark:text-amber-200">
                   "{preamble.verbatim_text}"
                 </p>
-                <div className={`p-3 rounded-xl text-[12px] font-mono max-w-xl mx-auto ${
+                <div className={`p-2.5 sm:p-3 rounded-xl text-[11px] sm:text-[12px] font-mono max-w-xl mx-auto ${
                   isDark ? 'bg-black/40 text-amber-300' : 'bg-white text-slate-800'
                 }`}>
                   Adopted by Constituent Assembly on 26th November 1949 • In Effect 26th January 1950
@@ -653,23 +708,23 @@ export function ConstitutionStudioModal({
               </div>
 
               {/* Landmark Precedents on Preamble */}
-              <div className="space-y-3">
-                <h4 className="text-[13px] font-black uppercase tracking-wider text-amber-400">
+              <div className="space-y-2.5 sm:space-y-3">
+                <h4 className="text-[12px] sm:text-[13px] font-black uppercase tracking-wider text-amber-400">
                   Landmark Constitution Bench Authority on Basic Structure
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
                   {preamble.landmark_precedents.map((p, idx) => (
-                    <div key={idx} className={`p-4 rounded-xl border space-y-1.5 ${
+                    <div key={idx} className={`p-3.5 sm:p-4 rounded-xl border space-y-1.5 ${
                       isDark ? 'bg-[#131626] border-slate-800' : 'bg-white border-slate-200'
                     }`}>
-                      <div className="flex items-center justify-between font-bold">
-                        <span className="text-amber-400 text-[13px]">{p.case_title}</span>
-                        <span className="text-[10px] font-mono text-emerald-400">{p.bench_strength} Judges</span>
+                      <div className="flex flex-wrap items-center justify-between gap-1 font-bold">
+                        <span className="text-amber-400 text-[12px] sm:text-[13px]">{p.case_title}</span>
+                        <span className="text-[9.5px] sm:text-[10px] font-mono text-emerald-400">{p.bench_strength} Judges</span>
                       </div>
-                      <p className="text-[11.5px] leading-relaxed text-slate-300">
+                      <p className="text-[11px] sm:text-[11.5px] leading-relaxed text-slate-300">
                         {p.ratio_decidendi}
                       </p>
-                      <span className="text-[10px] font-mono text-slate-400">
+                      <span className="text-[9.5px] sm:text-[10px] font-mono text-slate-400">
                         Citation: {p.neutral_citation}
                       </span>
                     </div>
@@ -681,31 +736,31 @@ export function ConstitutionStudioModal({
 
           {/* TAB 4: 12 SCHEDULES */}
           {activeTab === 'schedules' && (
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 scrollbar-thin">
-              <h3 className={`text-[13px] font-black uppercase tracking-wider mb-2 ${
+            <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-6 space-y-3 scrollbar-thin">
+              <h3 className={`text-[12px] sm:text-[13px] font-black uppercase tracking-wider mb-2 ${
                 isDark ? 'text-slate-300' : 'text-slate-700'
               }`}>
                 Complete 12 Schedules of the Constitution of India
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
                 {schedules.map((s) => (
                   <div
                     key={s.schedule_number}
-                    className={`p-4 rounded-xl border space-y-2 ${
+                    className={`p-3.5 sm:p-4 rounded-xl border space-y-1.5 sm:space-y-2 ${
                       isDark ? 'bg-[#121526] border-slate-800' : 'bg-white border-slate-200'
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[13px] font-black text-amber-400 font-mono">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[12px] sm:text-[13px] font-black text-amber-400 font-mono">
                         {s.schedule_number}
                       </span>
-                      <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      <span className={`text-[9.5px] sm:text-[10px] font-mono truncate max-w-[150px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         {s.articles_covered.join(', ')}
                       </span>
                     </div>
-                    <h4 className="text-[13px] font-bold">{s.title}</h4>
-                    <p className={`text-[11.5px] leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    <h4 className="text-[12px] sm:text-[13px] font-bold">{s.title}</h4>
+                    <p className={`text-[11px] sm:text-[11.5px] leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                       {s.summary}
                     </p>
                   </div>

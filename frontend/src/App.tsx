@@ -812,11 +812,11 @@ export function App() {
               </span>
             </button>
 
-            {/* Complete Constitution Studio (456+ Articles, Visible on sm+) */}
+            {/* Complete Constitution Studio (456+ Articles, Visible across ALL screens) */}
             <button
               type="button"
               onClick={() => setIsConstitutionModalOpen(true)}
-              className={`hidden sm:flex h-8 items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
+              className={`flex h-7.5 sm:h-8 items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 md:px-3 rounded-lg md:rounded-xl text-[10px] sm:text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] text-[#cbd5e1] border-[#23283f] hover:bg-[#1a1f33] hover:text-white' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
@@ -825,8 +825,8 @@ export function App() {
               aria-label="Open Constitution Studio"
             >
               <span className="material-symbols-outlined text-[14px] sm:text-[15px] 2xl:text-[18px] text-[#22c55e] shrink-0">account_balance</span>
-              <span className="hidden sm:inline font-bold">Constitution</span>
-              <span className={`px-1.5 py-0.2 rounded-full font-mono text-[8.5px] sm:text-[9px] 2xl:text-[10px] font-extrabold shadow-xs ${
+              <span className="hidden xs:inline font-bold">Constitution</span>
+              <span className={`px-1.5 py-0.2 rounded-full font-mono text-[8px] sm:text-[9px] 2xl:text-[10px] font-extrabold shadow-xs ${
                 isDark ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-[#15803d]/15 text-[#15803d]'
               }`}>
                 456+
@@ -949,6 +949,7 @@ export function App() {
                 setActiveTab('search');
               }} 
               geminiApiKey={geminiApiKey}
+              onOpenConstitutionModal={() => setIsConstitutionModalOpen(true)}
             />
           )}
           {activeTab === 'contracts' && (

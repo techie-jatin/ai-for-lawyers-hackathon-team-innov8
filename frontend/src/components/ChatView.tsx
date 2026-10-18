@@ -11,6 +11,7 @@ import { ReaChamberModal } from './ReaChamberModal';
 import { CourtPleadingStudio } from './CourtPleadingStudio';
 import { VoiceConsultationPlayer } from './VoiceConsultationPlayer';
 import { DisputeTimelineVisualizer } from './DisputeTimelineVisualizer';
+import { CounterStrategyStudio } from './CounterStrategyStudio';
 import { clientStorage } from '../services/clientStorage';
 
 export interface ApplicableLaw {
@@ -608,6 +609,10 @@ export function ChatView({
   // Interactive Dispute Timeline Visualizer Modal State
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
   const [timelineArchetype, setTimelineArchetype] = useState<string>('cheque_bounce_138_ni');
+
+  // Defensive Counter-Strategy Studio Modal State
+  const [isCounterStrategyModalOpen, setIsCounterStrategyModalOpen] = useState(false);
+  const [counterStrategyInitialFacts, setCounterStrategyInitialFacts] = useState('');
 
   // Voice Dictation Streaming & Bilingual Support State
   const recognitionRef = useRef<any>(null);
@@ -3013,6 +3018,24 @@ export function ChatView({
 
                 <button
                   type="button"
+                  onClick={() => {
+                    const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                    setCounterStrategyInitialFacts(activeNarrative);
+                    setIsCounterStrategyModalOpen(true);
+                  }}
+                  className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
+                    isDark 
+                      ? 'bg-red-500/15 hover:bg-red-500/25 text-red-300 border-red-500/30' 
+                      : 'bg-red-50 hover:bg-red-100 text-red-950 border-red-200'
+                  }`}
+                  title="Defensive Counter-Strategy Generator (Anti-Vexatious Sanctions & Cross-Complaints)"
+                >
+                  <span className="material-symbols-outlined text-[14px] text-red-500">shield_with_heart</span>
+                  <span className="hidden md:inline">Counter-Offensive</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
                   className={`px-2 py-1 rounded-lg text-[10.5px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
                     speechLang === 'hi-IN'
@@ -3654,6 +3677,20 @@ export function ChatView({
                 apiBase={apiBase}
                 initialArchetype={timelineArchetype}
                 onClose={() => setIsTimelineModalOpen(false)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* DEFENSIVE COUNTER-STRATEGY STUDIO MODAL */}
+        {isCounterStrategyModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-6xl h-[92vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+              <CounterStrategyStudio
+                isDark={isDark}
+                apiBase={apiBase}
+                initialFacts={counterStrategyInitialFacts}
+                onClose={() => setIsCounterStrategyModalOpen(false)}
               />
             </div>
           </div>

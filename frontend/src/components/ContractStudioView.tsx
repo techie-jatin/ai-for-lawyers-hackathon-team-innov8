@@ -4,6 +4,7 @@ import { CourtPleadingStudio } from './CourtPleadingStudio';
 import { CleanroomStampingStudio } from './CleanroomStampingStudio';
 import { BsaCertificateStudio } from './BsaCertificateStudio';
 import { DisputeTimelineVisualizer } from './DisputeTimelineVisualizer';
+import { CounterStrategyStudio } from './CounterStrategyStudio';
 
 interface ContractStudioViewProps {
   isDark: boolean;
@@ -11,7 +12,7 @@ interface ContractStudioViewProps {
   apiBase?: string;
 }
 
-type StudioMode = 'pleadings' | 'generator' | 'scanner' | 'cleanroom' | 'bsa_cert' | 'timeline';
+type StudioMode = 'pleadings' | 'generator' | 'scanner' | 'cleanroom' | 'bsa_cert' | 'timeline' | 'counter_strategy';
 
 interface RiskItem {
   id: string;
@@ -955,13 +956,31 @@ FOR ${partyB.toUpperCase()}: ______________________`;
             <span className="material-symbols-outlined text-[15px]">timeline</span>
             <span>Dispute Timeline</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setStudioMode('counter_strategy')}
+            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              studioMode === 'counter_strategy'
+                ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
+                : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[15px]">shield_with_heart</span>
+            <span>Counter-Strategy</span>
+          </button>
         </div>
       </div>
 
       {/* WORKSPACE BODY */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-5 contract-studio-no-print">
         <div className="max-w-[1240px] mx-auto space-y-5">
-          {studioMode === 'timeline' ? (
+          {studioMode === 'counter_strategy' ? (
+            /* ================= MODE 6: DEFENSIVE COUNTER-STRATEGY ================= */
+            <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+              <CounterStrategyStudio isDark={isDark} apiBase={resolvedApiBase} />
+            </div>
+          ) : studioMode === 'timeline' ? (
             /* ================= MODE 5: INTERACTIVE DISPUTE TIMELINE ================= */
             <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
               <DisputeTimelineVisualizer isDark={isDark} apiBase={resolvedApiBase} />

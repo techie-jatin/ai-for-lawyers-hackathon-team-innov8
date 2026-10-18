@@ -71,6 +71,23 @@ class CalculateTimelineRequest(BaseModel):
     anchor_date: str = Field(..., min_length=4, max_length=20)
     current_date_override: Optional[str] = Field(None, max_length=20)
 
+class GenerateCounterStrategyRequest(BaseModel):
+    preset_key: str = Field(..., max_length=100)
+    applicant_name: str = Field(..., min_length=1, max_length=200)
+    applicant_details: Optional[str] = Field(None, max_length=500)
+    opposite_party_name: str = Field(..., min_length=1, max_length=200)
+    opposite_party_details: Optional[str] = Field(None, max_length=500)
+    court_name: Optional[str] = Field(None, max_length=200)
+    state_name: Optional[str] = Field("State (NCT of Delhi)", max_length=100)
+    case_ref: Optional[str] = Field(None, max_length=200)
+    police_station: Optional[str] = Field(None, max_length=100)
+    claim_amount: Optional[str] = Field("₹25,00,000/-", max_length=100)
+    facts_summary: Optional[str] = Field(None, max_length=5000)
+    advocate_name: Optional[str] = Field(None, max_length=200)
+    advocate_enrolment: Optional[str] = Field(None, max_length=100)
+    advocate_office: Optional[str] = Field(None, max_length=300)
+    gemini_api_key: Optional[str] = Field(None, max_length=128)
+
 class RiskItem(BaseModel):
     id: str
     severity: str  # "critical", "warning", "safe"
@@ -319,6 +336,21 @@ from app.services.pleading_service import PleadingService
 from app.services.cleanroom_service import CleanroomService
 from app.services.bsa_cert_service import BsaCertificateService
 from app.services.timeline_service import get_timeline_archetypes, calculate_timeline
+from app.services.counter_strategy_service import CounterStrategyService
+
+@router.get("/counter-strategy/presets")
+def list_counter_strategy_presets() -> Dict[str, Any]:
+    """Returns available anti-vexatious counter-strategy legal presets."""
+    return {"presets": CounterStrategyService.get_presets()}
+
+@router.post("/counter-strategy/generate")
+def generate_counter_strategy(req: GenerateCounterStrategyRequest) -> Dict[str, Any]:
+    """
+    Generates an authentic Anti-Vexatious Counter-Strategy Legal Instrument
+    (§248 BNS cross-complaint, §379 BNSS perjury inquiry, §148A CPC caveat,
+    malicious prosecution tort plaint, or Arnesh Kumar contempt petition).
+    """
+    return CounterStrategyService.generate_strategy(req.model_dump(), gemini_api_key=req.gemini_api_key)
 
 @router.get("/timeline/archetypes")
 def list_timeline_archetypes() -> Dict[str, Any]:

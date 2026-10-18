@@ -110,7 +110,7 @@ export const InlineMarkdown: React.FC<{ text: string; isDark?: boolean }> = ({ t
                   : 'bg-[#eff6ff] hover:bg-[#dbeafe] text-[#1e3a8a] border-[#bfdbfe]'
               }`}
             >
-              <span className="material-symbols-outlined text-[12px] text-amber-500 shrink-0">verified</span>
+              <span className="material-symbols-outlined text-[12px] text-amber-500 shrink-0 select-none" aria-hidden="true">verified</span>
               <span>{token.content}</span>
             </span>
           );
@@ -126,7 +126,14 @@ export interface OlItem {
   text: string;
 }
 
-interface Block {
+export interface TableBlock {
+  type: 'table';
+  headers: string[];
+  alignments: ('left' | 'center' | 'right')[];
+  rows: string[][];
+}
+
+interface RegularBlock {
   type: 'p' | 'blockquote' | 'ul' | 'ol' | 'header' | 'hr';
   level?: number;
   items?: string[];
@@ -134,11 +141,97 @@ interface Block {
   text?: string;
 }
 
+export type Block = RegularBlock | TableBlock;
+
 /**
- * Parses raw markdown lines into structured block elements.
+ * Splits a Markdown table row into trimmed cell strings, handling escaped pipes.
+ */
+function splitTableRow(rowStr: string): string[] {
+  let trimmed = rowStr.trim();
+  if (trimmed.startsWith('|')) {
+    trimmed = trimmed.slice(1);
+  }
+  if (trimmed.endsWith('|')) {
+    trimmed = trimmed.slice(0, -1);
+  }
+
+  const cells: string[] = [];
+  let currentCell = '';
+  let isEscaped = false;
+
+  for (let i = 0; i < trimmed.length; i++) {
+    const char = trimmed[i];
+    if (char === '\\' && !isEscaped) {
+      isEscaped = true;
+      currentCell += char;
+      continue;
+    }
+    if (char === '|' && !isEscaped) {
+      cells.push(currentCell.trim());
+      currentCell = '';
+    } else {
+      currentCell += char;
+    }
+    isEscaped = false;
+  }
+  cells.push(currentCell.trim());
+  return cells;
+}
+
+/**
+ * Checks whether a markdown line is a table delimiter/separator row (e.g. `| :--- | :---: | ---: |`).
+ */
+function isTableSeparator(rowStr: string): boolean {
+  if (!rowStr.includes('-')) return false;
+  const cells = splitTableRow(rowStr);
+  if (cells.length === 0) return false;
+  return cells.every(c => /^:?-+:?$/.test(c.trim()));
+}
+
+/**
+ * Extracts alignment directives ('left' | 'center' | 'right') from a markdown table separator row.
+ */
+function parseAlignments(separatorStr: string): ('left' | 'center' | 'right')[] {
+  const cells = splitTableRow(separatorStr);
+  return cells.map(c => {
+    const trimmed = c.trim();
+    const startColon = trimmed.startsWith(':');
+    const endColon = trimmed.endsWith(':');
+    if (startColon && endColon) return 'center';
+    if (endColon) return 'right';
+    return 'left';
+  });
+}
+
+/**
+ * Normalizes table rows that may have been smashed onto a single line (e.g. `| Col1 | | :--- | | Data |`).
+ */
+function normalizeMarkdownTables(markdownText: string): string {
+  const lines = markdownText.split('\n');
+  const normalizedLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Check if line contains a smashed table row (has `:---` separator or multiple row boundaries with `| |`)
+    if (trimmed.includes('|') && /\|\s*\|\s*:?-+:?/.test(trimmed)) {
+      const unSmashed = trimmed.replace(/\|\s*\|\s*/g, '|\n|');
+      for (const row of unSmashed.split('\n')) {
+        if (row.trim()) normalizedLines.push(row.trim());
+      }
+    } else {
+      normalizedLines.push(line);
+    }
+  }
+
+  return normalizedLines.join('\n');
+}
+
+/**
+ * Parses raw markdown lines into structured block elements, including GFM tables.
  */
 function parseBlocks(markdownText: string): Block[] {
-  const lines = markdownText.split('\n');
+  const normalizedText = normalizeMarkdownTables(markdownText);
+  const lines = normalizedText.split('\n');
   const blocks: Block[] = [];
   let currentParagraphLines: string[] = [];
   let currentUlItems: string[] = [];
@@ -198,6 +291,55 @@ function parseBlocks(markdownText: string): Block[] {
         flushUl();
         flushOl();
       }
+      continue;
+    }
+
+    // Markdown Table Detection (Header row followed by Separator row `| :--- | :--- |`)
+    if (
+      line.includes('|') &&
+      !isTableSeparator(line) &&
+      i + 1 < lines.length &&
+      isTableSeparator(lines[i + 1])
+    ) {
+      flushAll();
+      const headers = splitTableRow(line);
+      const alignments = parseAlignments(lines[i + 1]);
+      i += 2; // Advance past header and separator rows
+
+      const rows: string[][] = [];
+      while (i < lines.length) {
+        const rowLine = lines[i].trim();
+        // Stop table if encountering a blank line, header (#), or horizontal rule (---)
+        if (!rowLine || /^[-*_]{3,}$/.test(rowLine) || /^#{1,4}\s+/.test(rowLine)) {
+          i--;
+          break;
+        }
+        if (!rowLine.includes('|')) {
+          // Wrapped cell without pipe: append to last cell of current row if available
+          if (rows.length > 0 && rows[rows.length - 1].length > 0) {
+            const lastRow = rows[rows.length - 1];
+            lastRow[lastRow.length - 1] += ' ' + rowLine;
+            i++;
+            continue;
+          } else {
+            i--;
+            break;
+          }
+        }
+        const rowCells = splitTableRow(rowLine);
+        while (rowCells.length < headers.length) {
+          rowCells.push('');
+        }
+        rows.push(rowCells.slice(0, headers.length));
+        i++;
+      }
+
+      blocks.push({
+        type: 'table',
+        headers,
+        alignments,
+        rows
+      });
       continue;
     }
 
@@ -311,6 +453,68 @@ export const BlocksRenderer: React.FC<{ blocks: Block[]; isDark?: boolean }> = (
           );
         }
 
+        if (block.type === 'table' && block.headers && block.headers.length > 0) {
+          return (
+            <div 
+              key={idx} 
+              className={`w-full overflow-x-auto my-3 rounded-xl border shadow-2xs ${
+                isDark 
+                  ? 'bg-[#101423] border-[#222842]' 
+                  : 'bg-white border-[#e2e8f0]'
+              }`}
+            >
+              <table className="w-full text-left text-[12.5px] border-collapse min-w-[500px]">
+                <thead>
+                  <tr className={`border-b ${
+                    isDark 
+                      ? 'bg-[#151a2d] border-[#252b45] text-amber-300' 
+                      : 'bg-[#f4f7fc] border-[#e2e8f0] text-[#00288e]'
+                  }`}>
+                    {block.headers.map((header, hIdx) => {
+                      const align = block.alignments[hIdx] || 'left';
+                      const alignClass = align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-left';
+                      return (
+                        <th 
+                          key={hIdx} 
+                          scope="col"
+                          className={`px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-wider font-mono ${alignClass}`}
+                        >
+                          <InlineMarkdown text={header} isDark={isDark} />
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isDark ? 'divide-[#1e2338]' : 'divide-[#edf2f7]'}`}>
+                  {block.rows.map((row, rIdx) => (
+                    <tr 
+                      key={rIdx} 
+                      className={`transition-colors ${
+                        isDark 
+                          ? 'hover:bg-[#15192c] text-[#e2e8f0]' 
+                          : 'hover:bg-[#f8fafc] text-[#0b1c30]'
+                      } ${rIdx % 2 === 1 ? (isDark ? 'bg-[#121626]/50' : 'bg-[#fafbfe]') : ''}`}
+                    >
+                      {row.map((cell, cIdx) => {
+                        const align = block.alignments[cIdx] || 'left';
+                        const alignClass = align === 'center' ? 'text-center' : align === 'right' ? 'text-right' : 'text-left';
+                        return (
+                          <td 
+                            key={cIdx} 
+                            className={`px-3.5 py-2.5 align-top leading-relaxed ${alignClass}`}
+                          >
+                            <InlineMarkdown text={cell} isDark={isDark} />
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        }
+
         if (block.type === 'blockquote' && block.text) {
           return (
             <blockquote 
@@ -322,9 +526,9 @@ export const BlocksRenderer: React.FC<{ blocks: Block[]; isDark?: boolean }> = (
               }`}
             >
               <div className="flex items-start gap-2">
-                <span className={`material-symbols-outlined text-[16px] shrink-0 mt-0.5 ${
+                <span className={`material-symbols-outlined text-[16px] shrink-0 mt-0.5 select-none ${
                   isDark ? 'text-amber-400' : 'text-[#00288e]'
-                }`}>
+                }`} aria-hidden="true">
                   format_quote
                 </span>
                 <div className="text-[12.5px] font-serif">
@@ -402,7 +606,7 @@ export const BlocksRenderer: React.FC<{ blocks: Block[]; isDark?: boolean }> = (
                 isDark ? 'text-amber-300' : 'text-[#00288e]'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">arrow_right</span>
+              <span className="material-symbols-outlined text-[15px] select-none" aria-hidden="true">arrow_right</span>
               <InlineMarkdown text={block.text} isDark={isDark} />
             </h4>
           );
@@ -548,9 +752,9 @@ export const LegalStructuredAnswer: React.FC<{
       >
         <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-blue-500/15">
           <div className="flex items-center gap-2">
-            <span className={`material-symbols-outlined text-[19px] ${
+            <span className={`material-symbols-outlined text-[19px] select-none ${
               isDark ? 'text-amber-400' : 'text-[#00288e]'
-            }`}>
+            }`} aria-hidden="true">
               {summarySection.icon || 'gavel'}
             </span>
             <h3 className={`text-[13.5px] font-bold tracking-tight ${
@@ -584,9 +788,9 @@ export const LegalStructuredAnswer: React.FC<{
               }`}
             >
               <div className="flex items-center gap-2 pb-2 mb-2.5 border-b border-slate-700/20">
-                <span className={`material-symbols-outlined text-[17px] ${
+                <span className={`material-symbols-outlined text-[17px] select-none ${
                   isDark ? 'text-amber-400' : 'text-[#00288e]'
-                }`}>
+                }`} aria-hidden="true">
                   {sec.icon}
                 </span>
                 <h4 className={`text-[13px] font-bold tracking-tight ${

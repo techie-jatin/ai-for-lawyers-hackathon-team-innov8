@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   getClientPreamble,
   getClientSchedules,
@@ -69,9 +70,14 @@ export function ConstitutionStudioModal({
     setAnalysisResult(res);
   };
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in font-sans">
-      <div className={`w-full max-w-6xl h-[92vh] max-h-[920px] rounded-2xl flex flex-col shadow-2xl border overflow-hidden transition-all ${
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div 
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in font-sans"
+    >
+      <div className={`w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl flex flex-col shadow-2xl border overflow-hidden transition-all ${
         isDark ? 'bg-[#0c0f1d] border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
       }`}>
         {/* ================= MODAL HEADER ================= */}
@@ -709,6 +715,7 @@ export function ConstitutionStudioModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

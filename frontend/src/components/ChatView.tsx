@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Loader2, CheckCircle2, Scale, BookOpen, Database, Gavel, ShieldCheck, Brain } from 'lucide-react';
 import type { ChatLaunchContext } from '../App';
 import { PrecedentDossierDrawer, type RealCasePrecedentItem } from './PrecedentDossierDrawer';
@@ -3658,9 +3659,12 @@ export function ChatView({
         />
 
         {/* COURT-READY PLEADING & NOTICE STUDIO MODAL */}
-        {isPleadingStudioOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-full max-w-6xl h-[92vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+        {isPleadingStudioOpen && typeof document !== 'undefined' && createPortal(
+          <div 
+            onClick={(e) => { if (e.target === e.currentTarget) setIsPleadingStudioOpen(false); }}
+            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          >
+            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <CourtPleadingStudio
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3668,13 +3672,17 @@ export function ChatView({
                 onClose={() => setIsPleadingStudioOpen(false)}
               />
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* INTERACTIVE DISPUTE TIMELINE MODAL */}
-        {isTimelineModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-full max-w-6xl h-[92vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+        {isTimelineModalOpen && typeof document !== 'undefined' && createPortal(
+          <div 
+            onClick={(e) => { if (e.target === e.currentTarget) setIsTimelineModalOpen(false); }}
+            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          >
+            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <DisputeTimelineVisualizer
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3683,13 +3691,17 @@ export function ChatView({
                 onClose={() => setIsTimelineModalOpen(false)}
               />
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* DEFENSIVE COUNTER-STRATEGY STUDIO MODAL */}
-        {isCounterStrategyModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-full max-w-6xl h-[92vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+        {isCounterStrategyModalOpen && typeof document !== 'undefined' && createPortal(
+          <div 
+            onClick={(e) => { if (e.target === e.currentTarget) setIsCounterStrategyModalOpen(false); }}
+            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          >
+            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <CounterStrategyStudio
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3697,7 +3709,8 @@ export function ChatView({
                 onClose={() => setIsCounterStrategyModalOpen(false)}
               />
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* COURT-READY PRINT CANVAS (Visible only during window.print()) */}

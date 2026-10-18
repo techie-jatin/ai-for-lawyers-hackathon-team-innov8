@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, 
   Scale, 
@@ -147,12 +148,15 @@ export function LegalAidDirectoryModal({ isOpen, onClose, isDark }: LegalAidDire
     );
   }, [searchQuery]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+  return createPortal(
+    <div 
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-[10050] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+    >
       <div 
-        className={`w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden transition-all ${
+        className={`w-full max-w-4xl max-h-[90dvh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden transition-all ${
           isDark 
             ? 'bg-[#0f121e] border-[#222942] text-white shadow-black/80' 
             : 'bg-white border-slate-200 text-slate-900 shadow-slate-900/20'
@@ -471,6 +475,7 @@ export function LegalAidDirectoryModal({ isOpen, onClose, isDark }: LegalAidDire
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

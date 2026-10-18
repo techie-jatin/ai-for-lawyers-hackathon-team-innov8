@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, 
   Scale, 
@@ -142,10 +143,15 @@ ${v.critical_evidentiary_defects.map(d => `- [ ] ${d}`).join('\n')}
     analysis.verdict.judicial_bench_brief
   ) : undefined;
 
-  return (
-    <div className="fixed inset-0 z-[10050] bg-black/80 flex items-center justify-center p-3 sm:p-5 backdrop-blur-sm animate-in fade-in duration-200">
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div 
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-[10050] bg-black/80 flex items-center justify-center p-3 sm:p-5 backdrop-blur-sm animate-in fade-in duration-200"
+    >
       <div 
-        className={`w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden transition-colors ${
+        className={`w-full max-w-4xl max-h-[92dvh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden transition-colors ${
           isDark ? 'bg-[#0e111a] border-[#22283d] text-white' : 'bg-white border-[#e2e8f0] text-[#0f172a]'
         }`}
       >
@@ -589,6 +595,7 @@ ${v.critical_evidentiary_defects.map(d => `- [ ] ${d}`).join('\n')}
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

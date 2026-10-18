@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, 
   Search, 
@@ -48,7 +49,7 @@ export const StatutoryConcordanceModal: React.FC<StatutoryConcordanceModalProps>
     return ClientConcordanceEngine.search(searchQuery, categoryFilter, 120);
   }, [searchQuery, categoryFilter]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const handleCopyItem = (item: ConcordanceItem) => {
     const text = `
@@ -64,10 +65,13 @@ export const StatutoryConcordanceModal: React.FC<StatutoryConcordanceModalProps>
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  return (
-    <div className="fixed inset-0 z-[10060] bg-black/80 flex items-center justify-center p-3 sm:p-5 backdrop-blur-sm animate-in fade-in duration-200">
+  return createPortal(
+    <div 
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-[10060] bg-black/80 flex items-center justify-center p-3 sm:p-5 backdrop-blur-sm animate-in fade-in duration-200"
+    >
       <div 
-        className={`w-full max-w-5xl max-h-[92vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden transition-colors ${
+        className={`w-full max-w-5xl max-h-[92dvh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden transition-colors ${
           isDark ? 'bg-[#0d101a] border-[#22283d] text-white' : 'bg-white border-[#e2e8f0] text-[#0f172a]'
         }`}
       >
@@ -443,6 +447,7 @@ export const StatutoryConcordanceModal: React.FC<StatutoryConcordanceModalProps>
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

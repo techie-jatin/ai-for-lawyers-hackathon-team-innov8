@@ -11,6 +11,7 @@ import { LegalAidDirectoryModal } from './LegalAidDirectoryModal';
 import { ReaChamberModal } from './ReaChamberModal';
 import { CourtPleadingStudio } from './CourtPleadingStudio';
 import { VoiceConsultationPlayer } from './VoiceConsultationPlayer';
+import { speechSynthesizer, cleanTextForSpeech } from '../services/voiceConsultationEngine';
 import { DisputeTimelineVisualizer } from './DisputeTimelineVisualizer';
 import { CounterStrategyStudio } from './CounterStrategyStudio';
 import { clientStorage } from '../services/clientStorage';
@@ -620,12 +621,17 @@ export function ChatView({
 
   // Voice Dictation Streaming & Bilingual Support State
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const activeAudioStreamRef = useRef<MediaStream | null>(null);
   const userRequestedStopRef = useRef(false);
   const isListeningRef = useRef(false);
   const accumulatedBeforeRestartRef = useRef('');
+  const currentFullFinalsRef = useRef('');
   const [voiceStreamingText, setVoiceStreamingText] = useState('');
   const [speechLang, setSpeechLang] = useState<'en-IN' | 'hi-IN'>('en-IN');
   const [interimTranscript, setInterimTranscript] = useState<string>('');
+  const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
 
   // High-Fidelity Document Attachment & Drag-and-Drop State
   const [attachedDoc, setAttachedDoc] = useState<ParsedDocumentResult | null>(null);
@@ -1159,18 +1165,132 @@ export function ChatView({
       if (recognitionRef.current) {
         try { recognitionRef.current.abort(); } catch {}
       }
+      if (activeAudioStreamRef.current) {
+        try { activeAudioStreamRef.current.getTracks().forEach(t => t.stop()); } catch {}
+      }
+      speechSynthesizer.stop();
     };
   }, []);
 
+  // Quick 1-Click Spoken Legal Consultation Handler
+  const handleQuickSpeak = (rawText: string, messageId: string) => {
+    if (speakingMsgId === messageId) {
+      speechSynthesizer.stop();
+      setSpeakingMsgId(null);
+      return;
+    }
+    speechSynthesizer.stop();
+    setSpeakingMsgId(messageId);
+    const clean = cleanTextForSpeech(rawText);
+    speechSynthesizer.speak(
+      clean,
+      speechLang,
+      1.0,
+      () => setSpeakingMsgId(messageId),
+      () => setSpeakingMsgId(null),
+      () => setSpeakingMsgId(null)
+    );
+  };
+
+  // Cloud Whisper Fallback Transcription via backend /api/assistant/transcribe
+  const transcribeAudioBlob = async (blob: Blob) => {
+    setDictationNotice('Transcribing audio via Bharat Whisper v3 AI...');
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const result = reader.result as string;
+        const b64 = result.includes(',') ? result.split(',')[1] : result;
+        const cleanBase = (apiBase || 'http://localhost:8000').replace(/\/+$/, '');
+        const targets = [
+          `${cleanBase}/api/assistant/transcribe`,
+          cleanBase.includes('localhost') ? `${cleanBase.replace('localhost', '127.0.0.1')}/api/assistant/transcribe` : null
+        ].filter(Boolean) as string[];
+
+        for (const url of targets) {
+          try {
+            const resp = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                audio_base64: b64,
+                mime_type: blob.type || 'audio/webm',
+                language: speechLang === 'hi-IN' ? 'hi' : 'en'
+              })
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              if (data.text) {
+                const text = data.text.trim();
+                setVoiceStreamingText(text);
+                setDictationNotice(`Transcribed via ${data.provider || 'Whisper Large v3'}`);
+                setTimeout(() => setDictationNotice(null), 4000);
+                return;
+              }
+            }
+          } catch {}
+        }
+        setDictationNotice(null);
+      };
+      reader.readAsDataURL(blob);
+    } catch {
+      setDictationNotice(null);
+    }
+  };
+
   // Core Voice Dictation Execution with Continuous Streaming & Multi-Phrase Accumulation
-  const executeDictation = () => {
+  const executeDictation = async () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setDictationNotice('Voice dictation requires Chrome, Edge, or Safari with microphone access.');
-      setTimeout(() => setDictationNotice(null), 4500);
+
+    // First, verify/acquire microphone MediaStream so permissions are guaranteed
+    let stream: MediaStream | null = null;
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        activeAudioStreamRef.current = stream;
+        localStorage.setItem('bharat_mic_permission_granted', 'true');
+        setMicBlockedHelp(false);
+      }
+    } catch (micErr: any) {
+      console.warn('Microphone permission check failed:', micErr);
+      setMicBlockedHelp(true);
+      setIsListening(false);
+      isListeningRef.current = false;
       return;
     }
 
+    // If Web Speech API is not supported in this browser, use MediaRecorder + Whisper
+    if (!SpeechRecognition) {
+      if (stream && typeof MediaRecorder !== 'undefined') {
+        try {
+          audioChunksRef.current = [];
+          const recorder = new MediaRecorder(stream);
+          mediaRecorderRef.current = recorder;
+          recorder.ondataavailable = (e) => {
+            if (e.data.size > 0) audioChunksRef.current.push(e.data);
+          };
+          recorder.onstop = () => {
+            const audioBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+            transcribeAudioBlob(audioBlob);
+            if (activeAudioStreamRef.current) {
+              activeAudioStreamRef.current.getTracks().forEach(t => t.stop());
+              activeAudioStreamRef.current = null;
+            }
+          };
+          recorder.start();
+          setIsListening(true);
+          isListeningRef.current = true;
+          setDictationNotice('Recording voice consultation... Click mic again when finished.');
+          return;
+        } catch (recErr) {
+          console.error('MediaRecorder fallback error:', recErr);
+        }
+      }
+      setDictationNotice('Voice dictation requires microphone access on Chrome, Edge, or Safari.');
+      setTimeout(() => setDictationNotice(null), 5000);
+      return;
+    }
+
+    // Standard High-Performance Web Speech Recognition with Continuous Recovery
     try {
       if (recognitionRef.current) {
         try { recognitionRef.current.abort(); } catch {}
@@ -1191,18 +1311,25 @@ export function ChatView({
       };
 
       recognition.onend = () => {
-        // Auto-restart across pauses if the user has not explicitly clicked stop
+        // Chromium auto-recovery without wiping previously finalized phrases
         if (!userRequestedStopRef.current && isListeningRef.current) {
-          try {
-            recognition.start();
-            return;
-          } catch {
-            // Browser might require explicit user gesture if permission dropped
-          }
+          accumulatedBeforeRestartRef.current = currentFullFinalsRef.current;
+          setTimeout(() => {
+            if (!userRequestedStopRef.current && isListeningRef.current) {
+              try {
+                executeDictation();
+              } catch {}
+            }
+          }, 120);
+          return;
         }
         setIsListening(false);
         isListeningRef.current = false;
         setInterimTranscript('');
+        if (activeAudioStreamRef.current) {
+          activeAudioStreamRef.current.getTracks().forEach(t => t.stop());
+          activeAudioStreamRef.current = null;
+        }
       };
 
       recognition.onerror = (e: any) => {
@@ -1214,8 +1341,6 @@ export function ChatView({
         } else if (e?.error !== 'no-speech') {
           setDictationNotice(`Speech recognition notice: ${e?.error || 'ended'}`);
           setTimeout(() => setDictationNotice(null), 4000);
-          setIsListening(false);
-          isListeningRef.current = false;
         }
       };
 
@@ -1230,6 +1355,7 @@ export function ChatView({
           }
         }
         const accumulated = (accumulatedBeforeRestartRef.current + ' ' + finals).trim();
+        currentFullFinalsRef.current = accumulated;
         const fullCurrent = (accumulated + ' ' + interim).trim();
         setVoiceStreamingText(fullCurrent);
         setInterimTranscript(interim);
@@ -1248,6 +1374,9 @@ export function ChatView({
     if (isListening) {
       userRequestedStopRef.current = true;
       isListeningRef.current = false;
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        try { mediaRecorderRef.current.stop(); } catch {}
+      }
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
       }
@@ -1255,12 +1384,18 @@ export function ChatView({
       setInterimTranscript('');
       setVoiceStreamingText('');
       accumulatedBeforeRestartRef.current = '';
+      currentFullFinalsRef.current = '';
+      if (activeAudioStreamRef.current) {
+        activeAudioStreamRef.current.getTracks().forEach(t => t.stop());
+        activeAudioStreamRef.current = null;
+      }
       return;
     }
 
     userRequestedStopRef.current = false;
     isListeningRef.current = true;
     accumulatedBeforeRestartRef.current = '';
+    currentFullFinalsRef.current = '';
     setVoiceStreamingText('');
 
     const hasAuthorized = localStorage.getItem('bharat_mic_permission_granted') === 'true';
@@ -2379,6 +2514,24 @@ export function ChatView({
 
                         {/* Action Buttons Toolbar */}
                         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                          <button 
+                            type="button"
+                            onClick={() => handleQuickSpeak(msg.response?.answer || msg.text, msg.id)}
+                            className={`no-print w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                              speakingMsgId === msg.id
+                                ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500 animate-pulse'
+                                : isDark 
+                                  ? 'hover:bg-[#131624] text-[#94a3b8] hover:text-white' 
+                                  : 'hover:bg-[#eff4ff] text-[#565e74] hover:text-[#0b1c30]'
+                            }`}
+                            title={speakingMsgId === msg.id ? "Stop Spoken Consultation" : "Listen to Spoken Legal Consultation"}
+                            aria-label={speakingMsgId === msg.id ? "Stop Spoken Consultation" : "Listen to Spoken Legal Consultation"}
+                          >
+                            <span className="material-symbols-outlined text-[16px] sm:text-[17px]">
+                              {speakingMsgId === msg.id ? 'stop_circle' : 'volume_up'}
+                            </span>
+                          </button>
+
                           <button 
                             type="button"
                             onClick={() => handleCopy(msg.response?.answer || msg.text, msg.id)}

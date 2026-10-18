@@ -365,6 +365,7 @@ export async function performDocumentOcr(
           body: JSON.stringify({
             file_base64: base64Data,
             mime_type: file.type || 'image/jpeg',
+            file_name: file.name,
             filename: file.name,
             language_hint: languageHint
           })
@@ -372,13 +373,15 @@ export async function performDocumentOcr(
 
         if (resp.ok) {
           const data = await resp.json();
+          const text = data.extracted_text || data.text || '';
+          const metadata = data.metadata || data.fir_metadata;
           return {
-            text: data.text || '',
-            wordCount: data.word_count || 0,
+            text,
+            wordCount: data.word_count || (text ? text.split(/\s+/).filter(Boolean).length : 0),
             confidence: data.confidence || 0.9,
-            firMetadata: data.fir_metadata,
+            firMetadata: metadata,
             languageDetected: data.language_detected,
-            success: true
+            success: Boolean(text && text.trim().length > 0)
           };
         } else {
           lastError = `OCR HTTP ${resp.status}: ${resp.statusText}`;
@@ -410,7 +413,7 @@ export async function performDocumentOcr(
  * Master Document Ingestion Function
  * Ingests any uploaded File object (.pdf, .docx, .txt, .png, .jpg, .jpeg, .webp, .bmp)
  * and extracts clean, normalized text suitable for statutory RAG analysis.
- * Automatically dispatches scanned PDFs and images to the bilingual OCR engine.
+ * Uses robust server-side extraction (pypdf, docx2txt, Gemini OCR) with seamless client fallback.
  */
 export async function parseUploadedDocument(
   file: File,
@@ -439,6 +442,64 @@ export async function parseUploadedDocument(
     };
   }
 
+  // 2. Primary Pipeline: High-Fidelity Server-Side Extraction (/api/assistant/extract-document)
+  try {
+    const base64Data = await fileToBase64(file);
+    const cleanBase = (apiBase || 'http://localhost:8000').replace(/\/+$/, '');
+    const targets = [
+      `${cleanBase}/api/assistant/extract-document`,
+      cleanBase.includes('localhost')
+        ? `${cleanBase.replace('localhost', '127.0.0.1')}/api/assistant/extract-document`
+        : null
+    ].filter(Boolean) as string[];
+
+    for (const targetUrl of targets) {
+      try {
+        const resp = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            file_base64: base64Data,
+            file_name: file.name,
+            filename: file.name,
+            mime_type: file.type || undefined
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          const serverText = (data.text || data.extracted_text || '').trim();
+          if (data.success && serverText.length > 10) {
+            let processedText = serverText;
+            let isTruncated = false;
+            if (processedText.length > MAX_EXTRACTED_CHARS) {
+              processedText = processedText.slice(0, MAX_EXTRACTED_CHARS) + '\n\n... [Document context optimized: first ~4,000 words captured for statutory research]';
+              isTruncated = true;
+            }
+            return {
+              fileName: file.name,
+              fileSize: file.size,
+              fileType,
+              formattedSize: formatFileSize(file.size),
+              text: processedText,
+              wordCount: data.word_count || processedText.split(/\s+/).filter(Boolean).length,
+              characterCount: processedText.length,
+              isTruncated,
+              isScannedOrEmpty: false,
+              warning: data.warning,
+              ocrMetadata: data.metadata || data.fir_metadata
+            };
+          }
+        }
+      } catch {
+        // Try next endpoint candidate or fall through to client fallback
+      }
+    }
+  } catch {
+    // Fall back to client-side parsing
+  }
+
+  // 3. Fallback Pipeline: In-Browser Client Parsing
   let extractedText = '';
   let ocrMetadata: FirOcrMetadata | undefined;
 

@@ -406,7 +406,7 @@ export const ContractStudioView: React.FC<ContractStudioViewProps> = ({ isDark, 
     setIsParsingContractDoc(true);
     setContractUploadNotice(null);
     try {
-      const parsed = await parseUploadedDocument(file);
+      const parsed = await parseUploadedDocument(file, resolvedApiBase);
       if (parsed.isScannedOrEmpty && parsed.warning) {
         setContractUploadNotice(parsed.warning);
         setTimeout(() => setContractUploadNotice(null), 8000);

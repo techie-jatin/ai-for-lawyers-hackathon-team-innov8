@@ -24,6 +24,14 @@ class DocumentOcrRequest(BaseModel):
     file_base64: str = Field(..., description="Base64 encoded string of image or scanned document")
     mime_type: Optional[str] = Field("image/png", max_length=100)
     file_name: Optional[str] = Field("document.png", max_length=200)
+    filename: Optional[str] = Field(None, max_length=200)
+    gemini_api_key: Optional[str] = Field(None, max_length=128)
+
+class DocumentExtractRequest(BaseModel):
+    file_base64: str = Field(..., description="Base64 encoded string of document (PDF, DOCX, TXT, image)")
+    file_name: Optional[str] = Field("document.pdf", max_length=200)
+    filename: Optional[str] = Field(None, max_length=200)
+    mime_type: Optional[str] = Field(None, max_length=100)
     gemini_api_key: Optional[str] = Field(None, max_length=128)
 
 class AudioTranscribeRequest(BaseModel):
@@ -36,6 +44,7 @@ class SpokenBriefingRequest(BaseModel):
 
 from app.services.ocr_service import LegalOcrService
 from app.services.voice_service import LegalVoiceService
+from app.services.document_service import LegalDocumentService
 from starlette.responses import StreamingResponse
 
 @router.post("/stream")
@@ -97,10 +106,31 @@ def process_document_ocr(req: DocumentOcrRequest) -> Dict[str, Any]:
     Performs bilingual (English + Hindi) text and FIR metadata extraction
     from scanned photocopies, notices, and WhatsApp transaction screenshots.
     """
-    return LegalOcrService.process_document_image(
+    file_name = req.file_name or req.filename or "document.png"
+    res = LegalOcrService.process_document_image(
         file_base64=req.file_base64,
         mime_type=req.mime_type or "image/png",
-        file_name=req.file_name or "document.png",
+        file_name=file_name,
+        gemini_api_key=req.gemini_api_key
+    )
+    # Ensure aliases for 100% frontend compatibility
+    if "extracted_text" in res and "text" not in res:
+        res["text"] = res["extracted_text"]
+    if "metadata" in res and "fir_metadata" not in res:
+        res["fir_metadata"] = res["metadata"]
+    return res
+
+@router.post("/extract-document")
+def extract_document(req: DocumentExtractRequest) -> Dict[str, Any]:
+    """
+    Universal legal document parser.
+    Extracts text and statutory/FIR metadata from digital and scanned PDFs, DOCX agreements, TXT, and images.
+    """
+    name = req.file_name or req.filename or "document.pdf"
+    return LegalDocumentService.extract_document(
+        file_base64=req.file_base64,
+        file_name=name,
+        mime_type=req.mime_type,
         gemini_api_key=req.gemini_api_key
     )
 

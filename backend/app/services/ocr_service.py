@@ -29,7 +29,7 @@ class LegalOcrService:
         }
 
         # Police Station
-        ps_match = re.search(r"(?:Police Station|P\.S\.|Thana|थाना)\s*[:\-]?\s*([A-Za-z\u0900-\u097F\s,]+?)(?=\n|,|\.|$)", text, re.IGNORECASE)
+        ps_match = re.search(r"(?:Police Station|P\.S\.|Thana|थाना)\s*[:\-]?\s*([A-Za-z\u0900-\u097F\s]+?)(?=\s+u\/s|\s+under section|\n|,|\.|\)|$)", text, re.IGNORECASE)
         if ps_match:
             metadata["police_station"] = ps_match.group(1).strip()
 

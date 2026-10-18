@@ -39,15 +39,32 @@ export const VoiceConsultationPlayer: React.FC<VoiceConsultationPlayerProps> = (
   const handleToggleOpen = async () => {
     if (!isOpen) {
       setIsOpen(true);
-      if (!briefing) {
+      let activeBriefing = briefing;
+      if (!activeBriefing) {
         setIsLoadingBriefing(true);
         try {
-          const b = await getBilingualSpokenBriefing(text, apiBase);
-          if (mountedRef.current) setBriefing(b);
+          activeBriefing = await getBilingualSpokenBriefing(text, apiBase);
+          if (mountedRef.current) setBriefing(activeBriefing);
         } catch {
           // Fallback handled inside getBilingualSpokenBriefing
         } finally {
           if (mountedRef.current) setIsLoadingBriefing(false);
+        }
+      }
+      if (activeBriefing) {
+        const textToSpeak = currentLang === 'hi-IN' ? activeBriefing.spokenHindi : activeBriefing.spokenEnglish;
+        if (textToSpeak) {
+          speechSynthesizer.speak(
+            textToSpeak,
+            currentLang,
+            speed,
+            () => { if (mountedRef.current) setPlaybackState('playing'); },
+            () => { if (mountedRef.current) setPlaybackState('idle'); },
+            (err) => {
+              console.error('Speech synthesis error:', err);
+              if (mountedRef.current) setPlaybackState('idle');
+            }
+          );
         }
       }
     } else {

@@ -149,11 +149,12 @@ export async function getBilingualSpokenBriefing(
 }
 
 /**
- * Web Speech API SpeechSynthesis Controller
+ * Web Speech API SpeechSynthesis Controller with Chromium Windows SAPI Hardening
  */
 class SpeechSynthesizer {
   private currentUtterance: SpeechSynthesisUtterance | null = null;
   private voices: SpeechSynthesisVoice[] = [];
+  private heartbeatTimer: number | null = null;
 
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -169,12 +170,26 @@ class SpeechSynthesizer {
   }
 
   public getAvailableVoices(): SpeechSynthesisVoice[] {
-    if (this.voices.length === 0) this.loadVoices();
+    if (this.voices.length === 0 && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      this.loadVoices();
+    }
     return this.voices;
+  }
+
+  public hasHindiVoice(): boolean {
+    const voices = this.getAvailableVoices();
+    return voices.some(v => v.lang.startsWith('hi') || v.name.toLowerCase().includes('hindi'));
   }
 
   public getCurrentUtterance(): SpeechSynthesisUtterance | null {
     return this.currentUtterance;
+  }
+
+  private clearHeartbeat() {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
   }
 
   /**
@@ -185,14 +200,27 @@ class SpeechSynthesizer {
     if (voices.length === 0) return null;
 
     if (lang === 'hi-IN') {
-      // Prioritize Hindi voices
-      const hiVoice = voices.find(v => v.lang.startsWith('hi') || v.name.toLowerCase().includes('hindi') || v.name.includes('Kalpana') || v.name.includes('Hemant'));
+      // Prioritize native Hindi voices (Microsoft Kalpana, Google हिन्दी, etc.)
+      const hiVoice = voices.find(v => 
+        v.lang.startsWith('hi') || 
+        v.name.toLowerCase().includes('hindi') || 
+        v.name.includes('Kalpana') || 
+        v.name.includes('Hemant') ||
+        v.name.includes('Swara')
+      );
       if (hiVoice) return hiVoice;
     }
 
-    if (lang === 'en-IN') {
+    if (lang === 'en-IN' || lang === 'hi-IN') {
       // Prioritize Indian English voices
-      const inVoice = voices.find(v => v.lang === 'en-IN' || v.name.toLowerCase().includes('india') || v.name.includes('Heera') || v.name.includes('Ravi') || v.name.includes('Neerja'));
+      const inVoice = voices.find(v => 
+        v.lang === 'en-IN' || 
+        v.name.toLowerCase().includes('india') || 
+        v.name.includes('Heera') || 
+        v.name.includes('Ravi') || 
+        v.name.includes('Neerja') ||
+        v.name.includes('Prabhat')
+      );
       if (inVoice) return inVoice;
     }
 
@@ -202,7 +230,8 @@ class SpeechSynthesizer {
   }
 
   /**
-   * Speak text with given language and rate
+   * Speak text with given language and rate.
+   * Includes 60ms async cancellation tick and 8s GC pause-resume heartbeat.
    */
   public speak(
     text: string,
@@ -217,36 +246,68 @@ class SpeechSynthesizer {
       return;
     }
 
-    this.stop(); // Stop any currently playing utterance
+    // 1. Cancel previous playback cleanly
+    this.stop();
 
     const clean = cleanTextForSpeech(text);
     if (!clean) return;
 
-    const utterance = new SpeechSynthesisUtterance(clean);
-    this.currentUtterance = utterance;
+    // 2. Chromium Windows bug fix: Wait 60ms after cancel() before calling speak()
+    setTimeout(() => {
+      try {
+        const utterance = new SpeechSynthesisUtterance(clean);
+        this.currentUtterance = utterance;
 
-    utterance.lang = lang;
-    utterance.rate = Math.max(0.75, Math.min(rate, 1.75));
-    utterance.pitch = 1.0;
+        // GC protection: keep active reference on window object
+        (window as any).__activeBharatSpeechUtterance = utterance;
 
-    const voice = this.selectBestVoice(lang);
-    if (voice) utterance.voice = voice;
+        utterance.lang = lang;
+        utterance.rate = Math.max(0.75, Math.min(rate, 1.75));
+        utterance.pitch = 1.0;
 
-    utterance.onstart = () => {
-      if (onStart) onStart();
-    };
+        const voice = this.selectBestVoice(lang);
+        if (voice) {
+          utterance.voice = voice;
+        }
 
-    utterance.onend = () => {
-      this.currentUtterance = null;
-      if (onEnd) onEnd();
-    };
+        utterance.onstart = () => {
+          // 3. Chromium 15s cutoff bug fix: Heartbeat to keep synth engine active
+          this.clearHeartbeat();
+          this.heartbeatTimer = window.setInterval(() => {
+            if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.speaking) {
+              window.speechSynthesis.pause();
+              window.speechSynthesis.resume();
+            }
+          }, 8000);
 
-    utterance.onerror = (e) => {
-      this.currentUtterance = null;
-      if (onError) onError(e);
-    };
+          if (onStart) onStart();
+        };
 
-    window.speechSynthesis.speak(utterance);
+        utterance.onend = () => {
+          this.clearHeartbeat();
+          this.currentUtterance = null;
+          (window as any).__activeBharatSpeechUtterance = null;
+          if (onEnd) onEnd();
+        };
+
+        utterance.onerror = (e) => {
+          this.clearHeartbeat();
+          this.currentUtterance = null;
+          (window as any).__activeBharatSpeechUtterance = null;
+          if (onError) onError(e);
+        };
+
+        // Resume if paused in background
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        this.clearHeartbeat();
+        if (onError) onError(err);
+      }
+    }, 60);
   }
 
   public pause() {
@@ -262,9 +323,13 @@ class SpeechSynthesizer {
   }
 
   public stop() {
+    this.clearHeartbeat();
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
       this.currentUtterance = null;
+      (window as any).__activeBharatSpeechUtterance = null;
     }
   }
 

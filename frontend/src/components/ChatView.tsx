@@ -9,6 +9,7 @@ import { parseUploadedDocument, type ParsedDocumentResult } from '../utils/docum
 import { LegalAidDirectoryModal } from './LegalAidDirectoryModal';
 import { ReaChamberModal } from './ReaChamberModal';
 import { CourtPleadingStudio } from './CourtPleadingStudio';
+import { VoiceConsultationPlayer } from './VoiceConsultationPlayer';
 import { clientStorage } from '../services/clientStorage';
 
 export interface ApplicableLaw {
@@ -2536,6 +2537,14 @@ export function ChatView({
                           answerText={msg.response?.answer || msg.text}
                           isDark={isDark}
                           mode={msg.response?.mode || mode}
+                        />
+
+                        {/* Section 1.5: Bilingual Voice Consultation Audio Player (English + Hindi) */}
+                        <VoiceConsultationPlayer
+                          text={msg.response?.answer || msg.text}
+                          isDark={isDark}
+                          apiBase={apiBase}
+                          defaultLang="en-IN"
                         />
 
                         {/* Section 2: Applicable Statutory Framework Pills */}

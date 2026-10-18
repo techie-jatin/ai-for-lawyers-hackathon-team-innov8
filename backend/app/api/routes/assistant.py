@@ -26,7 +26,16 @@ class DocumentOcrRequest(BaseModel):
     file_name: Optional[str] = Field("document.png", max_length=200)
     gemini_api_key: Optional[str] = Field(None, max_length=128)
 
+class AudioTranscribeRequest(BaseModel):
+    audio_base64: str = Field(..., description="Base64 encoded string of recorded voice audio")
+    mime_type: Optional[str] = Field("audio/webm", max_length=100)
+    language: Optional[str] = Field("auto", max_length=20)
+
+class SpokenBriefingRequest(BaseModel):
+    text: str = Field(..., min_length=1, description="Legal text to convert into phonetically clean spoken briefing")
+
 from app.services.ocr_service import LegalOcrService
+from app.services.voice_service import LegalVoiceService
 from starlette.responses import StreamingResponse
 
 @router.post("/stream")
@@ -94,3 +103,23 @@ def process_document_ocr(req: DocumentOcrRequest) -> Dict[str, Any]:
         file_name=req.file_name or "document.png",
         gemini_api_key=req.gemini_api_key
     )
+
+@router.post("/transcribe")
+def transcribe_voice_audio(req: AudioTranscribeRequest) -> Dict[str, Any]:
+    """
+    Bilingual voice audio transcription endpoint.
+    Transcribes spoken voice consultation into text via Groq Whisper Large v3 / Gemini Flash Audio.
+    """
+    return LegalVoiceService.transcribe_audio_base64(
+        audio_base64=req.audio_base64,
+        mime_type=req.mime_type or "audio/webm",
+        language=req.language or "auto"
+    )
+
+@router.post("/spoken-briefing")
+def generate_spoken_briefing(req: SpokenBriefingRequest) -> Dict[str, str]:
+    """
+    Audio optimization endpoint for Web Speech API text-to-speech.
+    Strips raw markdown symbols and synthesizes bilingual English and Hindi spoken summaries.
+    """
+    return LegalVoiceService.generate_bilingual_briefing(req.text)

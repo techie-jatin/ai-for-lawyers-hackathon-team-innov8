@@ -6,6 +6,7 @@ import { ContractStudioView } from './components/ContractStudioView';
 import { SearchView } from './components/SearchView';
 import { InfoView } from './components/InfoView';
 import { DossiersDrawer, type ChamberDossier } from './components/DossiersDrawer';
+import { StatutoryConcordanceModal } from './components/StatutoryConcordanceModal';
 import { getGuestId, resetGuestId, hasSeenGuestNotice, markGuestNoticeSeen } from './utils/guestSession';
 
 export interface ChatLaunchContext {
@@ -104,6 +105,7 @@ export function App() {
   const [mode, setMode] = useState<'citizen' | 'professional'>('citizen');
   const [dossierCount, setDossierCount] = useState<number>(0);
   const [isDossiersOpen, setIsDossiersOpen] = useState(false);
+  const [isConcordanceModalOpen, setIsConcordanceModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [chatLaunchContext, setChatLaunchContext] = useState<ChatLaunchContext | null>(null);
   const [searchInitialQuery, setSearchInitialQuery] = useState<string | null>(null);
@@ -789,6 +791,27 @@ export function App() {
               </span>
             </button>
 
+            {/* 100+ Statutory Concordance Action Button (Available across ALL screens) */}
+            <button
+              type="button"
+              onClick={() => setIsConcordanceModalOpen(true)}
+              className={`h-8 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
+                isDark 
+                  ? 'bg-[#131624] text-[#cbd5e1] border-[#23283f] hover:bg-[#1a1f33] hover:text-white' 
+                  : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
+              }`}
+              title="Open 100+ Statutory Concordance Matrix (IPC ⟷ BNS, CrPC ⟷ BNSS, IEA ⟷ BSA)"
+              aria-label="Open Statutory Concordance"
+            >
+              <span className="material-symbols-outlined text-[14px] sm:text-[15px] 2xl:text-[18px] text-[#ff7722] shrink-0">compare_arrows</span>
+              <span className="hidden sm:inline font-bold">Concordance</span>
+              <span className={`px-1.5 py-0.2 rounded-full font-mono text-[8.5px] sm:text-[9px] 2xl:text-[10px] font-extrabold shadow-xs ${
+                isDark ? 'bg-[#ff7722]/20 text-[#ff7722]' : 'bg-[#00288e]/10 text-[#00288e]'
+              }`}>
+                100+
+              </span>
+            </button>
+
             {/* Chamber Dossiers Action Button (Available across ALL screens) */}
             <button
               type="button"
@@ -1172,6 +1195,23 @@ export function App() {
           });
           setActiveTab('chat');
           setIsDossiersOpen(false);
+        }}
+      />
+
+      {/* 100+ STATUTORY CONCORDANCE & TRANSITION ADVISOR MODAL */}
+      <StatutoryConcordanceModal
+        isOpen={isConcordanceModalOpen}
+        onClose={() => setIsConcordanceModalOpen(false)}
+        isDark={isDark}
+        onConsultInChat={(item) => {
+          setChatLaunchContext({
+            type: 'concordance',
+            title: `${item.old_act} ${item.old_section} ⟷ ${item.new_act} ${item.new_section}`,
+            query: `Provide a senior advocate legal analysis comparing ${item.old_act} ${item.old_section} with ${item.new_act} ${item.new_section} (${item.offense_title}). Explain substantive changes, bail classification (${item.bailable_status}), and whether IPC or BNS applies today.`,
+            category: 'Criminal Law (BNS)',
+            autoExecute: true
+          });
+          setActiveTab('chat');
         }}
       />
 

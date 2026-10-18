@@ -44,7 +44,9 @@ interface GazetteItem {
 }
 
 import type { ChatLaunchContext } from '../App';
-import { CANONICAL_PROVISIONS, CANONICAL_CONCORDANCES, CANONICAL_GAZETTES, searchCanonicalProvisions } from '../services/clientLegalEngine';
+import { CANONICAL_PROVISIONS, CANONICAL_GAZETTES, searchCanonicalProvisions } from '../services/clientLegalEngine';
+import { CLIENT_CONCORDANCE_MASTER_DATA, ClientConcordanceEngine } from '../services/clientConcordanceEngine';
+import { StatutoryConcordanceModal } from './StatutoryConcordanceModal';
 
 const DEFAULT_SOURCES: LegalSource[] = [
   { id: 1, title: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', source_type: 'Act', jurisdiction: 'India', provision_count: 358 },
@@ -143,9 +145,10 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
 
   // Dynamic Concordance & Gazette State
   const [concordances, setConcordances] = useState<ConcordanceItem[]>(() =>
-    CANONICAL_CONCORDANCES.map(c => ({ ...c, status: `${c.cognizable_status} | ${c.bailable_status}` }))
+    CLIENT_CONCORDANCE_MASTER_DATA.map(c => ({ ...c, status: `${c.cognizable_status} | ${c.bailable_status}` }))
   );
   const [concordanceQuery, setConcordanceQuery] = useState('');
+  const [isConcordanceModalOpen, setIsConcordanceModalOpen] = useState(false);
   const [gazettes, setGazettes] = useState<GazetteItem[]>(CANONICAL_GAZETTES);
 
   useEffect(() => {
@@ -283,7 +286,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
   const handleConcordanceSearch = async (val: string) => {
     setConcordanceQuery(val);
     if (!val.trim()) {
-      setConcordances(CANONICAL_CONCORDANCES.map(c => ({ ...c, status: `${c.cognizable_status} | ${c.bailable_status}` })));
+      setConcordances(CLIENT_CONCORDANCE_MASTER_DATA.map(c => ({ ...c, status: `${c.cognizable_status} | ${c.bailable_status}` })));
       if (apiBase && apiBase.trim() !== '') {
         fetch(`${apiBase}/api/concordance/all`)
           .then(res => res.json())
@@ -308,10 +311,10 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
       }
       throw new Error('Local search');
     } catch {
-      const qVal = val.toLowerCase().trim();
-      const filtered = CANONICAL_CONCORDANCES.filter(c =>
-        `${c.old_act} ${c.old_section} ${c.new_act} ${c.new_section} ${c.offense_title} ${c.penalty_summary || ''}`.toLowerCase().includes(qVal)
-      ).map(c => ({ ...c, status: `${c.cognizable_status} | ${c.bailable_status}` }));
+      const filtered = ClientConcordanceEngine.search(val).map(c => ({
+        ...c,
+        status: `${c.cognizable_status} | ${c.bailable_status}`
+      }));
       setConcordances(filtered);
     }
   };
@@ -721,13 +724,26 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
                 <span className={`material-symbols-outlined text-[20px] ${isDark ? 'text-white' : 'text-[#00288e]'}`}>sync_alt</span>
                 <h3 className={`text-[13px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>Statutory Concordance</h3>
               </div>
-              <span className={`px-2 py-0.5 rounded font-mono text-[9px] font-bold uppercase border ${
-                isDark 
-                  ? 'bg-[#1a1e2e] text-[#cbd5e1] border-[#2a304a]' 
-                  : 'bg-[#dde1ff] text-[#001453] border-[#c5cefc]'
-              }`}>
-                {concordances.length} Transitions Indexed
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsConcordanceModalOpen(true)}
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold border flex items-center gap-1 cursor-pointer transition-colors ${
+                    isDark ? 'bg-zinc-800 text-amber-300 border-zinc-700 hover:bg-zinc-700' : 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100'
+                  }`}
+                  title="Expand 100+ Concordance & Transition Advisor Studio"
+                >
+                  <span className="material-symbols-outlined text-[13px] text-[#ff7722]">compare_arrows</span>
+                  <span>100+ Studio</span>
+                </button>
+                <span className={`px-2 py-0.5 rounded font-mono text-[9px] font-bold uppercase border ${
+                  isDark 
+                    ? 'bg-[#1a1e2e] text-[#cbd5e1] border-[#2a304a]' 
+                    : 'bg-[#dde1ff] text-[#001453] border-[#c5cefc]'
+                }`}>
+                  {concordances.length} Transitions
+                </span>
+              </div>
             </div>
 
             <p className={`text-[11px] ${isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'}`}>
@@ -935,6 +951,24 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
           </div>
         </div>
       </div>
+
+      {/* 100+ Provision Concordance & Transition Advisor Studio Modal */}
+      <StatutoryConcordanceModal
+        isOpen={isConcordanceModalOpen}
+        onClose={() => setIsConcordanceModalOpen(false)}
+        isDark={isDark}
+        onConsultInChat={(item) => {
+          if (onOpenInChat) {
+            onOpenInChat({
+              type: 'concordance',
+              title: `${item.old_act} ${item.old_section} ⟷ ${item.new_act} ${item.new_section}`,
+              query: `Provide a senior advocate legal analysis comparing ${item.old_act} ${item.old_section} with ${item.new_act} ${item.new_section} (${item.offense_title}). Explain substantive changes, bail classification (${item.bailable_status}), and whether IPC or BNS applies today.`,
+              category: 'Criminal Law (BNS)',
+              autoExecute: true
+            });
+          }
+        }}
+      />
     </div>
   );
 }

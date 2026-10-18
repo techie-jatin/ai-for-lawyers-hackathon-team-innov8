@@ -66,6 +66,11 @@ class DraftBsaCertificateRequest(BaseModel):
     incident_date: Optional[str] = Field(None, max_length=100)
     court_case_ref: Optional[str] = Field(None, max_length=200)
 
+class CalculateTimelineRequest(BaseModel):
+    archetype_key: str = Field(..., max_length=100)
+    anchor_date: str = Field(..., min_length=4, max_length=20)
+    current_date_override: Optional[str] = Field(None, max_length=20)
+
 class RiskItem(BaseModel):
     id: str
     severity: str  # "critical", "warning", "safe"
@@ -313,6 +318,24 @@ Signature: __________________________        Signature: ________________________
 from app.services.pleading_service import PleadingService
 from app.services.cleanroom_service import CleanroomService
 from app.services.bsa_cert_service import BsaCertificateService
+from app.services.timeline_service import get_timeline_archetypes, calculate_timeline
+
+@router.get("/timeline/archetypes")
+def list_timeline_archetypes() -> Dict[str, Any]:
+    """Returns supported Indian legal dispute timeline archetypes and statutory rules."""
+    return {"archetypes": get_timeline_archetypes()}
+
+@router.post("/timeline/calculate")
+def api_calculate_timeline(req: CalculateTimelineRequest) -> Dict[str, Any]:
+    """
+    Computes exact chronological milestones, limitation cutoffs, and urgency ratings
+    for a given legal dispute archetype and anchor date.
+    """
+    return calculate_timeline(
+        archetype_key=req.archetype_key,
+        anchor_date_str=req.anchor_date,
+        current_date_override=req.current_date_override
+    )
 
 @router.get("/pleadings/templates")
 def list_pleading_templates() -> Dict[str, Any]:

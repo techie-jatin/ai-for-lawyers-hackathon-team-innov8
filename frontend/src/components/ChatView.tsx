@@ -10,6 +10,7 @@ import { LegalAidDirectoryModal } from './LegalAidDirectoryModal';
 import { ReaChamberModal } from './ReaChamberModal';
 import { CourtPleadingStudio } from './CourtPleadingStudio';
 import { VoiceConsultationPlayer } from './VoiceConsultationPlayer';
+import { DisputeTimelineVisualizer } from './DisputeTimelineVisualizer';
 import { clientStorage } from '../services/clientStorage';
 
 export interface ApplicableLaw {
@@ -603,6 +604,10 @@ export function ChatView({
   // Court-Ready Pleading & Notice Studio Modal State
   const [isPleadingStudioOpen, setIsPleadingStudioOpen] = useState(false);
   const [pleadingInitialFacts, setPleadingInitialFacts] = useState('');
+
+  // Interactive Dispute Timeline Visualizer Modal State
+  const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
+  const [timelineArchetype, setTimelineArchetype] = useState<string>('cheque_bounce_138_ni');
 
   // Voice Dictation Streaming & Bilingual Support State
   const recognitionRef = useRef<any>(null);
@@ -2976,6 +2981,38 @@ export function ChatView({
 
                 <button
                   type="button"
+                  onClick={() => {
+                    const latestUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text?.toLowerCase() || '';
+                    if (latestUserText.includes('cheque') || latestUserText.includes('138') || latestUserText.includes('dishonor') || latestUserText.includes('dishonour') || latestUserText.includes('bounce')) {
+                      setTimelineArchetype('cheque_bounce_138_ni');
+                    } else if (latestUserText.includes('consumer') || latestUserText.includes('defect') || latestUserText.includes('cpa') || latestUserText.includes('service')) {
+                      setTimelineArchetype('consumer_complaint_35_cpa');
+                    } else if (latestUserText.includes('deposit') || latestUserText.includes('rent') || latestUserText.includes('tenan') || latestUserText.includes('hostel') || latestUserText.includes('contract')) {
+                      setTimelineArchetype('contract_breach_deposit_refund');
+                    } else if (latestUserText.includes('fir') || latestUserText.includes('arrest') || latestUserText.includes('bail') || latestUserText.includes('police') || latestUserText.includes('bnss')) {
+                      setTimelineArchetype('criminal_investigation_bnss');
+                    } else if (latestUserText.includes('arbitrat')) {
+                      setTimelineArchetype('commercial_arbitration_act');
+                    } else if (latestUserText.includes('accident') || latestUserText.includes('mact') || latestUserText.includes('vehicle')) {
+                      setTimelineArchetype('motor_accident_mact');
+                    } else if (latestUserText.includes('rti') || latestUserText.includes('cpio') || latestUserText.includes('information')) {
+                      setTimelineArchetype('rti_appeal_lifecycle');
+                    }
+                    setIsTimelineModalOpen(true);
+                  }}
+                  className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
+                    isDark 
+                      ? 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border-blue-500/30' 
+                      : 'bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-200'
+                  }`}
+                  title="Interactive Dispute Timeline & Limitation Visualizer (Limitation Act 1963)"
+                >
+                  <span className="material-symbols-outlined text-[14px] text-blue-500">timeline</span>
+                  <span className="hidden md:inline">Dispute Timeline</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
                   className={`px-2 py-1 rounded-lg text-[10.5px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
                     speechLang === 'hi-IN'
@@ -3603,6 +3640,20 @@ export function ChatView({
                 apiBase={apiBase}
                 initialFacts={pleadingInitialFacts}
                 onClose={() => setIsPleadingStudioOpen(false)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* INTERACTIVE DISPUTE TIMELINE MODAL */}
+        {isTimelineModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-6xl h-[92vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+              <DisputeTimelineVisualizer
+                isDark={isDark}
+                apiBase={apiBase}
+                initialArchetype={timelineArchetype}
+                onClose={() => setIsTimelineModalOpen(false)}
               />
             </div>
           </div>

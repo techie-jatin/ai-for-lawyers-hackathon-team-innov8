@@ -1,5 +1,6 @@
 import type { ApplicableLaw, AssistantResponse, CitationValidation } from '../components/ChatView';
 import type { RealCasePrecedentItem } from '../components/PrecedentDossierDrawer';
+import expandedProvisionsJson from '../data/statutoryProvisionsExpanded.json';
 
 // =====================================================================
 // CANONICAL INDIAN STATUTORY PRECEDENTS (SUPREME COURT OF INDIA)
@@ -920,7 +921,7 @@ export interface CanonicalProvision {
   similarity?: number;
 }
 
-export const CANONICAL_PROVISIONS: CanonicalProvision[] = [
+const BASE_CANONICAL_PROVISIONS: CanonicalProvision[] = [
   {
     id: 1,
     source_title: 'Bharatiya Nyaya Sanhita, 2023 (BNS)',
@@ -1393,6 +1394,11 @@ export const CANONICAL_PROVISIONS: CanonicalProvision[] = [
     text_content:
       'Every agreement by which any one is restrained from exercising a lawful profession, trade or business of any kind, is to that extent void. Under Indian jurisprudence (Niranjan Shankar Golikari and Percept D\'Mark), post-employment non-compete covenants and coercive service bonds forcing employees to serve against their will are void ab initio and unenforceable.'
   }
+];
+
+export const CANONICAL_PROVISIONS: CanonicalProvision[] = [
+  ...BASE_CANONICAL_PROVISIONS,
+  ...(expandedProvisionsJson as CanonicalProvision[])
 ];
 
 // =====================================================================

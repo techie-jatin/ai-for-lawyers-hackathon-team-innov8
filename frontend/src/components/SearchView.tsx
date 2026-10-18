@@ -324,7 +324,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
     ? safeResults 
     : safeResults.filter(r => r.source_id === Number(selectedSourceId));
 
-  const totalProvisionsCount = (Array.isArray(sources) ? sources : []).reduce((acc, s) => acc + s.provision_count, 0) || 59;
+  const totalProvisionsCount = (Array.isArray(sources) ? sources : []).reduce((acc, s) => acc + s.provision_count, 0) || 259;
 
   return (
     <div className={`px-3 sm:px-6 py-4 sm:py-6 flex flex-col gap-4 sm:gap-5 max-w-[1720px] mx-auto w-full transition-colors duration-200 ${

@@ -219,7 +219,7 @@ interface GeneratingCardProps {
 function LegalIntelligenceGeneratingCard({
   isDark,
   mode,
-  totalProvisions = 59
+  totalProvisions = 259
 }: GeneratingCardProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0.0);
@@ -540,7 +540,7 @@ export function ChatView({
   mode,
   setMode,
   onSwitchToSearch,
-  totalProvisions = 59,
+  totalProvisions = 259,
   theme = 'dark',
   launchContext,
   onClearLaunchContext,

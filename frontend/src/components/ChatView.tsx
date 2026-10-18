@@ -1832,9 +1832,9 @@ export function ChatView({
     <div className={`flex h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-82px)] w-full overflow-hidden transition-colors duration-200 ${
       isDark ? 'bg-[#090a0f] text-[#f8fafc]' : 'bg-[#f4f6fb] text-[#0b1c30]'
     }`}>
-      {/* MOBILE SLIDE-OVER SIDEBAR DRAWER (< lg) */}
-      {isMobileSidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
+      {/* MOBILE SLIDE-OVER SIDEBAR DRAWER (< lg, Mounted via Portal to eliminate header overlap) */}
+      {isMobileSidebarOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[10040] lg:hidden flex">
           <div 
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={() => setIsMobileSidebarOpen(false)}
@@ -1860,7 +1860,8 @@ export function ChatView({
             </div>
             {renderSidebarContent()}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* DESKTOP SUB-PANEL: Research Navigation & Chat History (280px, Hidden on < lg) */}
@@ -1920,7 +1921,7 @@ export function ChatView({
               title="Open Research History & Chamber Navigation"
             >
               <span className="material-symbols-outlined text-[15px]">history</span>
-              <span className="hidden xs:inline">History</span>
+              <span className="text-[10.5px] font-bold">History</span>
               <span className="font-mono text-[10px]">({threads.length})</span>
             </button>
 
@@ -1961,7 +1962,7 @@ export function ChatView({
               <span className="material-symbols-outlined text-[14px]">
                 {dossierSaved ? 'check_circle' : 'bookmark_border'}
               </span>
-              <span className="hidden sm:inline">{dossierSaved ? 'Saved' : 'Save Dossier'}</span>
+              <span className="text-[10.5px] font-semibold">{dossierSaved ? 'Saved' : 'Save'}</span>
             </button>
             <button 
               type="button"
@@ -3087,6 +3088,94 @@ export function ChatView({
               </div>
             </div>
 
+            {/* Small Screen Studio Quick Actions Bar (< sm ONLY: 1-Tap Access to Pleadings, Timeline, Counter-Offensive & Legal Aid) */}
+            <div className="flex sm:hidden items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none px-1 pb-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsLegalAidModalOpen(true)}
+                className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
+                  isDark 
+                    ? 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30' 
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200'
+                }`}
+                title="NALSA 24/7 Free Legal Aid Directory (Dial 15100)"
+              >
+                <Scale className="w-3.5 h-3.5 text-amber-500" />
+                <span>Legal Aid</span>
+                <span className="font-mono text-[9px] font-bold">15100</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                  setPleadingInitialFacts(activeNarrative);
+                  setIsPleadingStudioOpen(true);
+                }}
+                className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
+                  isDark 
+                    ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30' 
+                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-200'
+                }`}
+                title="Court-Ready Pleading & Notice Studio (High Court Parchment)"
+              >
+                <Gavel className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Pleadings</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const rawUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                  const latestUserText = rawUserText.toLowerCase();
+                  setTimelineInitialFacts(rawUserText);
+                  if (latestUserText.includes('cheque') || latestUserText.includes('138') || latestUserText.includes('dishonor') || latestUserText.includes('dishonour') || latestUserText.includes('bounce')) {
+                    setTimelineArchetype('cheque_bounce_138_ni');
+                  } else if (latestUserText.includes('consumer') || latestUserText.includes('defect') || latestUserText.includes('cpa') || latestUserText.includes('service')) {
+                    setTimelineArchetype('consumer_complaint_35_cpa');
+                  } else if (latestUserText.includes('deposit') || latestUserText.includes('rent') || latestUserText.includes('tenan') || latestUserText.includes('hostel') || latestUserText.includes('contract')) {
+                    setTimelineArchetype('contract_breach_deposit_refund');
+                  } else if (latestUserText.includes('fir') || latestUserText.includes('arrest') || latestUserText.includes('bail') || latestUserText.includes('police') || latestUserText.includes('bnss')) {
+                    setTimelineArchetype('criminal_investigation_bnss');
+                  } else if (latestUserText.includes('arbitrat')) {
+                    setTimelineArchetype('commercial_arbitration_act');
+                  } else if (latestUserText.includes('accident') || latestUserText.includes('mact') || latestUserText.includes('vehicle')) {
+                    setTimelineArchetype('motor_accident_mact');
+                  } else if (latestUserText.includes('rti') || latestUserText.includes('cpio') || latestUserText.includes('information')) {
+                    setTimelineArchetype('rti_appeal_lifecycle');
+                  }
+                  setIsTimelineModalOpen(true);
+                }}
+                className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
+                  isDark 
+                    ? 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border-blue-500/30' 
+                    : 'bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-200'
+                }`}
+                title="Interactive Dispute Timeline & Limitation Visualizer (Limitation Act 1963)"
+              >
+                <span className="material-symbols-outlined text-[14px] text-blue-500">timeline</span>
+                <span>Timeline</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                  setCounterStrategyInitialFacts(activeNarrative);
+                  setIsCounterStrategyModalOpen(true);
+                }}
+                className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
+                  isDark 
+                    ? 'bg-red-500/15 hover:bg-red-500/25 text-red-300 border-red-500/30' 
+                    : 'bg-red-50 hover:bg-red-100 text-red-950 border-red-200'
+                }`}
+                title="Defensive Counter-Strategy Generator (Anti-Vexatious Sanctions & Cross-Complaints)"
+              >
+                <span className="material-symbols-outlined text-[14px] text-red-500">shield_with_heart</span>
+                <span>Counter-Offensive</span>
+              </button>
+            </div>
+
             {/* Small Screen: Compact Upward Context Dropdown on Left + Mic & Attach on Right (< sm) */}
             <div className="flex sm:hidden items-center justify-between gap-2 px-1 pb-1">
               {/* Left Side: Context Label & Upward-Opening Custom Dropdown */}
@@ -3208,22 +3297,8 @@ export function ChatView({
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setIsLegalAidModalOpen(true)}
-                  className={`px-1.5 py-1 rounded-lg text-[10px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-0.5 ${
-                    isDark 
-                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' 
-                      : 'bg-amber-50 text-amber-950 border-amber-200'
-                  }`}
-                  title="NALSA 24/7 Free Legal Aid (15100)"
-                >
-                  <Scale className="w-3 h-3 text-amber-500" />
-                  <span className="font-mono text-[9px]">15100</span>
-                </button>
-
-                <button
-                  type="button"
                   onClick={() => setSpeechLang(speechLang === 'en-IN' ? 'hi-IN' : 'en-IN')}
-                  className={`px-1.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
+                  className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition-colors border cursor-pointer shrink-0 ${
                     speechLang === 'hi-IN'
                       ? isDark 
                         ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' 
@@ -3495,8 +3570,8 @@ export function ChatView({
         </div>
 
         {/* 7 CONVERSATIONS FREE SERVICE QUOTA WARNING MODAL */}
-        {showLimitModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+        {showLimitModal && typeof document !== 'undefined' && createPortal(
+          <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
             <div className={`w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-2xl border flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 ${
               isDark ? 'bg-[#0f111a] border-[#23283f] text-white' : 'bg-white border-[#e2e8f0] text-[#0b1c30]'
             }`}>
@@ -3550,7 +3625,8 @@ export function ChatView({
                 </button>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* JUST-IN-TIME MICROPHONE PERMISSION MODAL */}
@@ -3662,9 +3738,9 @@ export function ChatView({
         {isPleadingStudioOpen && typeof document !== 'undefined' && createPortal(
           <div 
             onClick={(e) => { if (e.target === e.currentTarget) setIsPleadingStudioOpen(false); }}
-            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+            <div className="w-full max-w-6xl h-full max-h-[92dvh] sm:max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <CourtPleadingStudio
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3680,9 +3756,9 @@ export function ChatView({
         {isTimelineModalOpen && typeof document !== 'undefined' && createPortal(
           <div 
             onClick={(e) => { if (e.target === e.currentTarget) setIsTimelineModalOpen(false); }}
-            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+            <div className="w-full max-w-6xl h-full max-h-[92dvh] sm:max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <DisputeTimelineVisualizer
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3699,9 +3775,9 @@ export function ChatView({
         {isCounterStrategyModalOpen && typeof document !== 'undefined' && createPortal(
           <div 
             onClick={(e) => { if (e.target === e.currentTarget) setIsCounterStrategyModalOpen(false); }}
-            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+            <div className="w-full max-w-6xl h-full max-h-[92dvh] sm:max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <CounterStrategyStudio
                 isDark={isDark}
                 apiBase={apiBase}

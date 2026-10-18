@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Loader2 } from 'lucide-react';
 import { clientStorage } from '../services/clientStorage';
 
@@ -102,7 +103,7 @@ export function DossiersDrawer({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const filteredDossiers = dossiers.filter(d => 
     d.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
@@ -111,8 +112,8 @@ export function DossiersDrawer({
     (d.initial_query && d.initial_query.toLowerCase().includes(searchFilter.toLowerCase()))
   );
 
-  return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+  return createPortal(
+    <div className="fixed inset-0 z-[10040] flex justify-end">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
@@ -343,6 +344,7 @@ export function DossiersDrawer({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

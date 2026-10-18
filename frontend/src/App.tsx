@@ -685,6 +685,24 @@ export function App() {
               </button>
             </div>
 
+            {/* Mobile Citizen vs Advocate Mode Quick Toggle (< md) */}
+            <button
+              type="button"
+              onClick={() => setMode(mode === 'citizen' ? 'professional' : 'citizen')}
+              className={`md:hidden h-8 px-2 rounded-lg flex items-center gap-1 text-[10.5px] font-bold border transition-all cursor-pointer shrink-0 ${
+                mode === 'citizen'
+                  ? isDark ? 'bg-[#ff7722]/15 text-[#ff7722] border-[#ff7722]/40' : 'bg-orange-50 text-[#ff7722] border-orange-200'
+                  : isDark ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              }`}
+              title={`Active Mode: ${mode === 'citizen' ? 'Citizen' : 'Advocate'} (tap to switch)`}
+              aria-label="Toggle Legal Persona Mode"
+            >
+              <span className="material-symbols-outlined text-[14px]">
+                {mode === 'citizen' ? 'person' : 'gavel'}
+              </span>
+              <span>{mode === 'citizen' ? 'Citizen' : 'Advocate'}</span>
+            </button>
+
             {/* GUEST SESSION IDENTITY PILL & MENU (Desktop >= lg / 1024px+) */}
             <div className="hidden lg:block relative shrink-0" ref={guestMenuRef}>
               <button
@@ -773,11 +791,11 @@ export function App() {
               )}
             </div>
 
-            {/* THEME TOGGLE SWITCH (Visible on md+ / 768px+) */}
+            {/* THEME TOGGLE SWITCH (Visible across ALL screens) */}
             <button
               type="button"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`hidden md:flex items-center justify-center h-8 px-2 sm:px-2.5 rounded-lg md:rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
+              className={`flex items-center justify-center h-8 px-2 sm:px-2.5 rounded-lg md:rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] hover:bg-[#1a1f33] text-amber-300 border-[#23283f] hover:border-amber-400/40' 
                   : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#00288e] border-[#dce9ff] hover:border-[#00288e]/30'
@@ -875,6 +893,40 @@ export function App() {
           </div>
         </div>
 
+        {/* Mobile Primary Navigation Bar (< md ONLY: Direct 1-Tap Access to Chat, Contracts, Search, Validator) */}
+        <div className={`md:hidden h-9 w-full border-t flex items-center justify-around px-1 sm:px-2 shrink-0 transition-colors ${
+          isDark ? 'bg-[#0d0f17] border-[#1f2438]' : 'bg-white border-[#e2e8f0]'
+        }`}>
+          {[
+            { id: 'chat', label: 'Chat', icon: 'chat', title: 'Constitutional AI Chat Assistant' },
+            { id: 'contracts', label: 'Contracts', icon: 'edit_document', title: 'AI Contract Studio' },
+            { id: 'search', label: 'Search', icon: 'account_balance', title: '59+ Acts Statute Search' },
+            { id: 'info', label: 'Validator', icon: 'fact_check', title: 'Knowledge & Truth Validator' },
+          ].map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => { setActiveTab(tab.id as any); setIsMobileMenuOpen(false); }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                  isActive
+                    ? isDark
+                      ? 'bg-white text-black font-bold shadow-xs'
+                      : 'bg-[#00288e] text-white font-bold shadow-xs'
+                    : isDark
+                      ? 'text-[#94a3b8] hover:text-white hover:bg-white/5'
+                      : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-slate-100'
+                }`}
+                title={tab.title}
+              >
+                <span className="material-symbols-outlined text-[13px]">{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Secondary Statutory Sub-Header (Ticker Bar - h-7 / 28px, hidden on small mobile to maximize screen) */}
         <div id="statutory-ticker" className={`hidden md:block h-7 w-full border-t overflow-hidden transition-colors ${
           isDark 
@@ -908,8 +960,8 @@ export function App() {
         </div>
       </header>
 
-      {/* MAIN SCREEN CANVAS (Responsive top padding: 56px on mobile, 84px on md+) */}
-      <div className="pt-14 md:pt-[84px] flex-1 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-84px)] overflow-hidden w-full">
+      {/* MAIN SCREEN CANVAS (Responsive top padding: 92px on mobile with module bar, 84px on md+) */}
+      <div className="pt-[92px] md:pt-[84px] flex-1 flex flex-col h-[calc(100dvh-92px)] md:h-[calc(100dvh-84px)] overflow-hidden w-full">
         <main className={`flex-1 flex flex-col w-full h-full ${activeTab === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'} transition-colors duration-200 ${
           isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
         }`}>

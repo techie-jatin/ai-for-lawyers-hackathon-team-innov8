@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface RealCasePrecedentItem {
   id: number;
@@ -38,7 +39,7 @@ export function PrecedentDossierDrawer({
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'strategy' | 'ruling' | 'sanhita'>('all');
 
-  if (!isOpen || !precedent) return null;
+  if (!isOpen || !precedent || typeof document === 'undefined') return null;
 
   const handleCopyPlaybook = () => {
     const textToCopy = `=================================================================
@@ -74,8 +75,8 @@ Generated via भारत Legal Intelligence Engine`;
     setTimeout(() => setCopied(false), 2000);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[10040] flex justify-end animate-in fade-in duration-200">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
@@ -442,6 +443,7 @@ Generated via भारत Legal Intelligence Engine`;
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

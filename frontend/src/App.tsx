@@ -8,9 +8,6 @@ import { InfoView } from './components/InfoView';
 import { DossiersDrawer, type ChamberDossier } from './components/DossiersDrawer';
 import { StatutoryConcordanceModal } from './components/StatutoryConcordanceModal';
 import { ConstitutionStudioModal } from './components/ConstitutionStudioModal';
-import { useDesignPreset } from './context/DesignPresetContext';
-import { DesignPresetSwitcher } from './components/DesignPresetSwitcher';
-import { MobileBottomNav } from './components/MobileBottomNav';
 import { getGuestId, resetGuestId, hasSeenGuestNotice, markGuestNoticeSeen } from './utils/guestSession';
 
 export interface ChatLaunchContext {
@@ -99,7 +96,6 @@ const DAILY_LEGAL_TIPS: DailyLegalTip[] = [
 ];
 
 export function App() {
-  const { isInstitutional } = useDesignPreset();
   const [guestId] = useState<string>(() => getGuestId());
   const [showGuestNoticeModal, setShowGuestNoticeModal] = useState<boolean>(() => !hasSeenGuestNotice());
   const [isGuestMenuOpen, setIsGuestMenuOpen] = useState(false);
@@ -501,26 +497,22 @@ export function App() {
               />
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1 whitespace-nowrap">
-                  <span className={`font-extrabold tracking-tight text-[#ff7722] ${isInstitutional ? 'font-bench-title tracking-wider' : 'text-[13.5px] sm:text-[14px]'}`}>
-                    भारत
-                  </span>
-                  <span className={`font-extrabold tracking-tight ${isInstitutional ? 'font-bench-title text-[12px] sm:text-[13px] tracking-wider uppercase' : 'text-[13.5px] sm:text-[14px]'} ${
+                  <span className="font-extrabold text-[13.5px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
+                  <span className={`font-extrabold text-[13.5px] sm:text-[14px] tracking-tight ${
                     isDark ? 'text-white' : 'text-[#00288e]'
                   }`}>
                     Legal
                   </span>
-                  <span className={`font-extrabold tracking-tight hidden min-[380px]:inline ${isInstitutional ? 'font-bench-title text-[12px] sm:text-[13px] tracking-wider uppercase' : 'text-[13.5px] sm:text-[14px]'} ${
+                  <span className={`font-extrabold text-[13.5px] sm:text-[14px] tracking-tight hidden min-[380px]:inline ${
                     isDark ? 'text-white' : 'text-[#00288e]'
                   }`}>
-                    {isInstitutional ? 'Chambers' : 'Intelligence'}
+                    Intelligence
                   </span>
                 </div>
                 <span className={`text-[8.5px] font-medium leading-tight hidden lg:block truncate ${
-                  isInstitutional ? 'font-judicial-mono tracking-wider text-amber-500/90 text-[7.5px] uppercase' : ''
-                } ${
                   isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
                 }`}>
-                  {isInstitutional ? 'Institutional Bench Intelligence • BCI & SCI Standards' : 'Constitutional & Statutory Platform'}
+                  Constitutional & Statutory Platform
                 </span>
               </div>
             </button>
@@ -801,11 +793,6 @@ export function App() {
               </span>
             </button>
 
-            {/* INSTITUTIONAL / CLASSIC DESIGN KEY SWITCHER (Desktop >= md) */}
-            <div className="hidden md:flex items-center shrink-0">
-              <DesignPresetSwitcher isDark={isDark} compact={true} />
-            </div>
-
             {/* Complete Constitution Studio (456+ Articles, 25 Parts, 12 Schedules) */}
             <button
               type="button"
@@ -921,8 +908,8 @@ export function App() {
         </div>
       </header>
 
-      {/* MAIN SCREEN CANVAS (Responsive top padding: 56px on mobile, 84px on md+, bottom padding for mobile bar in institutional mode) */}
-      <div className={`pt-14 md:pt-[84px] flex-1 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-84px)] overflow-hidden w-full ${isInstitutional ? 'pb-14 sm:pb-0' : ''}`}>
+      {/* MAIN SCREEN CANVAS (Responsive top padding: 56px on mobile, 84px on md+) */}
+      <div className="pt-14 md:pt-[84px] flex-1 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-84px)] overflow-hidden w-full">
         <main className={`flex-1 flex flex-col w-full h-full ${activeTab === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'} transition-colors duration-200 ${
           isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
         }`}>
@@ -1159,15 +1146,7 @@ export function App() {
                 </div>
               </div>
 
-              {/* 3. Design System Key Engine (Instant Theme Switch / Rollback) */}
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 block">
-                  Chamber Design Architecture
-                </span>
-                <DesignPresetSwitcher isDark={isDark} />
-              </div>
-
-              {/* 4. Theme Toggle */}
+              {/* 3. Theme Toggle */}
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 block">
                   Appearance & Theme
@@ -1503,22 +1482,6 @@ export function App() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Institutional Mobile Bottom Navigation Bar (Thumb-driven navigation for <= 640px) */}
-      {isInstitutional && (
-        <MobileBottomNav
-          isDark={isDark}
-          activeTab={activeTab}
-          onSelectTab={(tab) => setActiveTab(tab)}
-          onOpenPleadings={() => {
-            setActiveTab('chat');
-            window.dispatchEvent(new CustomEvent('bharat:open-studio', { detail: { studio: 'pleadings' } }));
-          }}
-          onOpenConstitution={() => setIsConstitutionModalOpen(true)}
-          onOpenDossiers={() => setIsDossiersOpen(true)}
-          dossierCount={dossierCount}
-        />
       )}
     </div>
   );

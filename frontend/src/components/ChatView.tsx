@@ -14,7 +14,6 @@ import { VoiceConsultationPlayer } from './VoiceConsultationPlayer';
 import { DisputeTimelineVisualizer } from './DisputeTimelineVisualizer';
 import { CounterStrategyStudio } from './CounterStrategyStudio';
 import { clientStorage } from '../services/clientStorage';
-import { useDesignPreset } from '../context/DesignPresetContext';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -617,61 +616,6 @@ export function ChatView({
   const [isCounterStrategyModalOpen, setIsCounterStrategyModalOpen] = useState(false);
   const [counterStrategyInitialFacts, setCounterStrategyInitialFacts] = useState('');
 
-  // Institutional Design Preset & Side-by-Side Drafting Dock State
-  const { isInstitutional } = useDesignPreset();
-  const [dockedStudio, setDockedStudio] = useState<'pleadings' | 'timeline' | 'counter' | null>(null);
-
-  // Sync docked studio when design preset changes
-  useEffect(() => {
-    if (!isInstitutional && dockedStudio) {
-      if (dockedStudio === 'pleadings') setIsPleadingStudioOpen(true);
-      if (dockedStudio === 'timeline') setIsTimelineModalOpen(true);
-      if (dockedStudio === 'counter') setIsCounterStrategyModalOpen(true);
-      setDockedStudio(null);
-    }
-  }, [isInstitutional, dockedStudio]);
-
-  // Global listener for opening studios across navigation and mobile bars
-  useEffect(() => {
-    const handleOpenStudio = (e: any) => {
-      const studio = e?.detail?.studio;
-      if (studio === 'pleadings') {
-        const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-        setPleadingInitialFacts(activeNarrative);
-        if (isInstitutional && typeof window !== 'undefined' && window.innerWidth >= 1025) {
-          setDockedStudio('pleadings');
-          setIsPleadingStudioOpen(false);
-        } else {
-          setIsPleadingStudioOpen(true);
-        }
-      } else if (studio === 'timeline') {
-        const rawUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-        setTimelineInitialFacts(rawUserText);
-        if (isInstitutional && typeof window !== 'undefined' && window.innerWidth >= 1025) {
-          setDockedStudio('timeline');
-          setIsTimelineModalOpen(false);
-        } else {
-          setIsTimelineModalOpen(true);
-        }
-      } else if (studio === 'counter') {
-        const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-        setCounterStrategyInitialFacts(activeNarrative);
-        if (isInstitutional && typeof window !== 'undefined' && window.innerWidth >= 1025) {
-          setDockedStudio('counter');
-          setIsCounterStrategyModalOpen(false);
-        } else {
-          setIsCounterStrategyModalOpen(true);
-        }
-      } else if (studio === 'rea') {
-        setIsReaModalOpen(true);
-      } else if (studio === 'legalaid') {
-        setIsLegalAidModalOpen(true);
-      }
-    };
-    window.addEventListener('bharat:open-studio', handleOpenStudio);
-    return () => window.removeEventListener('bharat:open-studio', handleOpenStudio);
-  }, [isInstitutional, messages]);
-
   // Voice Dictation Streaming & Bilingual Support State
   const recognitionRef = useRef<any>(null);
   const userRequestedStopRef = useRef(false);
@@ -727,57 +671,6 @@ export function ChatView({
       }));
     }
     setIsPrintStudioOpen(true);
-  };
-
-  const handleOpenPleadingsStudio = (initialFacts?: string) => {
-    const activeNarrative = initialFacts ?? (messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '');
-    setPleadingInitialFacts(activeNarrative);
-    if (isInstitutional && typeof window !== 'undefined' && window.innerWidth >= 1025) {
-      setDockedStudio(prev => prev === 'pleadings' ? null : 'pleadings');
-      setIsPleadingStudioOpen(false);
-    } else {
-      setIsPleadingStudioOpen(true);
-    }
-  };
-
-  const handleOpenDisputeTimeline = (initialFacts?: string, archetype?: string) => {
-    const rawUserText = initialFacts ?? (messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '');
-    const latestUserText = rawUserText.toLowerCase();
-    setTimelineInitialFacts(rawUserText);
-    if (archetype) {
-      setTimelineArchetype(archetype);
-    } else if (latestUserText.includes('cheque') || latestUserText.includes('138') || latestUserText.includes('dishonor') || latestUserText.includes('dishonour') || latestUserText.includes('bounce')) {
-      setTimelineArchetype('cheque_bounce_138_ni');
-    } else if (latestUserText.includes('consumer') || latestUserText.includes('defect') || latestUserText.includes('cpa') || latestUserText.includes('service')) {
-      setTimelineArchetype('consumer_complaint_35_cpa');
-    } else if (latestUserText.includes('deposit') || latestUserText.includes('rent') || latestUserText.includes('tenan') || latestUserText.includes('hostel') || latestUserText.includes('contract')) {
-      setTimelineArchetype('contract_breach_deposit_refund');
-    } else if (latestUserText.includes('fir') || latestUserText.includes('arrest') || latestUserText.includes('bail') || latestUserText.includes('police') || latestUserText.includes('bnss')) {
-      setTimelineArchetype('criminal_investigation_bnss');
-    } else if (latestUserText.includes('arbitrat')) {
-      setTimelineArchetype('commercial_arbitration_act');
-    } else if (latestUserText.includes('accident') || latestUserText.includes('mact') || latestUserText.includes('vehicle')) {
-      setTimelineArchetype('motor_accident_mact');
-    } else if (latestUserText.includes('rti') || latestUserText.includes('cpio') || latestUserText.includes('information')) {
-      setTimelineArchetype('rti_appeal_lifecycle');
-    }
-    if (isInstitutional && typeof window !== 'undefined' && window.innerWidth >= 1025) {
-      setDockedStudio(prev => prev === 'timeline' ? null : 'timeline');
-      setIsTimelineModalOpen(false);
-    } else {
-      setIsTimelineModalOpen(true);
-    }
-  };
-
-  const handleOpenCounterStrategy = (initialFacts?: string) => {
-    const activeNarrative = initialFacts ?? (messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '');
-    setCounterStrategyInitialFacts(activeNarrative);
-    if (isInstitutional && typeof window !== 'undefined' && window.innerWidth >= 1025) {
-      setDockedStudio(prev => prev === 'counter' ? null : 'counter');
-      setIsCounterStrategyModalOpen(false);
-    } else {
-      setIsCounterStrategyModalOpen(true);
-    }
   };
 
   const handleTriggerSystemPrint = () => {
@@ -2528,7 +2421,8 @@ export function ChatView({
                             const curIdx = messages.findIndex(m => m.id === msg.id);
                             const userMsg = messages.slice(0, curIdx).reverse().find(m => m.role === 'user');
                             const narrativeText = userMsg?.text || msg.response?.query || msg.response?.answer || msg.text || '';
-                            handleOpenPleadingsStudio(narrativeText);
+                            setPleadingInitialFacts(narrativeText);
+                            setIsPleadingStudioOpen(true);
                           }}
                           className={`no-print p-1.5 sm:p-1 rounded-lg transition-colors cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center ${
                             isDark 
@@ -3076,53 +2970,72 @@ export function ChatView({
 
                 <button
                   type="button"
-                  onClick={() => handleOpenPleadingsStudio()}
+                  onClick={() => {
+                    const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                    setPleadingInitialFacts(activeNarrative);
+                    setIsPleadingStudioOpen(true);
+                  }}
                   className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                    dockedStudio === 'pleadings'
-                      ? 'bg-emerald-600 text-white border-emerald-400 shadow-xs ring-1 ring-emerald-400'
-                      : isDark 
-                        ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30' 
-                        : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-200'
+                    isDark 
+                      ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30' 
+                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-200'
                   }`}
                   title="Court-Ready Pleading & Notice Studio (High Court Parchment)"
                 >
-                  <Gavel className={`w-3.5 h-3.5 ${dockedStudio === 'pleadings' ? 'text-white' : 'text-emerald-500'}`} />
+                  <Gavel className="w-3.5 h-3.5 text-emerald-500" />
                   <span className="hidden md:inline">Pleadings Studio</span>
-                  {dockedStudio === 'pleadings' && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>}
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleOpenDisputeTimeline()}
+                  onClick={() => {
+                    const rawUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                    const latestUserText = rawUserText.toLowerCase();
+                    setTimelineInitialFacts(rawUserText);
+                    if (latestUserText.includes('cheque') || latestUserText.includes('138') || latestUserText.includes('dishonor') || latestUserText.includes('dishonour') || latestUserText.includes('bounce')) {
+                      setTimelineArchetype('cheque_bounce_138_ni');
+                    } else if (latestUserText.includes('consumer') || latestUserText.includes('defect') || latestUserText.includes('cpa') || latestUserText.includes('service')) {
+                      setTimelineArchetype('consumer_complaint_35_cpa');
+                    } else if (latestUserText.includes('deposit') || latestUserText.includes('rent') || latestUserText.includes('tenan') || latestUserText.includes('hostel') || latestUserText.includes('contract')) {
+                      setTimelineArchetype('contract_breach_deposit_refund');
+                    } else if (latestUserText.includes('fir') || latestUserText.includes('arrest') || latestUserText.includes('bail') || latestUserText.includes('police') || latestUserText.includes('bnss')) {
+                      setTimelineArchetype('criminal_investigation_bnss');
+                    } else if (latestUserText.includes('arbitrat')) {
+                      setTimelineArchetype('commercial_arbitration_act');
+                    } else if (latestUserText.includes('accident') || latestUserText.includes('mact') || latestUserText.includes('vehicle')) {
+                      setTimelineArchetype('motor_accident_mact');
+                    } else if (latestUserText.includes('rti') || latestUserText.includes('cpio') || latestUserText.includes('information')) {
+                      setTimelineArchetype('rti_appeal_lifecycle');
+                    }
+                    setIsTimelineModalOpen(true);
+                  }}
                   className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                    dockedStudio === 'timeline'
-                      ? 'bg-blue-600 text-white border-blue-400 shadow-xs ring-1 ring-blue-400'
-                      : isDark 
-                        ? 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border-blue-500/30' 
-                        : 'bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-200'
+                    isDark 
+                      ? 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border-blue-500/30' 
+                      : 'bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-200'
                   }`}
                   title="Interactive Dispute Timeline & Limitation Visualizer (Limitation Act 1963)"
                 >
-                  <span className={`material-symbols-outlined text-[14px] ${dockedStudio === 'timeline' ? 'text-white' : 'text-blue-500'}`}>timeline</span>
+                  <span className="material-symbols-outlined text-[14px] text-blue-500">timeline</span>
                   <span className="hidden md:inline">Dispute Timeline</span>
-                  {dockedStudio === 'timeline' && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>}
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleOpenCounterStrategy()}
+                  onClick={() => {
+                    const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                    setCounterStrategyInitialFacts(activeNarrative);
+                    setIsCounterStrategyModalOpen(true);
+                  }}
                   className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                    dockedStudio === 'counter'
-                      ? 'bg-red-600 text-white border-red-400 shadow-xs ring-1 ring-red-400'
-                      : isDark 
-                        ? 'bg-red-500/15 hover:bg-red-500/25 text-red-300 border-red-500/30' 
-                        : 'bg-red-50 hover:bg-red-100 text-red-950 border-red-200'
+                    isDark 
+                      ? 'bg-red-500/15 hover:bg-red-500/25 text-red-300 border-red-500/30' 
+                      : 'bg-red-50 hover:bg-red-100 text-red-950 border-red-200'
                   }`}
                   title="Defensive Counter-Strategy Generator (Anti-Vexatious Sanctions & Cross-Complaints)"
                 >
-                  <span className={`material-symbols-outlined text-[14px] ${dockedStudio === 'counter' ? 'text-white' : 'text-red-500'}`}>shield_with_heart</span>
+                  <span className="material-symbols-outlined text-[14px] text-red-500">shield_with_heart</span>
                   <span className="hidden md:inline">Counter-Offensive</span>
-                  {dockedStudio === 'counter' && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>}
                 </button>
 
                 <button
@@ -3751,23 +3664,7 @@ export function ChatView({
             onClick={(e) => { if (e.target === e.currentTarget) setIsPleadingStudioOpen(false); }}
             className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700 relative">
-              {isInstitutional && (
-                <div className="hidden lg:flex absolute top-3 right-14 z-50">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsPleadingStudioOpen(false);
-                      setDockedStudio('pleadings');
-                    }}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-[#131624]/90 text-amber-300 border border-amber-500/40 hover:bg-amber-500/20 shadow-md cursor-pointer transition-all"
-                    title="Dock side-by-side with legal chat cockpit"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">dock_to_right</span>
-                    <span>Dock to Cockpit</span>
-                  </button>
-                </div>
-              )}
+            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <CourtPleadingStudio
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3785,23 +3682,7 @@ export function ChatView({
             onClick={(e) => { if (e.target === e.currentTarget) setIsTimelineModalOpen(false); }}
             className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700 relative">
-              {isInstitutional && (
-                <div className="hidden lg:flex absolute top-3 right-14 z-50">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsTimelineModalOpen(false);
-                      setDockedStudio('timeline');
-                    }}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-[#131624]/90 text-amber-300 border border-amber-500/40 hover:bg-amber-500/20 shadow-md cursor-pointer transition-all"
-                    title="Dock side-by-side with legal chat cockpit"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">dock_to_right</span>
-                    <span>Dock to Cockpit</span>
-                  </button>
-                </div>
-              )}
+            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <DisputeTimelineVisualizer
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3820,23 +3701,7 @@ export function ChatView({
             onClick={(e) => { if (e.target === e.currentTarget) setIsCounterStrategyModalOpen(false); }}
             className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700 relative">
-              {isInstitutional && (
-                <div className="hidden lg:flex absolute top-3 right-14 z-50">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsCounterStrategyModalOpen(false);
-                      setDockedStudio('counter');
-                    }}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-[#131624]/90 text-amber-300 border border-amber-500/40 hover:bg-amber-500/20 shadow-md cursor-pointer transition-all"
-                    title="Dock side-by-side with legal chat cockpit"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">dock_to_right</span>
-                    <span>Dock to Cockpit</span>
-                  </button>
-                </div>
-              )}
+            <div className="w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <CounterStrategyStudio
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3857,84 +3722,6 @@ export function ChatView({
           options={printStudioOptions}
         />
       </main>
-
-      {/* DOCKED SENIOR ADVOCATE STUDIO (Desktop Tri-Pane Cockpit when isInstitutional is true) */}
-      {isInstitutional && dockedStudio && (
-        <aside className={`hidden lg:flex w-[48%] xl:w-[50%] 2xl:w-[52%] max-w-[860px] shrink-0 h-full border-l flex-col relative z-20 shadow-2xl animate-in slide-in-from-right duration-200 ${
-          isDark ? 'border-[#1f2438] bg-[#0d0f17]' : 'border-[#e2e8f0] bg-white'
-        }`}>
-          <div className={`h-11 px-3 border-b flex items-center justify-between shrink-0 ${
-            isDark ? 'bg-[#0d0f17] border-[#1f2438]' : 'bg-[#f8f9ff] border-[#e2e8f0]'
-          }`}>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px] text-[#ff7722]">dock_to_right</span>
-              <span className="text-[12px] font-bold font-bench-title tracking-wider">
-                {dockedStudio === 'pleadings' ? 'Pleadings & Notice Studio' : dockedStudio === 'timeline' ? 'Dispute Timeline Visualizer' : 'Defensive Counter-Strategy'}
-              </span>
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#ff7722]/20 text-[#ff7722] font-extrabold uppercase">Docked Live</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => {
-                  if (dockedStudio === 'pleadings') setIsPleadingStudioOpen(true);
-                  if (dockedStudio === 'timeline') setIsTimelineModalOpen(true);
-                  if (dockedStudio === 'counter') setIsCounterStrategyModalOpen(true);
-                  setDockedStudio(null);
-                }}
-                className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border transition-colors cursor-pointer ${
-                  isDark 
-                    ? 'bg-[#181c2d] hover:bg-[#20253d] text-slate-300 border-[#2b334d]' 
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
-                }`}
-                title="Expand to Fullscreen Chamber Modal"
-              >
-                <span className="material-symbols-outlined text-[14px]">open_in_full</span>
-                <span className="hidden xl:inline text-[10.5px]">Expand</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setDockedStudio(null)}
-                className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border transition-colors cursor-pointer ${
-                  isDark 
-                    ? 'bg-[#181c2d] hover:bg-rose-950/60 text-rose-300 border-[#2b334d]' 
-                    : 'bg-slate-100 hover:bg-rose-100 text-rose-700 border-slate-300'
-                }`}
-                title="Close Docked Studio"
-              >
-                <span className="material-symbols-outlined text-[14px]">close</span>
-              </button>
-            </div>
-          </div>
-          <div className="flex-1 overflow-hidden relative">
-            {dockedStudio === 'pleadings' && (
-              <CourtPleadingStudio
-                isDark={isDark}
-                apiBase={apiBase}
-                initialFacts={pleadingInitialFacts}
-                onClose={() => setDockedStudio(null)}
-              />
-            )}
-            {dockedStudio === 'timeline' && (
-              <DisputeTimelineVisualizer
-                isDark={isDark}
-                apiBase={apiBase}
-                initialArchetype={timelineArchetype}
-                initialFacts={timelineInitialFacts}
-                onClose={() => setDockedStudio(null)}
-              />
-            )}
-            {dockedStudio === 'counter' && (
-              <CounterStrategyStudio
-                isDark={isDark}
-                apiBase={apiBase}
-                initialFacts={counterStrategyInitialFacts}
-                onClose={() => setDockedStudio(null)}
-              />
-            )}
-          </div>
-        </aside>
-      )}
     </div>
   );
 }

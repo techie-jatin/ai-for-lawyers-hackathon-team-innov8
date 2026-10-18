@@ -495,7 +495,8 @@ export function App() {
                   isDark ? 'bg-[#131624] border-[#242b42]' : 'bg-white border-[#e2e8f0]'
                 }`}
               />
-              <div className="flex flex-col min-w-0">
+              {/* Brand Title (Hidden on small screens < md to free horizontal header space) */}
+              <div className="hidden md:flex flex-col min-w-0">
                 <div className="flex items-center gap-1 whitespace-nowrap">
                   <span className="font-extrabold text-[13.5px] sm:text-[14px] tracking-tight text-[#ff7722]">भारत</span>
                   <span className={`font-extrabold text-[13.5px] sm:text-[14px] tracking-tight ${
@@ -503,7 +504,7 @@ export function App() {
                   }`}>
                     Legal
                   </span>
-                  <span className={`font-extrabold text-[13.5px] sm:text-[14px] tracking-tight hidden min-[380px]:inline ${
+                  <span className={`font-extrabold text-[13.5px] sm:text-[14px] tracking-tight ${
                     isDark ? 'text-white' : 'text-[#00288e]'
                   }`}>
                     Intelligence

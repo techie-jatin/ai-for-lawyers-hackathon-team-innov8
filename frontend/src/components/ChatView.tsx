@@ -595,6 +595,8 @@ export function ChatView({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isContextDropdownOpen, setIsContextDropdownOpen] = useState(false);
   const contextDropdownRef = useRef<HTMLDivElement>(null);
+  const [isStudiosDropdownOpen, setIsStudiosDropdownOpen] = useState(false);
+  const studiosDropdownRef = useRef<HTMLDivElement>(null);
 
   // NALSA Free Legal Aid Directory Modal State
   const [isLegalAidModalOpen, setIsLegalAidModalOpen] = useState(false);
@@ -715,14 +717,17 @@ export function ChatView({
       if (contextDropdownRef.current && !contextDropdownRef.current.contains(event.target as Node)) {
         setIsContextDropdownOpen(false);
       }
+      if (studiosDropdownRef.current && !studiosDropdownRef.current.contains(event.target as Node)) {
+        setIsStudiosDropdownOpen(false);
+      }
     };
-    if (isContextDropdownOpen) {
+    if (isContextDropdownOpen || isStudiosDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isContextDropdownOpen]);
+  }, [isContextDropdownOpen, isStudiosDropdownOpen]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -1982,8 +1987,8 @@ export function ChatView({
         </header>
 
         {/* Scrollable Message Stream & Printable Legal Memorandum Canvas */}
-        <div id="printable-legal-dossier" className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-5 flex flex-col items-center">
-          <div className="w-full max-w-[880px] space-y-5 pb-36 sm:pb-44">
+        <div id="printable-legal-dossier" className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-6 py-4 space-y-5 flex flex-col items-center">
+          <div className="w-full max-w-[880px] space-y-5 pb-6 sm:pb-8">
             {/* PRINT-ONLY OFFICIAL LEGAL OPINION LETTERHEAD WITH GRAPHICS */}
             <div className="hidden print:block w-full border-b-2 border-black pb-4 mb-6 text-black">
               <div className="flex items-center justify-between">
@@ -2903,16 +2908,16 @@ export function ChatView({
           </div>
         </div>
 
-        {/* FLOATING MODERN INPUT BAR (Docked Bottom, Hidden when printing) */}
-        <div id="floating-input-dock" className={`absolute bottom-0 left-0 right-0 px-2 sm:px-4 pt-6 pb-2.5 sm:pb-4 bg-gradient-to-t flex flex-col items-center pointer-events-none transition-colors ${
+        {/* DOCKED MODERN INPUT BAR (Bottom Flex Child, Non-overlapping, Hidden when printing) */}
+        <div id="floating-input-dock" className={`shrink-0 w-full px-2 sm:px-4 py-2 sm:py-3 border-t flex flex-col items-center transition-colors ${
           isDark 
-            ? 'from-[#090a0f] via-[#090a0f]/95 to-transparent' 
-            : 'from-[#f4f6fb] via-[#f4f6fb]/95 to-transparent'
+            ? 'bg-[#090a0f] border-[#1f2438]' 
+            : 'bg-[#f4f6fb] border-[#e2e8f0]'
         }`}>
-          <div className={`w-full max-w-[880px] rounded-xl shadow-2xl pointer-events-auto p-2 sm:p-3 flex flex-col gap-2 border backdrop-blur-md transition-colors ${
+          <div className={`w-full max-w-[880px] rounded-xl shadow-md p-2 sm:p-3 flex flex-col gap-2 border transition-colors ${
             isDark 
-              ? 'bg-[#0d0f17]/95 border-[#23283f]' 
-              : 'bg-white/95 border-[#e2e8f0]'
+              ? 'bg-[#0d0f17] border-[#23283f]' 
+              : 'bg-white border-[#dce9ff]'
           }`}>
             {/* Hidden File Input */}
             <input 
@@ -3088,209 +3093,277 @@ export function ChatView({
               </div>
             </div>
 
-            {/* Small Screen Studio Quick Actions Bar (< sm ONLY: 1-Tap Access to Pleadings, Timeline, Counter-Offensive & Legal Aid) */}
-            <div className="flex sm:hidden items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none px-1 pb-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsLegalAidModalOpen(true)}
-                className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                  isDark 
-                    ? 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30' 
-                    : 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200'
-                }`}
-                title="NALSA 24/7 Free Legal Aid Directory (Dial 15100)"
-              >
-                <Scale className="w-3.5 h-3.5 text-amber-500" />
-                <span>Legal Aid</span>
-                <span className="font-mono text-[9px] font-bold">15100</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-                  setPleadingInitialFacts(activeNarrative);
-                  setIsPleadingStudioOpen(true);
-                }}
-                className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                  isDark 
-                    ? 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30' 
-                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-200'
-                }`}
-                title="Court-Ready Pleading & Notice Studio (High Court Parchment)"
-              >
-                <Gavel className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Pleadings</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const rawUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-                  const latestUserText = rawUserText.toLowerCase();
-                  setTimelineInitialFacts(rawUserText);
-                  if (latestUserText.includes('cheque') || latestUserText.includes('138') || latestUserText.includes('dishonor') || latestUserText.includes('dishonour') || latestUserText.includes('bounce')) {
-                    setTimelineArchetype('cheque_bounce_138_ni');
-                  } else if (latestUserText.includes('consumer') || latestUserText.includes('defect') || latestUserText.includes('cpa') || latestUserText.includes('service')) {
-                    setTimelineArchetype('consumer_complaint_35_cpa');
-                  } else if (latestUserText.includes('deposit') || latestUserText.includes('rent') || latestUserText.includes('tenan') || latestUserText.includes('hostel') || latestUserText.includes('contract')) {
-                    setTimelineArchetype('contract_breach_deposit_refund');
-                  } else if (latestUserText.includes('fir') || latestUserText.includes('arrest') || latestUserText.includes('bail') || latestUserText.includes('police') || latestUserText.includes('bnss')) {
-                    setTimelineArchetype('criminal_investigation_bnss');
-                  } else if (latestUserText.includes('arbitrat')) {
-                    setTimelineArchetype('commercial_arbitration_act');
-                  } else if (latestUserText.includes('accident') || latestUserText.includes('mact') || latestUserText.includes('vehicle')) {
-                    setTimelineArchetype('motor_accident_mact');
-                  } else if (latestUserText.includes('rti') || latestUserText.includes('cpio') || latestUserText.includes('information')) {
-                    setTimelineArchetype('rti_appeal_lifecycle');
-                  }
-                  setIsTimelineModalOpen(true);
-                }}
-                className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                  isDark 
-                    ? 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border-blue-500/30' 
-                    : 'bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-200'
-                }`}
-                title="Interactive Dispute Timeline & Limitation Visualizer (Limitation Act 1963)"
-              >
-                <span className="material-symbols-outlined text-[14px] text-blue-500">timeline</span>
-                <span>Timeline</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
-                  setCounterStrategyInitialFacts(activeNarrative);
-                  setIsCounterStrategyModalOpen(true);
-                }}
-                className={`px-2 py-1 rounded-lg text-[10.5px] font-semibold transition-colors border cursor-pointer shrink-0 flex items-center gap-1 ${
-                  isDark 
-                    ? 'bg-red-500/15 hover:bg-red-500/25 text-red-300 border-red-500/30' 
-                    : 'bg-red-50 hover:bg-red-100 text-red-950 border-red-200'
-                }`}
-                title="Defensive Counter-Strategy Generator (Anti-Vexatious Sanctions & Cross-Complaints)"
-              >
-                <span className="material-symbols-outlined text-[14px] text-red-500">shield_with_heart</span>
-                <span>Counter-Offensive</span>
-              </button>
-            </div>
-
-            {/* Small Screen: Compact Upward Context Dropdown on Left + Mic & Attach on Right (< sm) */}
-            <div className="flex sm:hidden items-center justify-between gap-2 px-1 pb-1">
-              {/* Left Side: Context Label & Upward-Opening Custom Dropdown */}
-              <div className="relative flex items-center gap-1.5 min-w-0" ref={contextDropdownRef}>
-                <span className={`font-mono text-[9px] uppercase font-bold shrink-0 ${
-                  isDark ? 'text-[#94a3b8]' : 'text-[#565e74]'
-                }`}>
-                  Context:
-                </span>
-
-                <button
-                  type="button"
-                  onClick={() => setIsContextDropdownOpen(!isContextDropdownOpen)}
-                  style={{ 
-                    backgroundColor: isDark 
-                      ? (isContextDropdownOpen ? '#1c2237' : '#131624') 
-                      : (isContextDropdownOpen ? '#e0edff' : '#eff4ff') 
-                  }}
-                  className={`flex items-center gap-1.5 py-1 px-2.5 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer max-w-[170px] xs:max-w-[210px] truncate ${
-                    isDark 
-                      ? isContextDropdownOpen
-                        ? 'text-amber-300 border-amber-500/50 shadow-xs'
-                        : 'text-white border-[#23283f] hover:border-slate-600' 
-                      : isContextDropdownOpen
-                      ? 'text-[#00288e] border-blue-300 shadow-xs'
-                      : 'text-[#00288e] border-[#dce9ff] hover:border-blue-300'
-                  }`}
-                  title="Change Legal Context (Opens Upward)"
-                >
-                  <span className="material-symbols-outlined text-[14px] text-amber-500 shrink-0">
-                    {CONTEXT_CATEGORIES.find(c => c.name === contextFilter)?.icon || 'gavel'}
-                  </span>
-                  <span className="truncate">{contextFilter}</span>
-                  <span className={`material-symbols-outlined text-[16px] transition-transform duration-150 shrink-0 ${
-                    isContextDropdownOpen ? 'rotate-180 text-amber-500' : isDark ? 'text-slate-400' : 'text-slate-600'
-                  }`}>
-                    expand_less
-                  </span>
-                </button>
-
-                {/* UPWARD-OPENING DROPDOWN MENU POPOVER (100% SOLID OPAQUE) */}
-                {isContextDropdownOpen && (
-                  <div
+            {/* Small Screen: Compact Upward Context Dropdown + Studios Button on Left, Tools on Right (< sm) */}
+            <div className="flex sm:hidden items-center justify-between gap-1.5 px-1 pb-1">
+              {/* Left Side: Context Dropdown & Studios Menu Trigger */}
+              <div className="flex items-center gap-1.5 min-w-0">
+                {/* Context Dropdown */}
+                <div className="relative flex items-center min-w-0" ref={contextDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => { setIsContextDropdownOpen(!isContextDropdownOpen); setIsStudiosDropdownOpen(false); }}
                     style={{ 
-                      backgroundColor: isDark ? '#0f121e' : '#ffffff',
-                      opacity: 1 
+                      backgroundColor: isDark 
+                        ? (isContextDropdownOpen ? '#1c2237' : '#131624') 
+                        : (isContextDropdownOpen ? '#e0edff' : '#eff4ff') 
                     }}
-                    className={`absolute bottom-full mb-2 left-0 w-64 xs:w-72 rounded-xl p-2 shadow-2xl border z-[100] animate-in fade-in slide-in-from-bottom-2 duration-150 ${
-                      isDark
-                        ? 'border-[#2e3752] text-white shadow-black'
-                        : 'border-[#cbd5e1] text-[#0b1c30] shadow-slate-900/25'
+                    className={`flex items-center gap-1 py-1 px-2 rounded-lg text-[10.5px] font-semibold border transition-all cursor-pointer max-w-[130px] xs:max-w-[160px] truncate ${
+                      isDark 
+                        ? isContextDropdownOpen
+                          ? 'text-amber-300 border-amber-500/50 shadow-xs'
+                          : 'text-white border-[#23283f] hover:border-slate-600' 
+                        : isContextDropdownOpen
+                        ? 'text-[#00288e] border-blue-300 shadow-xs'
+                        : 'text-[#00288e] border-[#dce9ff] hover:border-blue-300'
                     }`}
+                    title="Change Legal Context Pillar (Opens Upward)"
                   >
-                    <div 
-                      style={{ backgroundColor: isDark ? '#161b2e' : '#f8fafd' }}
-                      className={`px-2.5 py-1.5 rounded-lg border mb-1.5 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${
-                        isDark ? 'border-[#23283f] text-slate-300' : 'border-[#e2e8f0] text-slate-600'
+                    <span className="material-symbols-outlined text-[13px] text-amber-500 shrink-0">
+                      {CONTEXT_CATEGORIES.find(c => c.name === contextFilter)?.icon || 'gavel'}
+                    </span>
+                    <span className="truncate">{contextFilter}</span>
+                    <span className={`material-symbols-outlined text-[14px] transition-transform duration-150 shrink-0 ${
+                      isContextDropdownOpen ? 'rotate-180 text-amber-500' : isDark ? 'text-slate-400' : 'text-slate-600'
+                    }`}>
+                      expand_less
+                    </span>
+                  </button>
+
+                  {/* UPWARD-OPENING DROPDOWN MENU POPOVER (100% SOLID OPAQUE) */}
+                  {isContextDropdownOpen && (
+                    <div
+                      style={{ 
+                        backgroundColor: isDark ? '#0f121e' : '#ffffff',
+                        opacity: 1 
+                      }}
+                      className={`absolute bottom-full mb-2 left-0 w-64 xs:w-72 rounded-xl p-2 shadow-2xl border z-[100] animate-in fade-in slide-in-from-bottom-2 duration-150 ${
+                        isDark
+                          ? 'border-[#2e3752] text-white shadow-black'
+                          : 'border-[#cbd5e1] text-[#0b1c30] shadow-slate-900/25'
                       }`}
                     >
-                      <span className="flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[14px] text-amber-500">balance</span>
-                        Select Legal Pillar
-                      </span>
-                      <span className="text-[9px] font-mono text-amber-500 font-semibold">5 Pillars</span>
-                    </div>
+                      <div 
+                        style={{ backgroundColor: isDark ? '#161b2e' : '#f8fafd' }}
+                        className={`px-2.5 py-1.5 rounded-lg border mb-1.5 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${
+                          isDark ? 'border-[#23283f] text-slate-300' : 'border-[#e2e8f0] text-slate-600'
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-[14px] text-amber-500">balance</span>
+                          Select Legal Pillar
+                        </span>
+                        <span className="text-[9px] font-mono text-amber-500 font-semibold">5 Pillars</span>
+                      </div>
 
-                    <div className="space-y-1">
-                      {CONTEXT_CATEGORIES.map(c => {
-                        const isSelected = contextFilter === c.name;
-                        return (
-                          <button
-                            key={c.name}
-                            type="button"
-                            onClick={() => {
-                              setContextFilter(c.name);
-                              setIsContextDropdownOpen(false);
-                              const updated = threads.map(t => t.id === activeThreadId ? { ...t, category: c.name } : t);
-                              saveThreadsToStorage(updated);
-                            }}
-                            style={{
-                              backgroundColor: isSelected 
-                                ? (isDark ? '#262015' : '#eff4ff') 
-                                : undefined
-                            }}
-                            className={`w-full p-2.5 rounded-lg text-left transition-all flex items-center justify-between cursor-pointer ${
-                              isSelected
-                                ? isDark
-                                  ? 'text-amber-300 border border-amber-500/50 font-bold'
-                                  : 'text-[#00288e] border border-blue-300 font-bold'
-                                : isDark
-                                ? 'hover:bg-[#1a2033] text-slate-200 hover:text-white border border-transparent'
-                                : 'hover:bg-[#f1f5f9] text-slate-800 hover:text-black border border-transparent'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <span className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${
+                      <div className="space-y-1">
+                        {CONTEXT_CATEGORIES.map(c => {
+                          const isSelected = contextFilter === c.name;
+                          return (
+                            <button
+                              key={c.name}
+                              type="button"
+                              onClick={() => {
+                                setContextFilter(c.name);
+                                setIsContextDropdownOpen(false);
+                                const updated = threads.map(t => t.id === activeThreadId ? { ...t, category: c.name } : t);
+                                saveThreadsToStorage(updated);
+                              }}
+                              style={{
+                                backgroundColor: isSelected 
+                                  ? (isDark ? '#262015' : '#eff4ff') 
+                                  : undefined
+                              }}
+                              className={`w-full p-2.5 rounded-lg text-left transition-all flex items-center justify-between cursor-pointer ${
                                 isSelected
-                                  ? isDark ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-[#00288e] text-white font-bold'
-                                  : isDark ? 'bg-[#1b2034] text-slate-400' : 'bg-slate-200 text-slate-700'
-                              }`}>
-                                <span className="material-symbols-outlined text-[14px]">{c.icon}</span>
-                              </span>
-                              <span className="text-[12px] truncate">{c.name}</span>
-                            </div>
-                            {isSelected && (
-                              <span className="material-symbols-outlined text-[16px] text-amber-500 shrink-0">
-                                check_circle
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
+                                  ? isDark
+                                    ? 'text-amber-300 border border-amber-500/50 font-bold'
+                                    : 'text-[#00288e] border border-blue-300 font-bold'
+                                  : isDark
+                                  ? 'hover:bg-[#1a2033] text-slate-200 hover:text-white border border-transparent'
+                                  : 'hover:bg-[#f1f5f9] text-slate-800 hover:text-black border border-transparent'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <span className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${
+                                  isSelected
+                                    ? isDark ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-[#00288e] text-white font-bold'
+                                    : isDark ? 'bg-[#1b2034] text-slate-400' : 'bg-slate-200 text-slate-700'
+                                }`}>
+                                  <span className="material-symbols-outlined text-[14px]">{c.icon}</span>
+                                </span>
+                                <span className="text-[12px] truncate">{c.name}</span>
+                              </div>
+                              {isSelected && (
+                                <span className="material-symbols-outlined text-[16px] text-amber-500 shrink-0">
+                                  check_circle
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+
+                {/* Studios 4-in-1 Quick Trigger Button & Upward Menu */}
+                <div className="relative shrink-0" ref={studiosDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => { setIsStudiosDropdownOpen(!isStudiosDropdownOpen); setIsContextDropdownOpen(false); }}
+                    className={`flex items-center gap-1 py-1 px-2 rounded-lg text-[10.5px] font-bold border transition-all cursor-pointer ${
+                      isDark 
+                        ? isStudiosDropdownOpen
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-xs'
+                          : 'bg-[#131624] hover:bg-[#1a1f33] text-amber-400 border-amber-500/30'
+                        : isStudiosDropdownOpen
+                        ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-xs'
+                        : 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-200'
+                    }`}
+                    title="Open Chamber Legal Studios (Pleadings, Dispute Timeline, Counter-Offensive, Legal Aid)"
+                  >
+                    <span className="material-symbols-outlined text-[13px] text-amber-500">balance</span>
+                    <span>Studios</span>
+                    <span className={`material-symbols-outlined text-[13px] transition-transform duration-150 ${isStudiosDropdownOpen ? 'rotate-180' : ''}`}>
+                      expand_less
+                    </span>
+                  </button>
+
+                  {/* UPWARD-OPENING STUDIOS POPOVER */}
+                  {isStudiosDropdownOpen && (
+                    <div
+                      style={{ backgroundColor: isDark ? '#0f121e' : '#ffffff', opacity: 1 }}
+                      className={`absolute bottom-full mb-2 left-0 w-72 rounded-xl p-2.5 shadow-2xl border z-[100] animate-in fade-in slide-in-from-bottom-2 duration-150 ${
+                        isDark ? 'border-[#2e3752] text-white shadow-black' : 'border-[#cbd5e1] text-[#0b1c30] shadow-slate-900/25'
+                      }`}
+                    >
+                      <div 
+                        style={{ backgroundColor: isDark ? '#161b2e' : '#f8fafd' }}
+                        className={`px-2.5 py-1.5 rounded-lg border mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${
+                          isDark ? 'border-[#23283f] text-slate-300' : 'border-[#e2e8f0] text-slate-600'
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5 text-amber-500 font-extrabold">
+                          <span className="material-symbols-outlined text-[14px]">gavel</span>
+                          Chamber Legal Studios
+                        </span>
+                        <span className="text-[9px] font-mono text-emerald-400 font-bold">4 Studios</span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        {/* 1. Pleadings Studio */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                            setPleadingInitialFacts(activeNarrative);
+                            setIsPleadingStudioOpen(true);
+                            setIsStudiosDropdownOpen(false);
+                          }}
+                          className={`w-full p-2 rounded-lg text-left transition-all flex items-center gap-2.5 cursor-pointer border ${
+                            isDark ? 'hover:bg-[#1a2033] border-emerald-900/40 text-slate-200 hover:text-white' : 'hover:bg-emerald-50/60 border-emerald-100 text-slate-800'
+                          }`}
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                            <Gavel className="w-3.5 h-3.5 text-emerald-500" />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[11.5px] font-bold leading-tight">Court Pleadings Studio</span>
+                            <span className={`text-[9.5px] truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                              High Court Petitions, §138 Notice, Plaints
+                            </span>
+                          </div>
+                        </button>
+
+                        {/* 2. Dispute Timeline */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const rawUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                            const latestUserText = rawUserText.toLowerCase();
+                            setTimelineInitialFacts(rawUserText);
+                            if (latestUserText.includes('cheque') || latestUserText.includes('138') || latestUserText.includes('dishonor') || latestUserText.includes('dishonour') || latestUserText.includes('bounce')) {
+                              setTimelineArchetype('cheque_bounce_138_ni');
+                            } else if (latestUserText.includes('consumer') || latestUserText.includes('defect') || latestUserText.includes('cpa') || latestUserText.includes('service')) {
+                              setTimelineArchetype('consumer_complaint_35_cpa');
+                            } else if (latestUserText.includes('deposit') || latestUserText.includes('rent') || latestUserText.includes('tenan') || latestUserText.includes('hostel') || latestUserText.includes('contract')) {
+                              setTimelineArchetype('contract_breach_deposit_refund');
+                            } else if (latestUserText.includes('fir') || latestUserText.includes('arrest') || latestUserText.includes('bail') || latestUserText.includes('police') || latestUserText.includes('bnss')) {
+                              setTimelineArchetype('criminal_investigation_bnss');
+                            } else if (latestUserText.includes('arbitrat')) {
+                              setTimelineArchetype('commercial_arbitration_act');
+                            } else if (latestUserText.includes('accident') || latestUserText.includes('mact') || latestUserText.includes('vehicle')) {
+                              setTimelineArchetype('motor_accident_mact');
+                            } else if (latestUserText.includes('rti') || latestUserText.includes('cpio') || latestUserText.includes('information')) {
+                              setTimelineArchetype('rti_appeal_lifecycle');
+                            }
+                            setIsTimelineModalOpen(true);
+                            setIsStudiosDropdownOpen(false);
+                          }}
+                          className={`w-full p-2 rounded-lg text-left transition-all flex items-center gap-2.5 cursor-pointer border ${
+                            isDark ? 'hover:bg-[#1a2033] border-blue-900/40 text-slate-200 hover:text-white' : 'hover:bg-blue-50/60 border-blue-100 text-slate-800'
+                          }`}
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shrink-0">
+                            <span className="material-symbols-outlined text-[15px] text-blue-500">timeline</span>
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[11.5px] font-bold leading-tight">Dispute Timeline Visualizer</span>
+                            <span className={`text-[9.5px] truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                              Limitation Act 1963 Statutory Cutoff Analyzer
+                            </span>
+                          </div>
+                        </button>
+
+                        {/* 3. Counter-Offensive */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const activeNarrative = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                            setCounterStrategyInitialFacts(activeNarrative);
+                            setIsCounterStrategyModalOpen(true);
+                            setIsStudiosDropdownOpen(false);
+                          }}
+                          className={`w-full p-2 rounded-lg text-left transition-all flex items-center gap-2.5 cursor-pointer border ${
+                            isDark ? 'hover:bg-[#1a2033] border-red-900/40 text-slate-200 hover:text-white' : 'hover:bg-red-50/60 border-red-100 text-slate-800'
+                          }`}
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0">
+                            <span className="material-symbols-outlined text-[15px] text-red-500">shield_with_heart</span>
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[11.5px] font-bold leading-tight">Counter-Offensive Strategy</span>
+                            <span className={`text-[9.5px] truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                              Anti-Vexatious Sanctions & Cross-Claims
+                            </span>
+                          </div>
+                        </button>
+
+                        {/* 4. Free Legal Aid */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsLegalAidModalOpen(true);
+                            setIsStudiosDropdownOpen(false);
+                          }}
+                          className={`w-full p-2 rounded-lg text-left transition-all flex items-center gap-2.5 cursor-pointer border ${
+                            isDark ? 'hover:bg-[#1a2033] border-amber-900/40 text-slate-200 hover:text-white' : 'hover:bg-amber-50/60 border-amber-100 text-slate-800'
+                          }`}
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
+                            <Scale className="w-3.5 h-3.5 text-amber-500" />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[11.5px] font-bold leading-tight">Free Legal Aid Directory</span>
+                            <span className={`text-[9.5px] truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                              NALSA 24/7 Helpline • Dial 15100
+                            </span>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Right Side: Language, Attach & Mic Buttons on Right of Context Dropdown */}

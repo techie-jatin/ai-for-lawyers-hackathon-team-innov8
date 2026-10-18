@@ -51,6 +51,21 @@ class RewriteClauseRequest(BaseModel):
     context: Optional[str] = Field(None, max_length=2000)
     gemini_api_key: Optional[str] = Field(None, max_length=128)
 
+class DraftBsaCertificateRequest(BaseModel):
+    deponent_name: str = Field(..., min_length=1, max_length=200)
+    deponent_parentage: Optional[str] = Field(None, max_length=200)
+    deponent_address: Optional[str] = Field(None, max_length=300)
+    deponent_age: Optional[str] = Field("Adult", max_length=50)
+    media_type: str = Field("whatsapp_chat", max_length=50)
+    doc_description: str = Field(..., min_length=2, max_length=500)
+    device_make_model: Optional[str] = Field(None, max_length=200)
+    device_imei_or_mac: Optional[str] = Field(None, max_length=200)
+    operating_system: Optional[str] = Field(None, max_length=100)
+    ip_address: Optional[str] = Field(None, max_length=100)
+    sha256_hash: Optional[str] = Field(None, max_length=128)
+    incident_date: Optional[str] = Field(None, max_length=100)
+    court_case_ref: Optional[str] = Field(None, max_length=200)
+
 class RiskItem(BaseModel):
     id: str
     severity: str  # "critical", "warning", "safe"
@@ -297,6 +312,7 @@ Signature: __________________________        Signature: ________________________
 
 from app.services.pleading_service import PleadingService
 from app.services.cleanroom_service import CleanroomService
+from app.services.bsa_cert_service import BsaCertificateService
 
 @router.get("/pleadings/templates")
 def list_pleading_templates() -> Dict[str, Any]:
@@ -333,6 +349,19 @@ def rewrite_cleanroom_clause(req: RewriteClauseRequest) -> Dict[str, Any]:
         context=req.context,
         gemini_api_key=req.gemini_api_key
     )
+
+@router.get("/bsa/media-types")
+def get_bsa_media_types() -> Dict[str, Any]:
+    """Returns supported digital evidence media archetypes under Section 63 BSA."""
+    return {"media_types": BsaCertificateService.get_supported_media()}
+
+@router.post("/bsa/certificate")
+def generate_bsa_certificate(req: DraftBsaCertificateRequest) -> Dict[str, Any]:
+    """
+    Generates an authentic Section 63 BSA 2023 Electronic Evidence Certificate
+    adhering to Arjun Panditrao Khotkar [2020] 7 SCC 1.
+    """
+    return BsaCertificateService.generate_certificate(req.model_dump())
 
 @router.get("/templates")
 def list_templates() -> Dict[str, Any]:

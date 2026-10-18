@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { parseUploadedDocument } from '../utils/documentParser';
 import { CourtPleadingStudio } from './CourtPleadingStudio';
 import { CleanroomStampingStudio } from './CleanroomStampingStudio';
+import { BsaCertificateStudio } from './BsaCertificateStudio';
 
 interface ContractStudioViewProps {
   isDark: boolean;
@@ -9,7 +10,7 @@ interface ContractStudioViewProps {
   apiBase?: string;
 }
 
-type StudioMode = 'pleadings' | 'generator' | 'scanner' | 'cleanroom';
+type StudioMode = 'pleadings' | 'generator' | 'scanner' | 'cleanroom' | 'bsa_cert';
 
 interface RiskItem {
   id: string;
@@ -927,13 +928,31 @@ FOR ${partyB.toUpperCase()}: ______________________`;
             <span className="material-symbols-outlined text-[15px]">auto_fix_high</span>
             <span>Clean-Room & e-Stamping</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setStudioMode('bsa_cert')}
+            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              studioMode === 'bsa_cert'
+                ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
+                : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[15px]">verified</span>
+            <span>§63 BSA Evidence</span>
+          </button>
         </div>
       </div>
 
       {/* WORKSPACE BODY */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-5 contract-studio-no-print">
         <div className="max-w-[1240px] mx-auto space-y-5">
-          {studioMode === 'cleanroom' ? (
+          {studioMode === 'bsa_cert' ? (
+            /* ================= MODE 4: SECTION 63 BSA ELECTRONIC EVIDENCE CERTIFICATE ================= */
+            <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+              <BsaCertificateStudio isDark={isDark} apiBase={resolvedApiBase} />
+            </div>
+          ) : studioMode === 'cleanroom' ? (
             /* ================= MODE 3: CLEAN-ROOM CLAUSE REWRITER & E-STAMPING ================= */
             <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
               <CleanroomStampingStudio isDark={isDark} apiBase={resolvedApiBase} />

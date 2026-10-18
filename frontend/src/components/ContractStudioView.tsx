@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { parseUploadedDocument } from '../utils/documentParser';
 import { CourtPleadingStudio } from './CourtPleadingStudio';
+import { CleanroomStampingStudio } from './CleanroomStampingStudio';
 
 interface ContractStudioViewProps {
   isDark: boolean;
@@ -8,7 +9,7 @@ interface ContractStudioViewProps {
   apiBase?: string;
 }
 
-type StudioMode = 'pleadings' | 'generator' | 'scanner';
+type StudioMode = 'pleadings' | 'generator' | 'scanner' | 'cleanroom';
 
 interface RiskItem {
   id: string;
@@ -872,7 +873,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
         </div>
 
         {/* MODE SWITCHER PILL */}
-        <div className={`w-full sm:w-auto grid grid-cols-3 sm:flex items-center p-0.5 rounded-lg border shadow-2xs ${
+        <div className={`w-full sm:w-auto grid grid-cols-2 sm:grid-cols-4 sm:flex items-center p-0.5 rounded-lg border shadow-2xs ${
           isDark ? 'bg-[#131624] border-[#242b42]' : 'bg-[#f0f4ff] border-[#dce9ff]'
         }`}>
           <button
@@ -913,13 +914,31 @@ FOR ${partyB.toUpperCase()}: ______________________`;
             <span className="material-symbols-outlined text-[15px]">fact_check</span>
             <span>Risk Scanner</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setStudioMode('cleanroom')}
+            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              studioMode === 'cleanroom'
+                ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
+                : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[15px]">auto_fix_high</span>
+            <span>Clean-Room & e-Stamping</span>
+          </button>
         </div>
       </div>
 
       {/* WORKSPACE BODY */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-5 contract-studio-no-print">
         <div className="max-w-[1240px] mx-auto space-y-5">
-          {studioMode === 'pleadings' ? (
+          {studioMode === 'cleanroom' ? (
+            /* ================= MODE 3: CLEAN-ROOM CLAUSE REWRITER & E-STAMPING ================= */
+            <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+              <CleanroomStampingStudio isDark={isDark} apiBase={resolvedApiBase} />
+            </div>
+          ) : studioMode === 'pleadings' ? (
             /* ================= MODE 0: COURT PLEADINGS & NOTICES ================= */
             <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
               <CourtPleadingStudio isDark={isDark} apiBase={resolvedApiBase} />

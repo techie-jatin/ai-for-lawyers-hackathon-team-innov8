@@ -45,6 +45,12 @@ class DraftPleadingRequest(BaseModel):
     advocate_office: Optional[str] = Field(None, max_length=300)
     gemini_api_key: Optional[str] = Field(None, max_length=128)
 
+class RewriteClauseRequest(BaseModel):
+    clause_text: str = Field(..., min_length=5, max_length=10000)
+    preset_key: Optional[str] = Field(None, max_length=100)
+    context: Optional[str] = Field(None, max_length=2000)
+    gemini_api_key: Optional[str] = Field(None, max_length=128)
+
 class RiskItem(BaseModel):
     id: str
     severity: str  # "critical", "warning", "safe"
@@ -290,6 +296,7 @@ Signature: __________________________        Signature: ________________________
 }
 
 from app.services.pleading_service import PleadingService
+from app.services.cleanroom_service import CleanroomService
 
 @router.get("/pleadings/templates")
 def list_pleading_templates() -> Dict[str, Any]:
@@ -303,6 +310,29 @@ def draft_pleading(req: DraftPleadingRequest) -> Dict[str, Any]:
     High Court rules, BNSS/BNS 2023 provisions, and Supreme Court precedent benchmarks.
     """
     return PleadingService.draft_pleading(req.model_dump(), gemini_api_key=req.gemini_api_key)
+
+@router.get("/stamping/states")
+def get_stamping_directory() -> Dict[str, Any]:
+    """Returns state-by-state Indian e-Stamping directory and stamp duty rates."""
+    return CleanroomService.get_stamping_directory()
+
+@router.get("/cleanroom/presets")
+def get_cleanroom_presets() -> Dict[str, Any]:
+    """Returns clean-room rewriting presets for predatory commercial clauses."""
+    return {"presets": CleanroomService.get_cleanroom_presets()}
+
+@router.post("/cleanroom/rewrite")
+def rewrite_cleanroom_clause(req: RewriteClauseRequest) -> Dict[str, Any]:
+    """
+    Rewrites a predatory clause into a balanced, enforceable Indian commercial clause
+    with statutory justification and counsel negotiation talk-tracks.
+    """
+    return CleanroomService.rewrite_clause(
+        clause_text=req.clause_text,
+        preset_key=req.preset_key,
+        context=req.context,
+        gemini_api_key=req.gemini_api_key
+    )
 
 @router.get("/templates")
 def list_templates() -> Dict[str, Any]:

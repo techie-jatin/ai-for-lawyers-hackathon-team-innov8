@@ -7,6 +7,7 @@ import { generateAutonomousLegalResponse, extractActiveCaseMemory } from '../ser
 import { LegalPrintStudioModal, CourtReadyPrintCanvas, groupMessagesIntoExchanges, type PrintStudioOptions } from './LegalPrintStudioModal';
 import { parseUploadedDocument, type ParsedDocumentResult } from '../utils/documentParser';
 import { LegalAidDirectoryModal } from './LegalAidDirectoryModal';
+import { ReaChamberModal } from './ReaChamberModal';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -591,6 +592,10 @@ export function ChatView({
 
   // NALSA Free Legal Aid Directory Modal State
   const [isLegalAidModalOpen, setIsLegalAidModalOpen] = useState(false);
+
+  // REA Tri-Perspective Chamber Battle-Room State
+  const [isReaModalOpen, setIsReaModalOpen] = useState(false);
+  const [reaModalNarrative, setReaModalNarrative] = useState('');
 
   // Voice Dictation Streaming & Bilingual Support State
   const recognitionRef = useRef<any>(null);
@@ -2170,7 +2175,23 @@ export function ChatView({
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 shrink-0">
+                  <div className="flex items-center gap-2 text-[10px] text-zinc-400 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReaModalNarrative(activeMemory.rootFactAnchor || messages.find(m => m.role === 'user')?.text || '');
+                        setIsReaModalOpen(true);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs ${
+                        isDark 
+                          ? 'bg-gradient-to-r from-[#ff7722]/20 to-[#00288e]/30 hover:from-[#ff7722]/30 hover:to-[#00288e]/40 text-amber-300 border-amber-500/40' 
+                          : 'bg-orange-50 hover:bg-orange-100 text-[#00288e] border-orange-200'
+                      }`}
+                      title="Open Tri-Perspective Chamber Battle-Room (REA Engine)"
+                    >
+                      <span className="material-symbols-outlined text-[13px] text-[#ff7722]">swords</span>
+                      <span className="font-extrabold">Battle-Room</span>
+                    </button>
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span className="hidden sm:inline font-semibold text-emerald-500">
                       Turn {activeMemory.turnCount} Synced
@@ -2328,6 +2349,27 @@ export function ChatView({
                         >
                           <span className="material-symbols-outlined text-[17px]">
                             picture_as_pdf
+                          </span>
+                        </button>
+
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const curIdx = messages.findIndex(m => m.id === msg.id);
+                            const userMsg = messages.slice(0, curIdx).reverse().find(m => m.role === 'user');
+                            const narrativeText = userMsg?.text || msg.response?.query || msg.response?.answer || msg.text || '';
+                            setReaModalNarrative(narrativeText);
+                            setIsReaModalOpen(true);
+                          }}
+                          className={`no-print p-1.5 sm:p-1 rounded-lg transition-colors cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center ${
+                            isDark 
+                              ? 'hover:bg-[#131624] text-amber-400 hover:text-amber-300' 
+                              : 'hover:bg-amber-50 text-amber-700 hover:text-amber-900'
+                          }`}
+                          title="Tri-Perspective Chamber Battle-Room (REA Engine)"
+                        >
+                          <span className="material-symbols-outlined text-[17px]">
+                            swords
                           </span>
                         </button>
                       </div>
@@ -3433,6 +3475,15 @@ export function ChatView({
           isOpen={isLegalAidModalOpen}
           onClose={() => setIsLegalAidModalOpen(false)}
           isDark={isDark}
+        />
+
+        {/* REA TRI-PERSPECTIVE CHAMBER BATTLE-ROOM MODAL */}
+        <ReaChamberModal
+          isOpen={isReaModalOpen}
+          onClose={() => setIsReaModalOpen(false)}
+          narrative={reaModalNarrative || messages.find(m => m.role === 'user')?.text || ''}
+          isDark={isDark}
+          apiBase={apiBase}
         />
 
         {/* COURT-READY PRINT CANVAS (Visible only during window.print()) */}

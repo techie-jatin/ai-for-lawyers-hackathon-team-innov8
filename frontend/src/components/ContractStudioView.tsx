@@ -875,14 +875,14 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           </div>
         </div>
 
-        {/* MODE SWITCHER PILL */}
-        <div className={`w-full sm:w-auto grid grid-cols-2 sm:grid-cols-4 sm:flex items-center p-0.5 rounded-lg border shadow-2xs ${
+        {/* MODE SWITCHER PILL (Single-row touch scroll on mobile, flex on desktop) */}
+        <div className={`w-full sm:w-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none p-1 rounded-xl border shadow-2xs shrink-0 ${
           isDark ? 'bg-[#131624] border-[#242b42]' : 'bg-[#f0f4ff] border-[#dce9ff]'
         }`}>
           <button
             type="button"
             onClick={() => setStudioMode('pleadings')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
               studioMode === 'pleadings'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -895,7 +895,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           <button
             type="button"
             onClick={() => setStudioMode('generator')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
               studioMode === 'generator'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -908,7 +908,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           <button
             type="button"
             onClick={() => setStudioMode('scanner')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
               studioMode === 'scanner'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -921,7 +921,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           <button
             type="button"
             onClick={() => setStudioMode('cleanroom')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
               studioMode === 'cleanroom'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -934,7 +934,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           <button
             type="button"
             onClick={() => setStudioMode('bsa_cert')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
               studioMode === 'bsa_cert'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -947,7 +947,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           <button
             type="button"
             onClick={() => setStudioMode('timeline')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
               studioMode === 'timeline'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -960,7 +960,7 @@ FOR ${partyB.toUpperCase()}: ______________________`;
           <button
             type="button"
             onClick={() => setStudioMode('counter_strategy')}
-            className={`px-3 py-1.5 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
               studioMode === 'counter_strategy'
                 ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#00288e]'
@@ -973,31 +973,31 @@ FOR ${partyB.toUpperCase()}: ______________________`;
       </div>
 
       {/* WORKSPACE BODY */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-5 contract-studio-no-print">
-        <div className="max-w-[1240px] mx-auto space-y-5">
+      <div className="flex-1 overflow-y-auto p-2.5 sm:p-5 contract-studio-no-print">
+        <div className="max-w-[1240px] mx-auto space-y-4 sm:space-y-5">
           {studioMode === 'counter_strategy' ? (
             /* ================= MODE 6: DEFENSIVE COUNTER-STRATEGY ================= */
-            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
+            <div className="h-[calc(100dvh-175px)] min-h-[460px] sm:min-h-[680px] sm:h-[82vh] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <CounterStrategyStudio isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'timeline' ? (
             /* ================= MODE 5: INTERACTIVE DISPUTE TIMELINE ================= */
-            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
+            <div className="h-[calc(100dvh-175px)] min-h-[460px] sm:min-h-[680px] sm:h-[82vh] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <DisputeTimelineVisualizer isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'bsa_cert' ? (
             /* ================= MODE 4: SECTION 63 BSA ELECTRONIC EVIDENCE CERTIFICATE ================= */
-            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
+            <div className="h-[calc(100dvh-175px)] min-h-[460px] sm:min-h-[680px] sm:h-[82vh] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <BsaCertificateStudio isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'cleanroom' ? (
             /* ================= MODE 3: CLEAN-ROOM CLAUSE REWRITER & E-STAMPING ================= */
-            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
+            <div className="h-[calc(100dvh-175px)] min-h-[460px] sm:min-h-[680px] sm:h-[82vh] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <CleanroomStampingStudio isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'pleadings' ? (
             /* ================= MODE 0: COURT PLEADINGS & NOTICES ================= */
-            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
+            <div className="h-[calc(100dvh-175px)] min-h-[460px] sm:min-h-[680px] sm:h-[82vh] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <CourtPleadingStudio isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'generator' ? (

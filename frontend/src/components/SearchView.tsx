@@ -150,6 +150,7 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
   const [concordanceQuery, setConcordanceQuery] = useState('');
   const [isConcordanceModalOpen, setIsConcordanceModalOpen] = useState(false);
   const [gazettes, setGazettes] = useState<GazetteItem[]>(CANONICAL_GAZETTES);
+  const [mobileSearchTab, setMobileSearchTab] = useState<'provisions' | 'concordance' | 'gazettes'>('provisions');
 
   useEffect(() => {
     if (apiBase && apiBase.trim() !== '') {
@@ -514,10 +515,50 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
         ))}
       </div>
 
+      {/* Mobile Sub-View Segmented Control (< xl: 1-Tap Toggle between Provisions, Concordance, Gazettes) */}
+      <div className="xl:hidden flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#131624] border border-slate-200 dark:border-[#23283f]">
+        <button
+          type="button"
+          onClick={() => setMobileSearchTab('provisions')}
+          className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            mobileSearchTab === 'provisions'
+              ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[15px]">account_balance</span>
+          <span>Provisions ({filteredResults.length})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileSearchTab('concordance')}
+          className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            mobileSearchTab === 'concordance'
+              ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[15px]">compare_arrows</span>
+          <span>Concordance</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileSearchTab('gazettes')}
+          className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            mobileSearchTab === 'gazettes'
+              ? isDark ? 'bg-white text-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[15px]">feed</span>
+          <span>Gazettes ({gazettes.length})</span>
+        </button>
+      </div>
+
       {/* Main Content Workspace: Results (8 cols) + Right Insight Drawer (4 cols) */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 sm:gap-6 items-start">
         {/* LEFT: Statutory Cards Stack (8 Cols) */}
-        <div className="xl:col-span-8 flex flex-col gap-4">
+        <div className={`xl:col-span-8 flex flex-col gap-4 ${mobileSearchTab === 'provisions' ? 'flex' : 'hidden xl:flex'}`}>
           {loading ? (
             <div className={`p-6 sm:p-8 rounded-xl border text-center ${
               isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0]'
@@ -712,9 +753,11 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
         </div>
 
         {/* RIGHT: Contextual Insights & Concordance Drawer (4 Cols) */}
-        <div className="xl:col-span-4 flex flex-col gap-4">
+        <div className={`xl:col-span-4 flex flex-col gap-4 ${mobileSearchTab !== 'provisions' ? 'flex' : 'hidden xl:flex'}`}>
           {/* STATUTORY CONCORDANCE CARD */}
           <div className={`rounded-xl p-4 sm:p-5 shadow-lg border flex flex-col gap-3.5 transition-colors ${
+            mobileSearchTab === 'concordance' ? 'flex' : 'hidden xl:flex'
+          } ${
             isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0]'
           }`}>
             <div className={`flex items-center justify-between pb-2 border-b ${
@@ -870,6 +913,8 @@ export function SearchView({ apiBase, onOpenInChat, theme = 'dark', initialQuery
 
           {/* OFFICIAL GAZETTE DIRECTIVES */}
           <div className={`rounded-xl p-4 shadow-lg border flex flex-col gap-3 transition-colors ${
+            mobileSearchTab === 'gazettes' ? 'flex' : 'hidden xl:flex'
+          } ${
             isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-white border-[#e2e8f0]'
           }`}>
             <div className={`flex items-center justify-between pb-2 border-b ${

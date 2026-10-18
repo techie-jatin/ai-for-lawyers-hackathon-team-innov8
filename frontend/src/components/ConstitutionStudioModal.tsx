@@ -75,36 +75,36 @@ export function ConstitutionStudioModal({
   return createPortal(
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in font-sans"
+      className="fixed inset-0 z-[10050] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in font-sans"
     >
-      <div className={`w-full max-w-6xl h-[92dvh] max-h-[920px] rounded-2xl flex flex-col shadow-2xl border overflow-hidden transition-all ${
+      <div className={`w-full sm:max-w-6xl h-[95dvh] sm:h-[92dvh] sm:max-h-[920px] rounded-t-2xl sm:rounded-2xl flex flex-col shadow-2xl border overflow-hidden transition-all ${
         isDark ? 'bg-[#0c0f1d] border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
       }`}>
         {/* ================= MODAL HEADER ================= */}
-        <div className={`p-4 sm:p-5 border-b shrink-0 flex flex-col gap-3 ${
+        <div className={`p-3.5 sm:p-5 border-b shrink-0 flex flex-col gap-2.5 sm:gap-3 ${
           isDark ? 'bg-[#101426] border-slate-800' : 'bg-slate-50 border-slate-200'
         }`}>
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md ${
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md ${
                 isDark ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-[#00288e]/10 text-[#00288e] border border-[#00288e]/20'
               }`}>
-                <span className="material-symbols-outlined text-[24px]">account_balance</span>
+                <span className="material-symbols-outlined text-[22px] sm:text-[24px]">account_balance</span>
               </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-[17px] font-black tracking-tight flex items-center gap-1.5">
-                    <span>The Constitution of India</span>
-                    <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/25">
-                      Supreme Code of Bharat
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  <h2 className="text-[15px] sm:text-[17px] font-black tracking-tight flex items-center gap-1.5 truncate">
+                    <span>Constitution of India</span>
+                    <span className="text-[10px] font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/25">
+                      Supreme Code
                     </span>
                   </h2>
                   <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/25">
                     25 Parts • 456+ Articles • 12 Schedules
                   </span>
                 </div>
-                <p className={`text-[12px] mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                  Decompiled Reverse-Engineered Constitutional Knowledge: Fundamental Rights, Writ Remedies, Precedents & Doctrines.
+                <p className={`text-[11px] sm:text-[12px] mt-0.5 truncate ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  Fundamental Rights, Writ Remedies, Precedents & Doctrines.
                 </p>
               </div>
             </div>
@@ -112,7 +112,7 @@ export function ConstitutionStudioModal({
             <button
               type="button"
               onClick={onClose}
-              className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+              className={`p-1.5 rounded-lg border transition-all cursor-pointer shrink-0 ${
                 isDark ? 'bg-[#171b30] hover:bg-red-950/40 text-slate-400 hover:text-red-400 border-slate-700' : 'bg-white hover:bg-red-50 text-slate-500 hover:text-red-600 border-slate-300'
               }`}
               title="Close Constitution Studio"
@@ -122,56 +122,56 @@ export function ConstitutionStudioModal({
           </div>
 
           {/* Navigation Mode Bar */}
-          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none pt-1 border-t border-slate-200 dark:border-slate-800 shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab('explorer')}
-              className={`px-3 py-1.5 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === 'explorer'
                   ? isDark ? 'bg-amber-500 text-black font-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                   : isDark ? 'text-slate-400 hover:text-white bg-[#14182a]' : 'text-slate-600 hover:text-slate-900 bg-slate-100'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">menu_book</span>
-              <span>Articles & Parts Explorer</span>
+              <span className="material-symbols-outlined text-[14px]">menu_book</span>
+              <span>Articles & Parts</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('analyzer')}
-              className={`px-3 py-1.5 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === 'analyzer'
                   ? isDark ? 'bg-amber-500 text-black font-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                   : isDark ? 'text-slate-400 hover:text-white bg-[#14182a]' : 'text-slate-600 hover:text-slate-900 bg-slate-100'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">psychology</span>
-              <span>🧠 Senior Advocate Constitutional Analyzer</span>
+              <span className="material-symbols-outlined text-[14px]">psychology</span>
+              <span>Constitutional Analyzer</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('preamble')}
-              className={`px-3 py-1.5 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === 'preamble'
                   ? isDark ? 'bg-amber-500 text-black font-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                   : isDark ? 'text-slate-400 hover:text-white bg-[#14182a]' : 'text-slate-600 hover:text-slate-900 bg-slate-100'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">history_edu</span>
-              <span>Preamble & Basic Structure</span>
+              <span className="material-symbols-outlined text-[14px]">history_edu</span>
+              <span>Preamble</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('schedules')}
-              className={`px-3 py-1.5 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === 'schedules'
                   ? isDark ? 'bg-amber-500 text-black font-black shadow-xs' : 'bg-[#00288e] text-white shadow-xs'
                   : isDark ? 'text-slate-400 hover:text-white bg-[#14182a]' : 'text-slate-600 hover:text-slate-900 bg-slate-100'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px]">table_rows</span>
+              <span className="material-symbols-outlined text-[14px]">table_rows</span>
               <span>12 Schedules</span>
             </button>
           </div>

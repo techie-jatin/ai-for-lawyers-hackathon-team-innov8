@@ -153,10 +153,10 @@ export function LegalAidDirectoryModal({ isOpen, onClose, isDark }: LegalAidDire
   return createPortal(
     <div 
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      className="fixed inset-0 z-[10050] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[10050] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 md:p-5 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
     >
       <div 
-        className={`w-full max-w-4xl max-h-[90dvh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden transition-all ${
+        className={`w-full sm:max-w-4xl h-[95dvh] sm:h-auto sm:max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-2xl border shadow-2xl overflow-hidden transition-all ${
           isDark 
             ? 'bg-[#0f121e] border-[#222942] text-white shadow-black/80' 
             : 'bg-white border-slate-200 text-slate-900 shadow-slate-900/20'

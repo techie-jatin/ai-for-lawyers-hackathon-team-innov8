@@ -477,8 +477,8 @@ export function App() {
           ? 'bg-[#0d0f17]/95 border-[#1f2438]' 
           : 'bg-white/95 border-[#e2e8f0]'
       }`}>
-        {/* Main Bar (h-14 / 56px across all viewports to minimize wasted vertical space) */}
-        <div className="h-14 w-full px-2.5 sm:px-4 md:px-6 flex items-center justify-between gap-2 sm:gap-3">
+        {/* Main Bar (h-12 on mobile < md, h-14 on md+ across desktop viewports) */}
+        <div className="h-12 md:h-14 w-full px-2.5 sm:px-4 md:px-6 flex items-center justify-between gap-1.5 sm:gap-3">
           {/* ZONE 1: BRAND IDENTITY (Left, Fluid & Compact) */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
             {/* Clickable Brand seal & title (Returns to Chat Assistant Home) */}
@@ -690,7 +690,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setMode(mode === 'citizen' ? 'professional' : 'citizen')}
-              className={`md:hidden h-8 px-2 rounded-lg flex items-center gap-1 text-[10.5px] font-bold border transition-all cursor-pointer shrink-0 ${
+              className={`md:hidden h-7.5 px-2 rounded-lg flex items-center gap-1 text-[10px] font-bold border transition-all cursor-pointer shrink-0 ${
                 mode === 'citizen'
                   ? isDark ? 'bg-[#ff7722]/15 text-[#ff7722] border-[#ff7722]/40' : 'bg-orange-50 text-[#ff7722] border-orange-200'
                   : isDark ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -698,7 +698,7 @@ export function App() {
               title={`Active Mode: ${mode === 'citizen' ? 'Citizen' : 'Advocate'} (tap to switch)`}
               aria-label="Toggle Legal Persona Mode"
             >
-              <span className="material-symbols-outlined text-[14px]">
+              <span className="material-symbols-outlined text-[13px]">
                 {mode === 'citizen' ? 'person' : 'gavel'}
               </span>
               <span>{mode === 'citizen' ? 'Citizen' : 'Advocate'}</span>
@@ -796,7 +796,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`flex items-center justify-center h-8 px-2 sm:px-2.5 rounded-lg md:rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
+              className={`flex items-center justify-center h-7.5 w-7.5 sm:w-auto sm:h-8 px-0 sm:px-2.5 rounded-lg md:rounded-full text-[clamp(9.5px,0.72vw,11.5px)] font-semibold transition-all border cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] hover:bg-[#1a1f33] text-amber-300 border-[#23283f] hover:border-amber-400/40' 
                   : 'bg-[#eff4ff] hover:bg-[#e5eeff] text-[#00288e] border-[#dce9ff] hover:border-[#00288e]/30'
@@ -812,11 +812,11 @@ export function App() {
               </span>
             </button>
 
-            {/* Complete Constitution Studio (456+ Articles, 25 Parts, 12 Schedules) */}
+            {/* Complete Constitution Studio (456+ Articles, Visible on sm+) */}
             <button
               type="button"
               onClick={() => setIsConstitutionModalOpen(true)}
-              className={`h-8 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
+              className={`hidden sm:flex h-8 items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] text-[#cbd5e1] border-[#23283f] hover:bg-[#1a1f33] hover:text-white' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
@@ -833,11 +833,11 @@ export function App() {
               </span>
             </button>
 
-            {/* 100+ Statutory Concordance Action Button (Available across ALL screens) */}
+            {/* 100+ Statutory Concordance Action Button (Visible on sm+) */}
             <button
               type="button"
               onClick={() => setIsConcordanceModalOpen(true)}
-              className={`h-8 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
+              className={`hidden sm:flex h-8 items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] text-[#cbd5e1] border-[#23283f] hover:bg-[#1a1f33] hover:text-white' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
@@ -854,11 +854,11 @@ export function App() {
               </span>
             </button>
 
-            {/* Chamber Dossiers Action Button (Available across ALL screens) */}
+            {/* Chamber Dossiers Action Button (Visible on sm+) */}
             <button
               type="button"
               onClick={() => setIsDossiersOpen(true)}
-              className={`h-8 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
+              className={`hidden sm:flex h-8 items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
                 isDark 
                   ? 'bg-[#131624] text-[#e2e8f0] border-[#23283f] hover:bg-[#1a1f33]' 
                   : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
@@ -879,7 +879,7 @@ export function App() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(prev => !prev)}
-              className={`md:hidden h-8 w-8 rounded-lg border flex items-center justify-center cursor-pointer shadow-2xs shrink-0 transition-all ${
+              className={`md:hidden h-7.5 w-7.5 rounded-lg border flex items-center justify-center cursor-pointer shadow-2xs shrink-0 transition-all ${
                 isMobileMenuOpen
                   ? isDark ? 'bg-white text-black border-white' : 'bg-[#00288e] text-white border-[#00288e]'
                   : isDark ? 'bg-[#131624] text-white border-[#23283f] hover:bg-[#1a1f33]' : 'bg-[#eff4ff] text-[#00288e] border-[#dce9ff] hover:bg-[#e5eeff]'
@@ -887,45 +887,11 @@ export function App() {
               title="Open Chamber Navigation & Settings"
               aria-label="Open Mobile Menu"
             >
-              <span className="material-symbols-outlined text-[18px]">
+              <span className="material-symbols-outlined text-[17px]">
                 {isMobileMenuOpen ? 'close' : 'menu'}
               </span>
             </button>
           </div>
-        </div>
-
-        {/* Mobile Primary Navigation Bar (< md ONLY: Direct 1-Tap Access to Chat, Contracts, Search, Validator) */}
-        <div className={`md:hidden h-9 w-full border-t flex items-center justify-around px-1 sm:px-2 shrink-0 transition-colors ${
-          isDark ? 'bg-[#0d0f17] border-[#1f2438]' : 'bg-white border-[#e2e8f0]'
-        }`}>
-          {[
-            { id: 'chat', label: 'Chat', icon: 'chat', title: 'Constitutional AI Chat Assistant' },
-            { id: 'contracts', label: 'Contracts', icon: 'edit_document', title: 'AI Contract Studio' },
-            { id: 'search', label: 'Search', icon: 'account_balance', title: '59+ Acts Statute Search' },
-            { id: 'info', label: 'Validator', icon: 'fact_check', title: 'Knowledge & Truth Validator' },
-          ].map(tab => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => { setActiveTab(tab.id as any); setIsMobileMenuOpen(false); }}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? isDark
-                      ? 'bg-white text-black font-bold shadow-xs'
-                      : 'bg-[#00288e] text-white font-bold shadow-xs'
-                    : isDark
-                      ? 'text-[#94a3b8] hover:text-white hover:bg-white/5'
-                      : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-slate-100'
-                }`}
-                title={tab.title}
-              >
-                <span className="material-symbols-outlined text-[13px]">{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
         </div>
 
         {/* Secondary Statutory Sub-Header (Ticker Bar - h-7 / 28px, hidden on small mobile to maximize screen) */}
@@ -961,8 +927,8 @@ export function App() {
         </div>
       </header>
 
-      {/* MAIN SCREEN CANVAS (Responsive top padding: 92px on mobile with module bar, 84px on md+) */}
-      <div className="pt-[92px] md:pt-[84px] flex-1 flex flex-col h-[calc(100dvh-92px)] md:h-[calc(100dvh-84px)] overflow-hidden w-full">
+      {/* MAIN SCREEN CANVAS (Responsive top padding: 48px on mobile, 84px on md+) */}
+      <div className="pt-12 md:pt-[84px] pb-14 md:pb-0 flex-1 flex flex-col h-[100dvh] overflow-hidden w-full">
         <main className={`flex-1 flex flex-col w-full h-full ${activeTab === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'} transition-colors duration-200 ${
           isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
         }`}>
@@ -1012,6 +978,52 @@ export function App() {
           )}
         </main>
       </div>
+
+      {/* Mobile Ergonomic Bottom Navigation Bar (< md ONLY: Thumb-Friendly Direct 1-Tap Access) */}
+      <nav 
+        className={`md:hidden fixed bottom-0 left-0 right-0 h-14 z-40 border-t flex items-center justify-around px-2 shadow-lg backdrop-blur-md transition-colors ${
+          isDark 
+            ? 'bg-[#0d0f17]/95 border-[#1f2438] text-slate-400' 
+            : 'bg-white/95 border-[#e2e8f0] text-slate-600'
+        }`}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        aria-label="Mobile Primary Navigation"
+      >
+        {[
+          { id: 'chat', label: 'Chat', icon: 'chat', title: 'Constitutional AI Chat Assistant' },
+          { id: 'contracts', label: 'Contracts', icon: 'edit_document', title: 'AI Contract Studio' },
+          { id: 'search', label: 'Search', icon: 'account_balance', title: 'Statute & Case Search' },
+          { id: 'info', label: 'Validator', icon: 'fact_check', title: 'Knowledge & Truth Validator' },
+        ].map(tab => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => { setActiveTab(tab.id as any); setIsMobileMenuOpen(false); }}
+              className={`flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl transition-all cursor-pointer ${
+                isActive
+                  ? isDark
+                    ? 'text-white font-bold'
+                    : 'text-[#00288e] font-bold'
+                  : isDark
+                    ? 'text-slate-400 hover:text-slate-200'
+                    : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title={tab.title}
+            >
+              <div className={`p-1 rounded-lg flex items-center justify-center transition-all ${
+                isActive 
+                  ? isDark ? 'bg-white/10 text-white' : 'bg-[#00288e]/10 text-[#00288e]'
+                  : 'text-current'
+              }`}>
+                <span className="material-symbols-outlined text-[19px]">{tab.icon}</span>
+              </div>
+              <span className="text-[10px] tracking-tight leading-none mt-0.5">{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
 
       {/* MOBILE CHAMBER HUB SLIDE-OVER DRAWER (< md / < 768px, Rendered outside header to prevent backdrop-blur containment clipping) */}
       {isMobileMenuOpen && (

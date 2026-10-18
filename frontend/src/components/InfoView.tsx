@@ -338,64 +338,64 @@ export function InfoView({ apiBase, theme = 'dark' }: InfoViewProps) {
             </div>
           </div>
 
-          {/* Telemetry KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
-            <div className={`p-3.5 rounded-xl shadow-sm border flex items-start gap-3 transition-colors ${
+          {/* Telemetry KPIs (Compact on mobile, 3-column on sm+) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-1">
+            <div className={`p-2.5 sm:p-3.5 rounded-xl shadow-xs border flex items-center sm:items-start gap-2.5 sm:gap-3 transition-colors ${
               isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-slate-50 border-[#e2e8f0]'
             }`}>
-              <div className={`p-2 rounded-lg border shrink-0 ${
+              <div className={`p-1.5 sm:p-2 rounded-lg border shrink-0 ${
                 isDark ? 'bg-[#131624] text-white border-[#23283f]' : 'bg-white text-[#00288e] border-[#cbd5e1]'
               }`}>
-                <span className="material-symbols-outlined text-[22px]">verified</span>
+                <span className="material-symbols-outlined text-[18px] sm:text-[22px]">verified</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className={`text-[10px] uppercase tracking-wider font-bold block ${
+                <span className={`text-[9.5px] uppercase tracking-wider font-bold block ${
                   isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'
                 }`}>Statutory Gate</span>
                 <div className="flex items-baseline gap-2 mt-0.5">
-                  <span className={`text-[16px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>100.0% Match</span>
-                  <span className="font-mono text-[9px] text-emerald-600 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/70 px-1.5 py-0.5 rounded font-bold border border-emerald-300 dark:border-emerald-800">Active</span>
+                  <span className={`text-[14px] sm:text-[16px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>100.0% Match</span>
+                  <span className="font-mono text-[8.5px] sm:text-[9px] text-emerald-600 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/70 px-1.5 py-0.5 rounded font-bold border border-emerald-300 dark:border-emerald-800">Active</span>
                 </div>
-                <p className={`text-[11px] truncate mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>Zero-hallucination verbatim check</p>
+                <p className={`text-[10px] sm:text-[11px] truncate mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>Zero-hallucination verbatim check</p>
               </div>
             </div>
 
-            <div className={`p-3.5 rounded-xl shadow-sm border flex items-start gap-3 transition-colors ${
+            <div className={`p-2.5 sm:p-3.5 rounded-xl shadow-xs border flex items-center sm:items-start gap-2.5 sm:gap-3 transition-colors ${
               isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-slate-50 border-[#e2e8f0]'
             }`}>
-              <div className={`p-2 rounded-lg border shrink-0 ${
+              <div className={`p-1.5 sm:p-2 rounded-lg border shrink-0 ${
                 isDark ? 'bg-[#131624] text-white border-[#23283f]' : 'bg-white text-[#00288e] border-[#cbd5e1]'
               }`}>
-                <span className="material-symbols-outlined text-[22px]">lock</span>
+                <span className="material-symbols-outlined text-[18px] sm:text-[22px]">lock</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className={`text-[10px] uppercase tracking-wider font-bold block ${
+                <span className={`text-[9.5px] uppercase tracking-wider font-bold block ${
                   isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'
                 }`}>Gazette Integrity</span>
                 <div className="flex items-baseline gap-2 mt-0.5">
-                  <span className={`text-[16px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>Cryptographically Signed</span>
+                  <span className={`text-[14px] sm:text-[16px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>Cryptographically Signed</span>
                 </div>
-                <p className={`text-[11px] truncate mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>SHA-256 Gazette of India chain</p>
+                <p className={`text-[10px] sm:text-[11px] truncate mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>SHA-256 Gazette chain</p>
               </div>
             </div>
 
-            <div className={`p-3.5 rounded-xl shadow-sm border flex items-start gap-3 transition-colors ${
+            <div className={`p-2.5 sm:p-3.5 rounded-xl shadow-xs border flex items-center sm:items-start gap-2.5 sm:gap-3 transition-colors ${
               isDark ? 'bg-[#0f111a] border-[#23283f]' : 'bg-slate-50 border-[#e2e8f0]'
             }`}>
-              <div className={`p-2 rounded-lg border shrink-0 ${
+              <div className={`p-1.5 sm:p-2 rounded-lg border shrink-0 ${
                 isDark ? 'bg-[#131624] text-white border-[#23283f]' : 'bg-white text-[#00288e] border-[#cbd5e1]'
               }`}>
-                <span className="material-symbols-outlined text-[22px]">database</span>
+                <span className="material-symbols-outlined text-[18px] sm:text-[22px]">database</span>
               </div>
               <div className="min-w-0 flex-1">
-                <span className={`text-[10px] uppercase tracking-wider font-bold block ${
+                <span className={`text-[9.5px] uppercase tracking-wider font-bold block ${
                   isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'
                 }`}>Vector Dimension</span>
                 <div className="flex items-baseline gap-2 mt-0.5">
-                  <span className={`text-[16px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>768-dim Vectors</span>
-                  <span className={`font-mono text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>HNSW Index</span>
+                  <span className={`text-[14px] sm:text-[16px] font-bold ${isDark ? 'text-white' : 'text-[#0b1c30]'}`}>768-dim Vectors</span>
+                  <span className={`font-mono text-[9px] sm:text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>HNSW</span>
                 </div>
-                <p className={`text-[11px] truncate mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>Neon pgvector Euclidean distance &lt; 0.04</p>
+                <p className={`text-[10px] sm:text-[11px] truncate mt-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-[#64748b]'}`}>Neon pgvector Euclidean &lt; 0.04</p>
               </div>
             </div>
           </div>

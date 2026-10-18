@@ -3778,9 +3778,9 @@ export function ChatView({
         {isPleadingStudioOpen && typeof document !== 'undefined' && createPortal(
           <div 
             onClick={(e) => { if (e.target === e.currentTarget) setIsPleadingStudioOpen(false); }}
-            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[10050] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-full max-h-[92dvh] sm:max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+            <div className="w-full sm:max-w-6xl h-[95dvh] sm:h-full sm:max-h-[920px] rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <CourtPleadingStudio
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3796,9 +3796,9 @@ export function ChatView({
         {isTimelineModalOpen && typeof document !== 'undefined' && createPortal(
           <div 
             onClick={(e) => { if (e.target === e.currentTarget) setIsTimelineModalOpen(false); }}
-            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[10050] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-full max-h-[92dvh] sm:max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+            <div className="w-full sm:max-w-6xl h-[95dvh] sm:h-full sm:max-h-[920px] rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <DisputeTimelineVisualizer
                 isDark={isDark}
                 apiBase={apiBase}
@@ -3815,9 +3815,9 @@ export function ChatView({
         {isCounterStrategyModalOpen && typeof document !== 'undefined' && createPortal(
           <div 
             onClick={(e) => { if (e.target === e.currentTarget) setIsCounterStrategyModalOpen(false); }}
-            className="fixed inset-0 z-[10050] flex items-center justify-center p-2 sm:p-4 md:p-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[10050] flex flex-col justify-end sm:justify-center sm:items-center sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="w-full max-w-6xl h-full max-h-[92dvh] sm:max-h-[920px] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
+            <div className="w-full sm:max-w-6xl h-[95dvh] sm:h-full sm:max-h-[920px] rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-700">
               <CounterStrategyStudio
                 isDark={isDark}
                 apiBase={apiBase}

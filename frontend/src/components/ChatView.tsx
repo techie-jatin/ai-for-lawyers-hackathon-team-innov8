@@ -210,8 +210,8 @@ interface ChatViewProps {
   launchContext?: ChatLaunchContext | null;
   onClearLaunchContext?: () => void;
   geminiApiKey?: string;
-  activeTab?: 'chat' | 'contracts' | 'search' | 'info';
-  onSelectTab?: (tab: 'chat' | 'contracts' | 'search' | 'info') => void;
+  activeTab?: 'chat' | 'contracts' | 'constitution' | 'info';
+  onSelectTab?: (tab: 'chat' | 'contracts' | 'constitution' | 'info') => void;
   onOpenConstitutionModal?: () => void;
 }
 
@@ -1680,11 +1680,11 @@ export function ChatView({
             <button
               type="button"
               onClick={() => {
-                onSelectTab?.('search');
+                onSelectTab?.('constitution');
                 setIsMobileSidebarOpen(false);
               }}
               className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md text-[10px] font-medium transition-all cursor-pointer ${
-                activeTab === 'search'
+                activeTab === 'constitution'
                   ? isDark 
                     ? 'bg-white text-black font-bold shadow-2xs' 
                     : 'bg-[#00288e] text-white font-bold shadow-2xs'
@@ -1692,10 +1692,10 @@ export function ChatView({
                     ? 'text-[#cbd5e1] hover:text-white hover:bg-white/5' 
                     : 'text-[#334155] hover:text-[#0b1c30] hover:bg-white'
               }`}
-              title="Statute & Case Search"
+              title="Constitution of India"
             >
               <span className="material-symbols-outlined text-[13px]">account_balance</span>
-              <span className="truncate">Search</span>
+              <span className="truncate">Constitution</span>
             </button>
 
             <button

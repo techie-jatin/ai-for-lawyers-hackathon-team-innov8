@@ -3,7 +3,7 @@ import { Loader2, CheckCircle2, Scale, Lightbulb, ShieldCheck } from 'lucide-rea
 import './App.css';
 import { ChatView } from './components/ChatView';
 import { ContractStudioView } from './components/ContractStudioView';
-import { SearchView } from './components/SearchView';
+import { ConstitutionView } from './components/ConstitutionView';
 import { InfoView } from './components/InfoView';
 import { DossiersDrawer, type ChamberDossier } from './components/DossiersDrawer';
 import { StatutoryConcordanceModal } from './components/StatutoryConcordanceModal';
@@ -102,7 +102,7 @@ export function App() {
   const [guestIdCopied, setGuestIdCopied] = useState(false);
   const guestMenuRef = useRef<HTMLDivElement>(null);
 
-  const [activeTab, setActiveTab] = useState<'chat' | 'contracts' | 'search' | 'info'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'contracts' | 'constitution' | 'info'>('chat');
   const [mode, setMode] = useState<'citizen' | 'professional'>('citizen');
   const [dossierCount, setDossierCount] = useState<number>(0);
   const [isDossiersOpen, setIsDossiersOpen] = useState(false);
@@ -555,16 +555,16 @@ export function App() {
 
               <button
                 type="button"
-                onClick={() => setActiveTab('search')}
+                onClick={() => setActiveTab('constitution')}
                 className={`flex-1 min-w-0 px-1.5 xl:px-2 py-0.5 xl:py-1 rounded-md text-[clamp(9.5px,0.72vw,10.5px)] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap ${
-                  activeTab === 'search'
+                  activeTab === 'constitution'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
-                title="Statute & Case Search"
+                title="Constitution of India • 25 Parts & 456+ Articles"
               >
                 <span className="material-symbols-outlined text-[12.5px] xl:text-[13px] shrink-0">account_balance</span>
-                <span className="tracking-tight truncate">Statute Search</span>
+                <span className="tracking-tight truncate">Constitution</span>
               </button>
 
               <button
@@ -616,16 +616,16 @@ export function App() {
 
               <button
                 type="button"
-                onClick={() => setActiveTab('search')}
+                onClick={() => setActiveTab('constitution')}
                 className={`px-1.5 py-0.5 rounded-md text-[9.5px] font-medium transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                  activeTab === 'search'
+                  activeTab === 'constitution'
                     ? isDark ? 'bg-white text-black shadow-2xs font-bold' : 'bg-[#00288e] text-white shadow-2xs font-bold'
                     : isDark ? 'text-[#94a3b8] hover:text-white hover:bg-white/5' : 'text-[#565e74] hover:text-[#0b1c30] hover:bg-[#e5eeff]'
                 }`}
-                title="Statute & Case Search"
+                title="Constitution of India"
               >
                 <span className="material-symbols-outlined text-[12px]">account_balance</span>
-                <span>Search</span>
+                <span>Constitution</span>
               </button>
 
               <button
@@ -929,7 +929,7 @@ export function App() {
 
       {/* MAIN SCREEN CANVAS (Responsive top padding: 48px on mobile, 84px on md+) */}
       <div className="pt-12 md:pt-[84px] pb-14 md:pb-0 flex-1 flex flex-col h-[100dvh] overflow-hidden w-full">
-        <main className={`flex-1 flex flex-col w-full h-full ${activeTab === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'} transition-colors duration-200 ${
+        <main className={`flex-1 flex flex-col w-full h-full ${activeTab === 'chat' || activeTab === 'constitution' ? 'overflow-hidden' : 'overflow-y-auto'} transition-colors duration-200 ${
           isDark ? 'bg-[#090a0f]' : 'bg-[#f4f6fb]'
         }`}>
           {activeTab === 'chat' && (
@@ -946,7 +946,7 @@ export function App() {
               onClearLaunchContext={() => setChatLaunchContext(null)}
               onSwitchToSearch={(query?: string) => {
                 setSearchInitialQuery(query || null);
-                setActiveTab('search');
+                setActiveTab('constitution');
               }} 
               geminiApiKey={geminiApiKey}
               onOpenConstitutionModal={() => setIsConstitutionModalOpen(true)}
@@ -959,16 +959,21 @@ export function App() {
               apiBase={API_BASE}
             />
           )}
-          {activeTab === 'search' && (
-            <SearchView 
-              apiBase={API_BASE} 
-              theme={theme}
+          {activeTab === 'constitution' && (
+            <ConstitutionView 
+              isDark={isDark}
               initialQuery={searchInitialQuery || undefined}
-              onClearInitialQuery={() => setSearchInitialQuery(null)}
-              onOpenInChat={(ctx) => {
-                setChatLaunchContext(ctx);
+              onSendToChat={(query: string, title?: string) => {
+                setChatLaunchContext({
+                  type: 'search_provision',
+                  title: title || 'Constitutional Legal Analysis',
+                  query: query,
+                  category: 'Constitutional Law',
+                  autoExecute: true
+                });
                 setActiveTab('chat');
-              }} 
+              }}
+              onBackToChat={() => setActiveTab('chat')}
             />
           )}
           {activeTab === 'info' && (
@@ -993,7 +998,7 @@ export function App() {
         {[
           { id: 'chat', label: 'Chat', icon: 'chat', title: 'Constitutional AI Chat Assistant' },
           { id: 'contracts', label: 'Contracts', icon: 'edit_document', title: 'AI Contract Studio' },
-          { id: 'search', label: 'Search', icon: 'account_balance', title: 'Statute & Case Search' },
+          { id: 'constitution', label: 'Constitution', icon: 'account_balance', title: 'Constitution of India • 25 Parts & 456+ Articles' },
           { id: 'info', label: 'Validator', icon: 'fact_check', title: 'Knowledge & Truth Validator' },
         ].map(tab => {
           const isActive = activeTab === tab.id;
@@ -1081,7 +1086,7 @@ export function App() {
                   {[
                     { id: 'chat', label: 'Chat Assistant', icon: 'chat', desc: 'Constitutional AI & Precedents' },
                     { id: 'contracts', label: 'AI Contract Studio', icon: 'edit_document', desc: 'Drafting & Redline Risk Audit' },
-                    { id: 'search', label: 'Statute Search', icon: 'account_balance', desc: '59+ Acts, BNS Concordance' },
+                    { id: 'constitution', label: 'Constitution', icon: 'account_balance', desc: '25 Parts, 456+ Articles & Writs' },
                     { id: 'info', label: 'Validator Hub', icon: 'fact_check', desc: 'Truth Audit & Hash Verification' },
                   ].map(tab => (
                     <button

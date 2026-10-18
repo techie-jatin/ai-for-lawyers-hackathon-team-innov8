@@ -20,6 +20,13 @@ class ValidateCitationRequest(BaseModel):
     claimed_section: Optional[str] = None
     claimed_quote: Optional[str] = None
 
+class DocumentOcrRequest(BaseModel):
+    file_base64: str = Field(..., description="Base64 encoded string of image or scanned document")
+    mime_type: Optional[str] = Field("image/png", max_length=100)
+    file_name: Optional[str] = Field("document.png", max_length=200)
+    gemini_api_key: Optional[str] = Field(None, max_length=128)
+
+from app.services.ocr_service import LegalOcrService
 from starlette.responses import StreamingResponse
 
 @router.post("/stream")
@@ -73,3 +80,17 @@ def validate_citation(req: ValidateCitationRequest, db: Session = Depends(deps.g
         claimed_quote=req.claimed_quote
     )
     return result.to_dict()
+
+@router.post("/ocr")
+def process_document_ocr(req: DocumentOcrRequest) -> Dict[str, Any]:
+    """
+    Scanned Legal Document & Image OCR endpoint.
+    Performs bilingual (English + Hindi) text and FIR metadata extraction
+    from scanned photocopies, notices, and WhatsApp transaction screenshots.
+    """
+    return LegalOcrService.process_document_image(
+        file_base64=req.file_base64,
+        mime_type=req.mime_type or "image/png",
+        file_name=req.file_name or "document.png",
+        gemini_api_key=req.gemini_api_key
+    )

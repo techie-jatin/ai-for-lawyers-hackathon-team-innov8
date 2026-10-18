@@ -4,10 +4,24 @@
  * FIR copies, and plain text files directly in the browser with zero external dependencies.
  */
 
+export interface FirOcrMetadata {
+  police_station?: string;
+  fir_number?: string;
+  date?: string;
+  district?: string;
+  acts?: string[];
+  sections?: string[];
+  complainant?: string;
+  accused?: string[];
+  raw_entities?: Record<string, string>;
+  language_detected?: string;
+  ocr_confidence?: number;
+}
+
 export interface ParsedDocumentResult {
   fileName: string;
   fileSize: number;
-  fileType: 'pdf' | 'docx' | 'txt' | 'other';
+  fileType: 'pdf' | 'docx' | 'txt' | 'image' | 'other';
   formattedSize: string;
   text: string;
   wordCount: number;
@@ -15,6 +29,7 @@ export interface ParsedDocumentResult {
   isTruncated: boolean;
   isScannedOrEmpty: boolean;
   warning?: string;
+  ocrMetadata?: FirOcrMetadata;
 }
 
 const MAX_EXTRACTED_CHARS = 24000; // ~3,800 to 4,200 legal words
@@ -300,16 +315,113 @@ async function parseDocxArrayBuffer(buffer: ArrayBuffer): Promise<string> {
 }
 
 /**
- * Master Document Ingestion Function
- * Ingests any uploaded File object (.pdf, .docx, .txt, .rtf, .md, .csv) and extracts
- * clean, normalized text suitable for statutory RAG analysis.
+ * Convert a File or Blob into base64 string
  */
-export async function parseUploadedDocument(file: File): Promise<ParsedDocumentResult> {
+export async function fileToBase64(file: File | Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.includes(',') ? result.split(',')[1] : result;
+      resolve(base64);
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Call the backend Bilingual OCR Engine (Gemini 1.5 Vision Multimodal)
+ */
+export async function performDocumentOcr(
+  file: File,
+  apiBase: string = 'http://localhost:8000',
+  languageHint: string = 'en,hi'
+): Promise<{
+  text: string;
+  wordCount: number;
+  confidence: number;
+  firMetadata?: FirOcrMetadata;
+  languageDetected?: string;
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const base64Data = await fileToBase64(file);
+    const cleanBase = (apiBase || 'http://localhost:8000').replace(/\/+$/, '');
+    const targets = [
+      `${cleanBase}/api/assistant/ocr`,
+      cleanBase.includes('localhost')
+        ? `${cleanBase.replace('localhost', '127.0.0.1')}/api/assistant/ocr`
+        : null
+    ].filter(Boolean) as string[];
+
+    let lastError = '';
+    for (const targetUrl of targets) {
+      try {
+        const resp = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            file_base64: base64Data,
+            mime_type: file.type || 'image/jpeg',
+            filename: file.name,
+            language_hint: languageHint
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          return {
+            text: data.text || '',
+            wordCount: data.word_count || 0,
+            confidence: data.confidence || 0.9,
+            firMetadata: data.fir_metadata,
+            languageDetected: data.language_detected,
+            success: true
+          };
+        } else {
+          lastError = `OCR HTTP ${resp.status}: ${resp.statusText}`;
+        }
+      } catch (err: any) {
+        lastError = err?.message || 'Network error during OCR request';
+      }
+    }
+
+    return {
+      text: '',
+      wordCount: 0,
+      confidence: 0,
+      success: false,
+      error: lastError || 'Failed to reach OCR endpoint'
+    };
+  } catch (err: any) {
+    return {
+      text: '',
+      wordCount: 0,
+      confidence: 0,
+      success: false,
+      error: err?.message || 'Failed to encode document for OCR'
+    };
+  }
+}
+
+/**
+ * Master Document Ingestion Function
+ * Ingests any uploaded File object (.pdf, .docx, .txt, .png, .jpg, .jpeg, .webp, .bmp)
+ * and extracts clean, normalized text suitable for statutory RAG analysis.
+ * Automatically dispatches scanned PDFs and images to the bilingual OCR engine.
+ */
+export async function parseUploadedDocument(
+  file: File,
+  apiBase: string = 'http://localhost:8000'
+): Promise<ParsedDocumentResult> {
   const extension = file.name.split('.').pop()?.toLowerCase() || '';
-  let fileType: 'pdf' | 'docx' | 'txt' | 'other' = 'other';
+  let fileType: 'pdf' | 'docx' | 'txt' | 'image' | 'other' = 'other';
   if (extension === 'pdf') fileType = 'pdf';
   else if (extension === 'docx' || extension === 'doc') fileType = 'docx';
   else if (['txt', 'rtf', 'md', 'csv', 'json'].includes(extension)) fileType = 'txt';
+  else if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'tiff'].includes(extension)) fileType = 'image';
 
   // 1. Guard against oversized files (> 15MB)
   if (file.size > 15 * 1024 * 1024) {
@@ -328,9 +440,30 @@ export async function parseUploadedDocument(file: File): Promise<ParsedDocumentR
   }
 
   let extractedText = '';
+  let ocrMetadata: FirOcrMetadata | undefined;
 
   try {
-    if (fileType === 'txt') {
+    if (fileType === 'image') {
+      // Direct Bilingual OCR via Gemini 1.5 Vision Multimodal Engine
+      const ocrResult = await performDocumentOcr(file, apiBase);
+      if (ocrResult.success && ocrResult.text.trim()) {
+        extractedText = ocrResult.text;
+        ocrMetadata = ocrResult.firMetadata;
+      } else {
+        return {
+          fileName: file.name,
+          fileSize: file.size,
+          fileType,
+          formattedSize: formatFileSize(file.size),
+          text: '',
+          wordCount: 0,
+          characterCount: 0,
+          isTruncated: false,
+          isScannedOrEmpty: true,
+          warning: ocrResult.error || 'Unable to recognize text in image. Please ensure image is well-lit and legible.'
+        };
+      }
+    } else if (fileType === 'txt') {
       // Plain text reader
       extractedText = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -342,6 +475,15 @@ export async function parseUploadedDocument(file: File): Promise<ParsedDocumentR
       // PDF Binary ArrayBuffer parsing
       const buffer = await file.arrayBuffer();
       extractedText = await parsePdfArrayBuffer(buffer);
+
+      // If client-side PDF stream extraction found < 20 chars, it's a scanned photocopy/seal
+      if (extractedText.trim().length < 20) {
+        const ocrResult = await performDocumentOcr(file, apiBase);
+        if (ocrResult.success && ocrResult.text.trim()) {
+          extractedText = ocrResult.text;
+          ocrMetadata = ocrResult.firMetadata;
+        }
+      }
     } else if (fileType === 'docx') {
       // DOCX Zip XML parsing
       const buffer = await file.arrayBuffer();
@@ -373,7 +515,9 @@ export async function parseUploadedDocument(file: File): Promise<ParsedDocumentR
 
   if (isScannedOrEmpty) {
     if (fileType === 'pdf') {
-      warning = 'No selectable digital text layer found. If this is a scanned photocopy or court seal image, please upload a digital text copy or paste the operative clauses.';
+      warning = 'No selectable digital text layer found. Scanned photocopy detected; please verify backend OCR connectivity or paste the operative clauses.';
+    } else if (fileType === 'image') {
+      warning = 'Image contains no legible legal text or sections.';
     } else {
       warning = 'Uploaded file contains no readable text content.';
     }
@@ -394,6 +538,7 @@ export async function parseUploadedDocument(file: File): Promise<ParsedDocumentR
     characterCount: extractedText.length,
     isTruncated,
     isScannedOrEmpty,
-    warning
+    warning,
+    ocrMetadata
   };
 }

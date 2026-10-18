@@ -1253,14 +1253,19 @@ export function ChatView({
     }
   };
 
-  // High-Fidelity Multi-Format Document Ingestion Handler (PDF, DOCX, TXT)
+  // High-Fidelity Multi-Format Document Ingestion Handler (PDF, DOCX, TXT, Images)
   const handleProcessFile = async (file: File) => {
     setIsParsingDoc(true);
     setDictationNotice(null);
     try {
-      const parsed = await parseUploadedDocument(file);
+      const parsed = await parseUploadedDocument(file, apiBase);
       if (parsed.isScannedOrEmpty && parsed.warning) {
         setDictationNotice(parsed.warning);
+        setTimeout(() => setDictationNotice(null), 8000);
+      } else if (parsed.ocrMetadata?.fir_number || parsed.ocrMetadata?.sections?.length) {
+        const secInfo = parsed.ocrMetadata.sections?.join(', ') || '';
+        const psInfo = parsed.ocrMetadata.police_station ? ` • P.S. ${parsed.ocrMetadata.police_station}` : '';
+        setDictationNotice(`🔍 Document OCR Processed: FIR ${parsed.ocrMetadata.fir_number || ''}${psInfo}${secInfo ? ` • u/s ${secInfo}` : ''}`);
         setTimeout(() => setDictationNotice(null), 8000);
       }
       setAttachedDoc(parsed);
@@ -1287,8 +1292,13 @@ export function ChatView({
     let synthesizedQuery = textToSend;
     let userDisplayText = textToSend;
     if (attachedDoc && attachedDoc.text) {
-      synthesizedQuery = `[ATTACHED LEGAL DOCUMENT: ${attachedDoc.fileName} (${attachedDoc.formattedSize}, ~${attachedDoc.wordCount} words)]\n${attachedDoc.text}\n\n[USER INQUIRY / PRAYER]:\n${textToSend}`;
-      userDisplayText = `[Attached: 📄 ${attachedDoc.fileName} (${attachedDoc.formattedSize})]\n\n${textToSend}`;
+      let firHeader = '';
+      if (attachedDoc.ocrMetadata) {
+        const m = attachedDoc.ocrMetadata;
+        firHeader = `\n[EXTRACTED FIR / POLICE RECORD METADATA]:\n- FIR No: ${m.fir_number || 'N/A'}\n- Police Station: ${m.police_station || 'N/A'}\n- Date: ${m.date || 'N/A'}\n- Sections: ${m.sections?.join(', ') || 'N/A'}\n- Language: ${m.language_detected || 'N/A'}\n`;
+      }
+      synthesizedQuery = `[ATTACHED LEGAL DOCUMENT: ${attachedDoc.fileName} (${attachedDoc.formattedSize}, ~${attachedDoc.wordCount} words)]${firHeader}\n${attachedDoc.text}\n\n[USER INQUIRY / PRAYER]:\n${textToSend}`;
+      userDisplayText = `[Attached: 📄 ${attachedDoc.fileName} (${attachedDoc.formattedSize}${attachedDoc.ocrMetadata?.fir_number ? ` • FIR ${attachedDoc.ocrMetadata.fir_number}` : ''})]\n\n${textToSend}`;
     }
     setAttachedDoc(null);
 
@@ -2887,7 +2897,7 @@ export function ChatView({
               type="file" 
               ref={fileInputRef} 
               onChange={handleFileChange} 
-              accept=".txt,.pdf,.docx,.doc" 
+              accept=".txt,.pdf,.docx,.doc,.png,.jpg,.jpeg,.webp,.bmp" 
               className="hidden" 
             />
 
@@ -3291,7 +3301,7 @@ export function ChatView({
                 isDark ? 'bg-blue-950/30 border-blue-500/30 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-900'
               }`}>
                 <span className="material-symbols-outlined text-[16px] animate-spin">sync</span>
-                <span>Extracting legal document text (PDF / DOCX / TXT)...</span>
+                <span>Extracting legal document text & OCR scanning (PDF / DOCX / TXT / Image)...</span>
               </div>
             )}
 
@@ -3307,9 +3317,11 @@ export function ChatView({
                         ? 'bg-red-500/20 text-red-400 border border-red-500/30'
                         : attachedDoc.fileType === 'docx'
                           ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                          : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          : attachedDoc.fileType === 'image'
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                            : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                     }`}>
-                      {attachedDoc.fileType.toUpperCase()}
+                      {attachedDoc.fileType === 'image' ? 'OCR SCAN' : attachedDoc.fileType.toUpperCase()}
                     </span>
                     <div className="min-w-0">
                       <div className="font-semibold truncate">{attachedDoc.fileName}</div>
@@ -3339,6 +3351,35 @@ export function ChatView({
                     </button>
                   </div>
                 </div>
+
+                {attachedDoc.ocrMetadata && (attachedDoc.ocrMetadata.fir_number || attachedDoc.ocrMetadata.sections?.length) && (
+                  <div className={`p-2 rounded-lg text-[10.5px] flex flex-wrap items-center gap-2 border ${
+                    isDark ? 'bg-purple-950/20 border-purple-500/30 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-900'
+                  }`}>
+                    <span className="material-symbols-outlined text-[14px] text-purple-400 shrink-0">document_scanner</span>
+                    <span className="font-semibold">Bilingual OCR Extracted:</span>
+                    {attachedDoc.ocrMetadata.fir_number && (
+                      <span className="font-mono bg-purple-500/15 px-1.5 py-0.5 rounded border border-purple-500/30">
+                        FIR #{attachedDoc.ocrMetadata.fir_number}
+                      </span>
+                    )}
+                    {attachedDoc.ocrMetadata.police_station && (
+                      <span className="font-sans text-xs">
+                        P.S. {attachedDoc.ocrMetadata.police_station}
+                      </span>
+                    )}
+                    {attachedDoc.ocrMetadata.sections && attachedDoc.ocrMetadata.sections.length > 0 && (
+                      <span className="font-mono text-[10px] bg-amber-500/15 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">
+                        u/s {attachedDoc.ocrMetadata.sections.join(', ')}
+                      </span>
+                    )}
+                    {attachedDoc.ocrMetadata.language_detected && (
+                      <span className="text-[9.5px] opacity-75">
+                        ({attachedDoc.ocrMetadata.language_detected})
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {attachedDoc.isScannedOrEmpty && (
                   <div className={`p-2 rounded-lg text-[10.5px] flex items-center gap-1.5 ${

@@ -2151,7 +2151,14 @@ export function ChatView({
                       <span className="font-bold text-[#ff7722] uppercase tracking-wider text-[9.5px]">
                         Active Case Memory:
                       </span>
-                      <span className={`font-semibold truncate max-w-[240px] sm:max-w-[400px] ${isDark ? 'text-white' : 'text-[#00288e]'}`} title={activeMemory.rootFactAnchor}>
+                      {activeMemory.topicPillarLabel && (
+                        <span className={`px-2 py-0.5 rounded text-[9.5px] font-bold border ${
+                          isDark ? 'bg-amber-950/60 text-amber-300 border-amber-800/50' : 'bg-amber-50 text-amber-800 border-amber-200'
+                        }`}>
+                          {activeMemory.topicPillarLabel}
+                        </span>
+                      )}
+                      <span className={`font-semibold truncate max-w-[200px] sm:max-w-[340px] ${isDark ? 'text-white' : 'text-[#00288e]'}`} title={activeMemory.rootFactAnchor}>
                         {activeMemory.rootFactAnchor}
                       </span>
                       {activeMemory.provisions.length > 0 && (

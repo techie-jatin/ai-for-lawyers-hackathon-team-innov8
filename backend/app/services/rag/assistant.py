@@ -12,6 +12,32 @@ from app.models.legal import LegalProvision, LegalSource, StatutoryConcordance, 
 from app.services.rag.citation_validator import CitationValidator
 from app.services.rag.abuse_guard import AbuseGuard
 
+def classify_legal_topic_pillar(text: str) -> str:
+    """
+    Classifies a legal query into its core governing pillar to detect topic shifts
+    and prevent cross-dispute context contamination across multi-turn sessions.
+    """
+    t = text.lower()
+    if re.search(r'\b(hostel|pg\b|paying guest|room rent|security deposit|caution money|lock-in|10-month|warden|mess fees?|unreturned deposit|deposit adjustment|landlord locked|belongings locked|tenant|tenancy|eviction|rent agreement|leave and license)\b', t):
+        return 'TENANCY_HOSTEL'
+    if re.search(r'\b(cyber|upi|online fraud|phishing|qr code|scam|scammed|bank lien|1930|otp|anydesk|apk|sim swap|unauthorized transaction|crypto freeze|mule account)\b', t):
+        return 'CYBER_FRAUD'
+    if re.search(r'\b(cheque|check bounce|138|dishonour|dishonor|payee|drawer|return memo|insufficient funds|ni act)\b', t):
+        return 'CHEQUE_BOUNCE'
+    if re.search(r'\b(divorce|matrimonial|maintenance|alimony|custody|stridhan|dv act|domestic violence|144 bnss|125 crpc|shared household)\b', t):
+        return 'FAMILY_MATRIMONIAL'
+    if re.search(r'\b(coaching|edtech|tuition fee|batch refund|placement guarantee|ccpa guidelines|dark pattern)\b', t):
+        return 'COACHING_CONSUMER'
+    if re.search(r'\b(salary|service bond|bond recovery|experience letter|gratuity|provident fund|unlawful termination|resignation|non-compete|employment contract)\b', t):
+        return 'EMPLOYMENT_SERVICE'
+    if re.search(r'\b(traffic|challan|red light|signal jump|motor vehicle|mv act|license seizure|parivahan|speeding|drunk driving)\b', t):
+        return 'TRAFFIC_MOTOR'
+    if re.search(r'\b(article\s*\d+|fundamental right|writ|mandamus|habeas corpus|certiorari|constitution of india|ultra vires)\b', t):
+        return 'CONSTITUTIONAL_WRIT'
+    if re.search(r'\b(police|arrest|fir|bail|remand|quash|custody|35\(3\)|528 bnss|482 crpc|438 crpc|zero fir)\b', t):
+        return 'CRIMINAL_POLICE'
+    return 'GENERAL_LEGAL'
+
 class GeminiSynthesizer:
     """
     Synthesizes rich, evidence-grounded Indian legal intelligence using Google's Free Gemini API.
@@ -232,14 +258,26 @@ class GeminiSynthesizer:
 
         history_section = ""
         if history and len(history) > 0:
-            history_section = "### PRECEDING CONVERSATION CONTEXT (MULTI-TURN DIALOGUE HISTORY):\n"
-            for item in history[-6:]:
-                role_label = "Citizen / Counsel" if item.get("role") == "user" else "Legal Intelligence Assistant"
-                msg_txt = (item.get("text") or "").strip()
-                if len(msg_txt) > 350:
-                    msg_txt = msg_txt[:350] + "..."
-                history_section += f"- **{role_label}**: {msg_txt}\n"
-            history_section += "\n"
+            query_pillar = classify_legal_topic_pillar(query)
+            cluster_start = 0
+            for i in range(len(history) - 1, -1, -1):
+                item = history[i]
+                if item.get("role") == "user" and item.get("text"):
+                    item_pillar = classify_legal_topic_pillar(item.get("text", ""))
+                    if query_pillar != "GENERAL_LEGAL" and item_pillar != "GENERAL_LEGAL" and item_pillar != query_pillar:
+                        cluster_start = i + 1
+                        break
+            
+            relevant_history = history[cluster_start:]
+            if relevant_history:
+                history_section = "### PRECEDING CONVERSATION CONTEXT (MULTI-TURN DIALOGUE HISTORY):\n"
+                for item in relevant_history[-6:]:
+                    role_label = "Citizen / Counsel" if item.get("role") == "user" else "Legal Intelligence Assistant"
+                    msg_txt = (item.get("text") or "").strip()
+                    if len(msg_txt) > 350:
+                        msg_txt = msg_txt[:350] + "..."
+                    history_section += f"- **{role_label}**: {msg_txt}\n"
+                history_section += "\n"
 
         user_content = (
             f"{pillar_section}"
@@ -443,6 +481,14 @@ def resolve_contextual_query(query: str, history: Optional[List[Dict[str, str]]]
     # Standalone factual inquiries (> 18 words) are self-contained and must NEVER inherit stale conversation history
     if len(words) > 18 and not any(norm_query.lower().startswith(p) for p in ["what about", "can i", "can he", "can she", "is it", "what is the penalty"]):
         return norm_query
+
+    # Topic shift guard: If current query belongs to a different legal pillar than preceding user turns, isolate completely
+    current_pillar = classify_legal_topic_pillar(norm_query)
+    user_turns = [m for m in history if m.get("role") == "user" and m.get("text")]
+    if user_turns:
+        last_user_pillar = classify_legal_topic_pillar(user_turns[-1].get("text", ""))
+        if current_pillar != 'GENERAL_LEGAL' and last_user_pillar != 'GENERAL_LEGAL' and current_pillar != last_user_pillar:
+            return norm_query
 
     q_lower = norm_query.lower()
     needs_coref = (

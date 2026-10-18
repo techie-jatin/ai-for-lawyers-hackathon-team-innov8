@@ -459,7 +459,7 @@ class SeniorAdvocateBrain:
 
         # Calculate days remaining and urgency
         delta_days = (limitation_deadline - today).days
-        urgency = "NORMAL"
+        urgency = "SAFE"
         remedy_status = f"{delta_days} Days Remaining. Judicial remedies fully viable."
 
         if delta_days < 0:
@@ -477,22 +477,69 @@ class SeniorAdvocateBrain:
         for m in milestones:
             days_from_anchor = (m["date"] - d0).days
             days_to_event = (m["date"] - today).days
+            phase = m["phase"]
+            if phase == "litigation_limitation":
+                phase = "limitation_deadline"
+
+            status = "upcoming"
+            if days_to_event < 0:
+                status = "completed"
+            elif days_to_event == 0:
+                status = "active_now"
+            elif m["is_deadline"] and days_to_event <= 14:
+                status = "critical_warning"
+            elif days_to_event <= 30:
+                status = "attention"
+
             formatted_milestones.append({
                 "id": m["id"],
                 "title": m["title"],
                 "date": m["date"].strftime("%Y-%m-%d"),
                 "formatted_date": _format_date(m["date"]),
                 "days_from_anchor": days_from_anchor,
-                "days_to_event": days_to_event,
-                "phase": m["phase"],
+                "days_remaining": days_to_event,
+                "status": status,
+                "phase": phase,
                 "is_deadline": m["is_deadline"],
                 "statutory_provision": m["statutory_provision"],
+                "statutory_act": entities["statute_badge"].split("(")[0].strip(),
                 "legal_consequence": m["legal_consequence"],
                 "actionable_guidance": m["actionable_guidance"],
                 "precedent_citation": "Applicable Supreme Court binding ratio"
             })
 
+        archetype = {
+            "key": f"custom_{domain}",
+            "title": f"Custom Matter: {entities['petitioner_name']} vs. {entities['respondent_name']}",
+            "statute_badge": entities["statute_badge"],
+            "category": domain.replace("_", " ").title(),
+            "icon": "psychology",
+            "color_accent": "amber",
+            "anchor_label": "Date of Cause of Action / Default",
+            "summary": (
+                f"Senior Advocate Brain Dynamic Analysis. "
+                f"Forum: {entities['court_forum']}. Valuation: {entities['dispute_amount']}."
+            ),
+            "governing_statutes": [entities["statute_badge"], governing_limitation_act],
+            "landmark_precedents": [m["precedent_citation"] for m in formatted_milestones if m.get("precedent_citation")]
+        }
+
         return {
+            "archetype": archetype,
+            "anchor_date": d0.strftime("%Y-%m-%d"),
+            "today_date": today.strftime("%Y-%m-%d"),
+            "total_milestones": len(formatted_milestones),
+            "milestones": formatted_milestones,
+            "limitation_summary": {
+                "name": limitation_name,
+                "date": limitation_deadline.strftime("%Y-%m-%d"),
+                "formatted_date": _format_date(limitation_deadline),
+                "days_remaining": delta_days,
+                "is_expired": delta_days < 0,
+                "statutory_provision": governing_limitation_act,
+                "urgency_rating": urgency,
+                "remedy_status": remedy_status
+            },
             "is_custom": True,
             "dispute_title": f"Custom Matter: {entities['petitioner_name']} vs. {entities['respondent_name']}",
             "dispute_domain": domain,
@@ -501,18 +548,8 @@ class SeniorAdvocateBrain:
             "petitioner_name": entities["petitioner_name"],
             "respondent_name": entities["respondent_name"],
             "dispute_amount": entities["dispute_amount"],
-            "anchor_date": d0.strftime("%Y-%m-%d"),
             "formatted_anchor_date": _format_date(d0),
             "governing_limitation_act": governing_limitation_act,
-            "limitation_summary": {
-                "name": limitation_name,
-                "date": limitation_deadline.strftime("%Y-%m-%d"),
-                "formatted_date": _format_date(limitation_deadline),
-                "days_remaining": delta_days,
-                "urgency_rating": urgency,
-                "remedy_status": remedy_status
-            },
-            "milestones": formatted_milestones,
             "senior_advocate_notes": (
                 f"Decompiled by Senior Advocate Brain under {entities['statute_badge']}. "
                 f"Primary remedy: {entities['remedy_type']} before {entities['court_forum']}. "

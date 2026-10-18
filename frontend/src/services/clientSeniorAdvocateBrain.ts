@@ -16,7 +16,7 @@
  * - High Court Writs (Art. 226)
  */
 
-import { type CalculatedTimeline, type TimelineMilestone } from './clientTimelineEngine';
+import { type CalculatedTimeline, type TimelineMilestone, type TimelineArchetype } from './clientTimelineEngine';
 
 export interface ExtractedDisputeEntities {
   domain: string;
@@ -236,7 +236,7 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
     id: string;
     title: string;
     date: string;
-    phase: 'trigger' | 'statutory_notice' | 'cure_period' | 'cause_accrual' | 'court_action' | 'interim_relief' | 'litigation_limitation';
+    phase: TimelineMilestone['phase'];
     is_deadline: boolean;
     statutory_provision: string;
     legal_consequence: string;
@@ -296,7 +296,7 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
         id: 'ni_m4',
         title: 'Strict 1-Month Complaint Filing Cutoff',
         date: dComplaint,
-        phase: 'litigation_limitation',
+        phase: 'limitation_deadline',
         is_deadline: true,
         statutory_provision: 'Section 142(1)(b) NI Act 1881',
         legal_consequence: 'Absolute limitation bar. Criminal complaint must be filed before Judicial Magistrate.',
@@ -339,7 +339,7 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
         id: 'comm_m3',
         title: '3-Year Statutory Limitation Bar',
         date: dLimitation,
-        phase: 'litigation_limitation',
+        phase: 'limitation_deadline',
         is_deadline: true,
         statutory_provision: 'Article 55 Limitation Act, 1963',
         legal_consequence: 'Suit for damages and recovery becomes completely time-barred after 3 years.',
@@ -381,7 +381,7 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
         id: 'cpa_m3',
         title: 'Strict 2-Year Limitation Cutoff for e-Daakhil Plaint',
         date: dLimitation,
-        phase: 'litigation_limitation',
+        phase: 'limitation_deadline',
         is_deadline: true,
         statutory_provision: 'Section 69 Consumer Protection Act, 2019',
         legal_consequence: 'Absolute bar on admission of consumer complaint unless delay is condoned.',
@@ -424,7 +424,7 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
         id: 'cr_m3',
         title: 'High Court §528 BNSS Quashing Window',
         date: dQuash,
-        phase: 'litigation_limitation',
+        phase: 'court_filing',
         is_deadline: false,
         statutory_provision: 'Section 528 BNSS 2023 (formerly §482 CrPC)',
         legal_consequence: 'Inherent jurisdiction of High Court to quash purely civil / extortionate complaints.',
@@ -435,7 +435,7 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
         id: 'cr_m4',
         title: 'Default Bail Statutory Window (60 / 90 Days)',
         date: dDefaultBail,
-        phase: 'litigation_limitation',
+        phase: 'limitation_deadline',
         is_deadline: true,
         statutory_provision: 'Section 187(3) BNSS 2023',
         legal_consequence: 'Indefeasible right to default statutory bail accrues if charge-sheet is delayed.',
@@ -475,7 +475,7 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
         id: 'gen_m3',
         title: 'Statutory Limitation Bar Cutoff',
         date: dLimitation,
-        phase: 'litigation_limitation',
+        phase: 'limitation_deadline',
         is_deadline: true,
         statutory_provision: 'Article 113 Limitation Act, 1963',
         legal_consequence: 'Judicial remedy extinguished if judicial proceedings are not initiated prior to cutoff.',
@@ -491,7 +491,7 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
   const diffTime = targetDate.getTime() - now.getTime();
   const deltaDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  let urgency: 'NORMAL' | 'ATTENTION' | 'CRITICAL' | 'FATAL_EXPIRED' = 'NORMAL';
+  let urgency: 'SAFE' | 'ATTENTION' | 'CRITICAL' | 'FATAL_EXPIRED' = 'SAFE';
   let remedyStatus = `${deltaDays} Days Remaining. Judicial remedies fully viable.`;
 
   if (deltaDays < 0) {
@@ -509,40 +509,64 @@ export function generateCustomDisputeTimeline(text: string, anchorDateOverride?:
     const mDate = new Date(m.date);
     const daysFromAnchor = Math.round((mDate.getTime() - d0Date.getTime()) / (1000 * 60 * 60 * 24));
     const daysToEvent = Math.round((mDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    let status: TimelineMilestone['status'] = 'upcoming';
+    if (daysToEvent < 0) {
+      status = 'completed';
+    } else if (daysToEvent === 0) {
+      status = 'active_now';
+    } else if (m.is_deadline && daysToEvent <= 14) {
+      status = 'critical_warning';
+    } else if (daysToEvent <= 30) {
+      status = 'attention';
+    }
+
     return {
       id: m.id,
       title: m.title,
       date: m.date,
       formatted_date: formatDatePretty(m.date),
       days_from_anchor: daysFromAnchor,
-      days_to_event: daysToEvent,
+      days_remaining: daysToEvent,
+      status,
       phase: m.phase,
       is_deadline: m.is_deadline,
       statutory_provision: m.statutory_provision,
+      statutory_act: entities.statute_badge.split('(')[0].trim(),
       legal_consequence: m.legal_consequence,
       actionable_guidance: m.actionable_guidance,
       precedent_citation: m.precedent_citation || 'Supreme Court Binding Precedent'
     };
   });
 
-  return {
-    archetype_key: `custom_${entities.domain}`,
-    dispute_title: `Custom Dispute: ${entities.petitioner_name} vs. ${entities.respondent_name}`,
+  const customArchetype: TimelineArchetype = {
+    key: `custom_${entities.domain}`,
+    title: `Custom Dispute: ${entities.petitioner_name} vs. ${entities.respondent_name}`,
     statute_badge: entities.statute_badge,
+    category: entities.domain.replace('_', ' ').toUpperCase(),
+    icon: 'psychology',
+    color_accent: 'amber',
     anchor_label: 'Date of Cause of Action / Default',
+    summary: `Dynamically analyzed by Senior Advocate Brain. Forum: ${entities.court_forum}. Valuation: ${entities.dispute_amount}.`,
+    governing_statutes: [entities.statute_badge, governingLimitationAct],
+    landmark_precedents: milestones.filter(m => m.precedent_citation).map(m => m.precedent_citation)
+  };
+
+  return {
+    archetype: customArchetype,
     anchor_date: d0,
-    formatted_anchor_date: formatDatePretty(d0),
-    governing_limitation_act: governingLimitationAct,
+    today_date: todayStr,
+    total_milestones: milestones.length,
+    milestones,
     limitation_summary: {
       name: limitationName,
       date: limitationDeadline,
-      formatted_date: formatDatePretty(limitationDeadline),
       days_remaining: deltaDays,
+      is_expired: deltaDays < 0,
+      statutory_provision: governingLimitationAct,
       urgency_rating: urgency,
       remedy_status: remedyStatus
-    },
-    milestones,
-    senior_advocate_notes: `Dynamically analyzed by Senior Advocate Brain. Forum: ${entities.court_forum}. Valuation: ${entities.dispute_amount}.`
+    }
   };
 }
 

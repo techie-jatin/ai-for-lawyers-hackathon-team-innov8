@@ -6,8 +6,7 @@ import {
   type TimelineMilestone
 } from '../services/clientTimelineEngine';
 import {
-  generateCustomDisputeTimeline,
-  extractDisputeEntities
+  generateCustomDisputeTimeline
 } from '../services/clientSeniorAdvocateBrain';
 
 interface DisputeTimelineVisualizerProps {
@@ -171,11 +170,11 @@ export function DisputeTimelineVisualizer({
 
   // Copy structured Synopsis & List of Dates for court filing
   const handleCopyCourtChronology = () => {
-    const matterTitle = timelineData.dispute_title || activeArchetype.title;
+    const matterTitle = timelineData.archetype?.title || activeArchetype.title;
     const lines = [
       `SYNOPSIS & CHRONOLOGICAL LIST OF DATES & EVENTS`,
       `MATTER: ${matterTitle.toUpperCase()}`,
-      `STATUTORY FRAMEWORK: ${timelineData.statute_badge}`,
+      `STATUTORY FRAMEWORK: ${timelineData.archetype?.statute_badge || activeArchetype.statute_badge}`,
       `ANCHOR DATE: ${timelineData.anchor_date}`,
       `LIMITATION STATUS: ${timelineData.limitation_summary.urgency_rating} (${timelineData.limitation_summary.remedy_status})`,
       ``,
@@ -216,7 +215,7 @@ export function DisputeTimelineVisualizer({
       return;
     }
 
-    const matterTitle = timelineData.dispute_title || activeArchetype.title;
+    const matterTitle = timelineData.archetype?.title || activeArchetype.title;
 
     doc.open();
     doc.write(`<!DOCTYPE html>
@@ -244,7 +243,7 @@ export function DisputeTimelineVisualizer({
   <div class="header">
     <h2>Chronological List of Dates & Events</h2>
     <p>Admissibility & Limitation Chart under the Limitation Act, 1963</p>
-    <p>Matter: ${matterTitle} • Statutory Base: ${timelineData.statute_badge}</p>
+    <p>Matter: ${matterTitle} • Statutory Base: ${timelineData.archetype?.statute_badge || activeArchetype.statute_badge}</p>
   </div>
 
   <p><strong>Primary Limitation Deadline:</strong> ${timelineData.limitation_summary.name} on ${timelineData.limitation_summary.date} (${timelineData.limitation_summary.days_remaining >= 0 ? `${timelineData.limitation_summary.days_remaining} days remaining` : `Expired ${Math.abs(timelineData.limitation_summary.days_remaining)} days ago`})</p>
@@ -328,7 +327,7 @@ export function DisputeTimelineVisualizer({
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/25">
                   Limitation Act 1963
                 </span>
-                {timelineData.dispute_title && (
+                {timelineData.archetype?.key?.startsWith('custom_') && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/25">
                     Live Case Analysis
                   </span>
@@ -553,7 +552,7 @@ export function DisputeTimelineVisualizer({
             }`}>
               <span className="material-symbols-outlined text-[16px]">pin_drop</span>
               <span>
-                Trigger Event Anchor: {timelineData.anchor_label || activeArchetype.anchor_label}
+                Trigger Event Anchor: {timelineData.archetype?.anchor_label || activeArchetype.anchor_label}
               </span>
             </label>
             <div className="flex flex-wrap items-center gap-2">
@@ -720,17 +719,17 @@ export function DisputeTimelineVisualizer({
 
                       <div className="text-right shrink-0">
                         <span className={`text-[10.5px] font-mono font-bold px-2 py-0.5 rounded ${
-                          milestone.days_to_event < 0
+                          milestone.days_remaining < 0
                             ? isDark ? 'text-slate-500 bg-slate-900' : 'text-slate-400 bg-slate-100'
-                            : milestone.days_to_event <= 15
+                            : milestone.days_remaining <= 15
                               ? 'text-red-500 bg-red-500/10'
                               : isDark ? 'text-emerald-400 bg-emerald-950/40' : 'text-emerald-700 bg-emerald-50'
                         }`}>
-                          {milestone.days_to_event < 0
-                            ? `${Math.abs(milestone.days_to_event)}d ago`
-                            : milestone.days_to_event === 0
+                          {milestone.days_remaining < 0
+                            ? `${Math.abs(milestone.days_remaining)}d ago`
+                            : milestone.days_remaining === 0
                               ? 'Today'
-                              : `in ${milestone.days_to_event}d`}
+                              : `in ${milestone.days_remaining}d`}
                         </span>
                       </div>
                     </div>

@@ -19,6 +19,12 @@ export default defineConfig({
           if (id.includes('clientLegalEngine')) {
             return 'legal-engine';
           }
+          if (id.includes('clientConstitutionEngine') || id.includes('constitutionComplete')) {
+            return 'constitution-engine';
+          }
+          if (id.includes('clientSeniorAdvocateBrain')) {
+            return 'advocate-brain';
+          }
         }
       }
     }

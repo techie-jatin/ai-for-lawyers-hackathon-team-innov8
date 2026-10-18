@@ -59,7 +59,7 @@ export function CounterStrategyStudio({
   const [oppositePartyName, setOppositePartyName] = useState<string>('Ramesh Verma & Associates');
   const [oppositePartyDetails, setOppositePartyDetails] = useState<string>('Malicious Complainant / Extortionate Entity');
   const [courtName, setCourtName] = useState<string>('Court of Chief Judicial Magistrate, Saket Courts');
-  const [stateName, setStateName] = useState<string>('State (NCT of Delhi)');
+  const [stateName] = useState<string>('State (NCT of Delhi)');
   const [caseRef, setCaseRef] = useState<string>('Complaint Diary No. 102/2026');
   const [policeStation, setPoliceStation] = useState<string>('P.S. Saket');
   const [claimAmount, setClaimAmount] = useState<string>('₹25,00,000/-');
@@ -71,7 +71,8 @@ export function CounterStrategyStudio({
   );
   const [advocateName, setAdvocateName] = useState<string>('Adv. Rajeshwar Rao');
   const [advocateEnrolment, setAdvocateEnrolment] = useState<string>('D/1428/2015');
-  const [advocateOffice, setAdvocateOffice] = useState<string>('Chamber No. 412, Lawyers Chambers Block, High Court');
+  const [advocateOffice] = useState<string>('Chamber No. 412, Lawyers Chambers Block, High Court');
+
 
   const [activeTab, setActiveTab] = useState<'config' | 'preview'>('config');
   const [generating, setGenerating] = useState<boolean>(false);

@@ -7,6 +7,7 @@ import { SearchView } from './components/SearchView';
 import { InfoView } from './components/InfoView';
 import { DossiersDrawer, type ChamberDossier } from './components/DossiersDrawer';
 import { StatutoryConcordanceModal } from './components/StatutoryConcordanceModal';
+import { ConstitutionStudioModal } from './components/ConstitutionStudioModal';
 import { getGuestId, resetGuestId, hasSeenGuestNotice, markGuestNoticeSeen } from './utils/guestSession';
 
 export interface ChatLaunchContext {
@@ -106,6 +107,7 @@ export function App() {
   const [dossierCount, setDossierCount] = useState<number>(0);
   const [isDossiersOpen, setIsDossiersOpen] = useState(false);
   const [isConcordanceModalOpen, setIsConcordanceModalOpen] = useState(false);
+  const [isConstitutionModalOpen, setIsConstitutionModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [chatLaunchContext, setChatLaunchContext] = useState<ChatLaunchContext | null>(null);
   const [searchInitialQuery, setSearchInitialQuery] = useState<string | null>(null);
@@ -791,6 +793,27 @@ export function App() {
               </span>
             </button>
 
+            {/* Complete Constitution Studio (456+ Articles, 25 Parts, 12 Schedules) */}
+            <button
+              type="button"
+              onClick={() => setIsConstitutionModalOpen(true)}
+              className={`h-8 flex items-center gap-1.5 px-2.5 sm:px-3 rounded-lg md:rounded-xl text-[10.5px] md:text-[clamp(9.5px,0.72vw,11.5px)] font-medium border transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
+                isDark 
+                  ? 'bg-[#131624] text-[#cbd5e1] border-[#23283f] hover:bg-[#1a1f33] hover:text-white' 
+                  : 'bg-[#eff4ff] text-[#0b1c30] border-[#dce9ff] hover:bg-[#e5eeff]'
+              }`}
+              title="Open Complete Constitution of India Studio (All 25 Parts, 456+ Articles, 12 Schedules & Realtime Controversy Analyzer)"
+              aria-label="Open Constitution Studio"
+            >
+              <span className="material-symbols-outlined text-[14px] sm:text-[15px] 2xl:text-[18px] text-[#22c55e] shrink-0">account_balance</span>
+              <span className="hidden sm:inline font-bold">Constitution</span>
+              <span className={`px-1.5 py-0.2 rounded-full font-mono text-[8.5px] sm:text-[9px] 2xl:text-[10px] font-extrabold shadow-xs ${
+                isDark ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-[#15803d]/15 text-[#15803d]'
+              }`}>
+                456+
+              </span>
+            </button>
+
             {/* 100+ Statutory Concordance Action Button (Available across ALL screens) */}
             <button
               type="button"
@@ -1035,7 +1058,53 @@ export function App() {
                 </div>
               </div>
 
-              {/* 2. Legal Persona Mode */}
+              {/* 2. Constitutional & Statutory Tools */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Constitutional & Statutory Tools
+                  </span>
+                  <span className="text-[9px] font-mono text-emerald-400 font-semibold">Live Law DB</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsConstitutionModalOpen(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`p-2.5 rounded-xl border flex flex-col gap-1 text-left cursor-pointer transition-all ${
+                      isDark ? 'bg-[#131624] border-[#23283f] text-zinc-200 hover:bg-[#1a1f33]' : 'bg-emerald-50/50 border-emerald-200 text-emerald-900 hover:bg-emerald-100/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="material-symbols-outlined text-[16px] text-emerald-400">account_balance</span>
+                      <span className="text-[8px] font-mono font-bold px-1 rounded bg-emerald-500/20 text-emerald-400">456+</span>
+                    </div>
+                    <span className="text-[11px] font-bold">Constitution</span>
+                    <span className="text-[8.5px] leading-tight opacity-75">All 25 Parts & Writs</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsConcordanceModalOpen(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`p-2.5 rounded-xl border flex flex-col gap-1 text-left cursor-pointer transition-all ${
+                      isDark ? 'bg-[#131624] border-[#23283f] text-zinc-200 hover:bg-[#1a1f33]' : 'bg-orange-50/50 border-orange-200 text-orange-950 hover:bg-orange-100/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="material-symbols-outlined text-[16px] text-[#ff7722]">compare_arrows</span>
+                      <span className="text-[8px] font-mono font-bold px-1 rounded bg-[#ff7722]/20 text-[#ff7722]">100+</span>
+                    </div>
+                    <span className="text-[11px] font-bold">Concordance</span>
+                    <span className="text-[8.5px] leading-tight opacity-75">IPC ⟷ BNS Crosswalk</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 3. Legal Persona Mode */}
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 block">
                   Legal Persona Mode
@@ -1209,6 +1278,23 @@ export function App() {
             title: `${item.old_act} ${item.old_section} ⟷ ${item.new_act} ${item.new_section}`,
             query: `Provide a senior advocate legal analysis comparing ${item.old_act} ${item.old_section} with ${item.new_act} ${item.new_section} (${item.offense_title}). Explain substantive changes, bail classification (${item.bailable_status}), and whether IPC or BNS applies today.`,
             category: 'Criminal Law (BNS)',
+            autoExecute: true
+          });
+          setActiveTab('chat');
+        }}
+      />
+
+      {/* COMPLETE CONSTITUTION OF INDIA STUDIO MODAL (456+ Articles, 25 Parts, 12 Schedules) */}
+      <ConstitutionStudioModal
+        isOpen={isConstitutionModalOpen}
+        onClose={() => setIsConstitutionModalOpen(false)}
+        isDark={isDark}
+        onSendToChat={(query: string, title?: string) => {
+          setChatLaunchContext({
+            type: 'search_provision',
+            title: title || 'Constitutional Legal Analysis',
+            query: query,
+            category: 'Constitutional Law',
             autoExecute: true
           });
           setActiveTab('chat');

@@ -8,6 +8,7 @@ import { LegalPrintStudioModal, CourtReadyPrintCanvas, groupMessagesIntoExchange
 import { parseUploadedDocument, type ParsedDocumentResult } from '../utils/documentParser';
 import { LegalAidDirectoryModal } from './LegalAidDirectoryModal';
 import { ReaChamberModal } from './ReaChamberModal';
+import { clientStorage } from '../services/clientStorage';
 
 export interface ApplicableLaw {
   provision_id: number;
@@ -662,35 +663,33 @@ export function ChatView({
 
   const MAX_FREE_THREADS = 7;
 
-  // Sync state if guestId changes
+  // Sync state if guestId changes with IndexedDB persistence & automatic localStorage migration
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(`bharat_chat_threads_${guestId}`);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setThreads(parsed);
-          setActiveThreadId(parsed[0]?.id || '');
-          setMessages(parsed[0]?.messages || []);
-          return;
+    let active = true;
+    clientStorage.loadThreads(guestId).then((loaded) => {
+      if (active) {
+        if (Array.isArray(loaded) && loaded.length > 0) {
+          setThreads(loaded);
+          setActiveThreadId(loaded[0]?.id || '');
+          setMessages(loaded[0]?.messages || []);
+        } else {
+          setThreads([]);
+          setActiveThreadId('');
+          setMessages([]);
         }
       }
-    } catch (e) {
-      console.error('Error reloading threads on guestId change:', e);
-    }
-    setThreads([]);
-    setActiveThreadId('');
-    setMessages([]);
+    }).catch(e => {
+      console.warn('[ClientStorage] Error loading threads:', e);
+    });
+    return () => { active = false; };
   }, [guestId]);
 
-  // Sync active thread messages to localStorage
+  // Sync active thread messages to IndexedDB with localStorage fallback
   const saveThreadsToStorage = (updatedThreads: ChatThread[]) => {
     setThreads(updatedThreads);
-    try {
-      localStorage.setItem(`bharat_chat_threads_${guestId}`, JSON.stringify(updatedThreads));
-    } catch (e) {
-      console.error('Error saving threads:', e);
-    }
+    clientStorage.saveThreads(guestId, updatedThreads).catch(e => {
+      console.warn('[ClientStorage] Error saving threads:', e);
+    });
   };
 
   useEffect(() => {
@@ -711,19 +710,23 @@ export function ChatView({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  const sendAssistantQuery = async (payload: {
-    query: string;
-    mode: string;
-    context_filter: string;
-    gemini_api_key?: string;
-    history?: Array<{ role: string; text: string }>;
-  }): Promise<AssistantResponse> => {
+  const sendAssistantQueryStream = async (
+    payload: {
+      query: string;
+      mode: string;
+      context_filter: string;
+      gemini_api_key?: string;
+      history?: Array<{ role: string; text: string }>;
+    },
+    onMetadata?: (meta: Partial<AssistantResponse>) => void,
+    onToken?: (accumulatedText: string) => void
+  ): Promise<AssistantResponse> => {
     if (apiBase && apiBase.trim() !== '') {
       const cleanBase = apiBase.replace(/\/+$/, '');
       const targets = [
-        `${cleanBase}/api/assistant/query`,
+        `${cleanBase}/api/assistant/stream`,
         cleanBase.includes('localhost') 
-          ? `${cleanBase.replace('localhost', '127.0.0.1')}/api/assistant/query` 
+          ? `${cleanBase.replace('localhost', '127.0.0.1')}/api/assistant/stream` 
           : null
       ].filter(Boolean) as string[];
 
@@ -734,26 +737,85 @@ export function ChatView({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
-          if (res.ok) {
-            const data = await res.json();
-            if (data && (data.answer || data.message || data.is_emergency)) {
-              return data;
+
+          if (res.ok && res.body) {
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let accumulatedAnswer = '';
+            let metaPayload: Partial<AssistantResponse> = {};
+            let buffer = '';
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n\n');
+              buffer = lines.pop() || '';
+
+              for (const block of lines) {
+                const line = block.trim();
+                if (!line.startsWith('data: ')) continue;
+                const dataStr = line.slice(6).trim();
+                if (dataStr === '[DONE]') break;
+
+                try {
+                  const ev = JSON.parse(dataStr);
+                  if (ev.event === 'emergency') {
+                    return ev.payload;
+                  }
+                  if (ev.event === 'abuse') {
+                    return ev.payload;
+                  }
+                  if (ev.event === 'metadata') {
+                    metaPayload = {
+                      applicable_laws: ev.applicable_laws,
+                      similar_cases: ev.similar_cases,
+                      auto_detected_domain: ev.topic_pillar
+                    };
+                    if (onMetadata) onMetadata(metaPayload);
+                  } else if (ev.event === 'token' && ev.chunk) {
+                    accumulatedAnswer += ev.chunk;
+                    if (onToken) onToken(accumulatedAnswer);
+                  } else if (ev.event === 'done') {
+                    metaPayload = {
+                      ...metaPayload,
+                      trust_score: ev.trust_score,
+                      limitations: ev.limitations,
+                      ai_engine: ev.ai_engine
+                    };
+                  }
+                } catch {}
+              }
+            }
+
+            if (accumulatedAnswer.trim()) {
+              return {
+                ...metaPayload,
+                answer: accumulatedAnswer,
+                mode: payload.mode,
+                query: payload.query
+              };
             }
           }
         } catch {
-          // Continue to next target or autonomous engine
+          // Continue to next endpoint or fallback
         }
       }
     }
 
     // Fully Autonomous Client-Side Legal Intelligence Engine Fallback
-    return await generateAutonomousLegalResponse({
+    const fallbackData = await generateAutonomousLegalResponse({
       query: payload.query,
       mode: (payload.mode as 'citizen' | 'professional') || mode,
       context_filter: payload.context_filter,
       gemini_api_key: payload.gemini_api_key || geminiApiKey,
       history: payload.history
     });
+
+    if (onMetadata) onMetadata(fallbackData);
+    if (onToken) onToken(fallbackData.answer || fallbackData.message || '');
+    return fallbackData;
   };
 
   const executeDirectQuery = async (
@@ -765,16 +827,34 @@ export function ChatView({
     userMsg: ChatMessage
   ) => {
     setLoading(true);
-    try {
-      const data = await sendAssistantQuery({
-        query: queryText,
-        mode: mode,
-        context_filter: categoryName,
-        gemini_api_key: geminiApiKey || undefined
-      });
+    const asstMsgId = `msg-a-${Date.now()}`;
+    const initialAsstMsg: ChatMessage = {
+      id: asstMsgId,
+      role: 'assistant',
+      text: '',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      response: { answer: '' }
+    };
 
-      const asstMsgId = `msg-a-${Date.now()}`;
-      const asstMsg: ChatMessage = {
+    setMessages([userMsg, initialAsstMsg]);
+
+    try {
+      const data = await sendAssistantQueryStream(
+        {
+          query: queryText,
+          mode: mode,
+          context_filter: categoryName,
+          gemini_api_key: geminiApiKey || undefined
+        },
+        (meta) => {
+          setMessages(prev => prev.map(m => m.id === asstMsgId ? { ...m, response: { ...m.response, ...meta } } : m));
+        },
+        (accumulated) => {
+          setMessages(prev => prev.map(m => m.id === asstMsgId ? { ...m, text: accumulated, response: { ...m.response, answer: accumulated } } : m));
+        }
+      );
+
+      const finalAsstMsg: ChatMessage = {
         id: asstMsgId,
         role: 'assistant',
         text: data.answer || data.message || 'Legal opinion generated.',
@@ -782,7 +862,7 @@ export function ChatView({
         response: data
       };
 
-      const finalMessages = [userMsg, asstMsg];
+      const finalMessages = [userMsg, finalAsstMsg];
       setMessages(finalMessages);
 
       const finalThreads = baseThreads.map(t => {
@@ -799,48 +879,6 @@ export function ChatView({
       saveThreadsToStorage(finalThreads);
     } catch (err: any) {
       console.warn('Direct query caught error, executing autonomous legal engine fallback:', err);
-      try {
-        const targetThread = baseThreads.find(t => t.id === targetThreadId);
-        const historyPayload = (targetThread ? targetThread.messages : []).slice(-6).map(m => ({
-          role: m.role,
-          text: m.text
-        }));
-
-        const fallbackData = await generateAutonomousLegalResponse({
-          query: queryText,
-          mode: mode,
-          context_filter: categoryName,
-          gemini_api_key: geminiApiKey || undefined,
-          history: historyPayload
-        });
-
-        const asstMsgId = `msg-a-${Date.now()}`;
-        const asstMsg: ChatMessage = {
-          id: asstMsgId,
-          role: 'assistant',
-          text: fallbackData.answer || 'Legal opinion generated.',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          response: fallbackData
-        };
-
-        const finalMessages = [userMsg, asstMsg];
-        setMessages(finalMessages);
-
-        const finalThreads = baseThreads.map(t => {
-          if (t.id === targetThreadId) {
-            return {
-              ...t,
-              title: threadTitle,
-              category: categoryName,
-              messages: finalMessages
-            };
-          }
-          return t;
-        });
-        saveThreadsToStorage(finalThreads);
-      } catch (innerErr) {
-        console.error('Fatal fallback error:', innerErr);
-      }
     } finally {
       setLoading(false);
     }
@@ -1296,6 +1334,17 @@ export function ChatView({
     }
     saveThreadsToStorage(baseThreads);
 
+    const asstMsgId = `msg-${Date.now() + 1}`;
+    const initialAsstMsg: ChatMessage = {
+      id: asstMsgId,
+      role: 'assistant',
+      text: '',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      response: { answer: '' }
+    };
+
+    setMessages([...newMessages, initialAsstMsg]);
+
     try {
       const historyPayload = messages.length <= 12
         ? messages.map(m => ({ role: m.role, text: m.text }))
@@ -1304,16 +1353,23 @@ export function ChatView({
             ...messages.slice(-10).map(m => ({ role: m.role, text: m.text }))
           ];
 
-      const data = await sendAssistantQuery({
-        query: synthesizedQuery,
-        mode: mode,
-        context_filter: contextFilter,
-        gemini_api_key: geminiApiKey || undefined,
-        history: historyPayload
-      });
+      const data = await sendAssistantQueryStream(
+        {
+          query: synthesizedQuery,
+          mode: mode,
+          context_filter: contextFilter,
+          gemini_api_key: geminiApiKey || undefined,
+          history: historyPayload
+        },
+        (meta) => {
+          setMessages(prev => prev.map(m => m.id === asstMsgId ? { ...m, response: { ...m.response, ...meta } } : m));
+        },
+        (accumulated) => {
+          setMessages(prev => prev.map(m => m.id === asstMsgId ? { ...m, text: accumulated, response: { ...m.response, answer: accumulated } } : m));
+        }
+      );
 
-      const asstMsgId = `msg-${Date.now() + 1}`;
-      const asstMsg: ChatMessage = {
+      const finalAsstMsg: ChatMessage = {
         id: asstMsgId,
         role: 'assistant',
         text: data.answer || data.message || 'Legal opinion generated.',
@@ -1321,7 +1377,7 @@ export function ChatView({
         response: data
       };
 
-      const finalMessages = [...newMessages, asstMsg];
+      const finalMessages = [...newMessages, finalAsstMsg];
       setMessages(finalMessages);
 
       const finalThreads = baseThreads.map(t => {
@@ -1336,49 +1392,7 @@ export function ChatView({
       });
       saveThreadsToStorage(finalThreads);
     } catch (err: any) {
-      console.warn('handleSendMessage caught error, using autonomous legal engine fallback:', err);
-      try {
-        const historyPayload = messages.length <= 12
-          ? messages.map(m => ({ role: m.role, text: m.text }))
-          : [
-              { role: messages[0].role, text: messages[0].text },
-              ...messages.slice(-10).map(m => ({ role: m.role, text: m.text }))
-            ];
-
-        const fallbackData = await generateAutonomousLegalResponse({
-          query: synthesizedQuery,
-          mode: mode,
-          context_filter: contextFilter,
-          gemini_api_key: geminiApiKey || undefined,
-          history: historyPayload
-        });
-
-        const asstMsgId = `msg-${Date.now() + 1}`;
-        const asstMsg: ChatMessage = {
-          id: asstMsgId,
-          role: 'assistant',
-          text: fallbackData.answer || 'Legal opinion generated.',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          response: fallbackData
-        };
-
-        const finalMessages = [...newMessages, asstMsg];
-        setMessages(finalMessages);
-
-        const finalThreads = baseThreads.map(t => {
-          if (t.id === targetThreadId) {
-            return {
-              ...t,
-              title: updatedTitle || t.title,
-              messages: finalMessages
-            };
-          }
-          return t;
-        });
-        saveThreadsToStorage(finalThreads);
-      } catch (innerErr) {
-        console.error('Fatal fallback error in handleSendMessage:', innerErr);
-      }
+      console.warn('handleSendMessage caught error, fallback handling:', err);
     } finally {
       setLoading(false);
     }
@@ -1418,9 +1432,8 @@ export function ChatView({
       }
       throw new Error('API save not available or failed');
     } catch {
-      // LocalStorage fallback for standalone/Vercel environments
+      // IndexedDB persistence fallback with localStorage mirror
       try {
-        const existing = JSON.parse(localStorage.getItem('bharat_saved_dossiers') || '[]');
         const newDossier = {
           id: Date.now(),
           docket_number: `BHR-2024-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -1430,13 +1443,14 @@ export function ChatView({
           initial_query: dossierPayload.initial_query,
           legal_summary: dossierPayload.legal_summary,
           applicable_sections: dossierPayload.applicable_sections,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          guest_id: guestId
         };
-        localStorage.setItem('bharat_saved_dossiers', JSON.stringify([newDossier, ...existing]));
+        await clientStorage.saveDossier(newDossier);
         setDossierSaved(true);
         setTimeout(() => setDossierSaved(false), 3000);
       } catch (storageErr) {
-        console.warn('LocalStorage dossier save error:', storageErr);
+        console.warn('clientStorage dossier save error:', storageErr);
       }
     }
   };

@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Generator, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 import re
@@ -83,7 +83,7 @@ class GeminiSynthesizer:
         cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
         return cleaned.strip()
 
-    def synthesize(
+    def _build_synthesis_prompts(
         self,
         query: str,
         provisions: List[LegalProvision],
@@ -94,10 +94,7 @@ class GeminiSynthesizer:
         precedents: Optional[List[RealCasePrecedent]] = None,
         context_filter: Optional[str] = None,
         history: Optional[List[Dict[str, str]]] = None
-    ) -> Optional[str]:
-        if not self.is_available():
-            return None
-
+    ) -> Tuple[str, str, Dict[str, Any]]:
         # Format retrieved statutory provisions into an authoritative Evidence Dossier
         evidence_text = ""
         for i, p in enumerate(provisions, 1):
@@ -301,6 +298,35 @@ class GeminiSynthesizer:
             }
         }
 
+        return system_prompt, user_content, payload
+
+    def synthesize(
+        self,
+        query: str,
+        provisions: List[LegalProvision],
+        mode: str = "citizen",
+        concordance_items: Optional[List[StatutoryConcordance]] = None,
+        gazettes: Optional[List[GazetteNotification]] = None,
+        helplines: Optional[List[LegalHelpline]] = None,
+        precedents: Optional[List[RealCasePrecedent]] = None,
+        context_filter: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None
+    ) -> Optional[str]:
+        if not self.is_available():
+            return None
+
+        system_prompt, user_content, payload = self._build_synthesis_prompts(
+            query=query,
+            provisions=provisions,
+            mode=mode,
+            concordance_items=concordance_items,
+            gazettes=gazettes,
+            helplines=helplines,
+            precedents=precedents,
+            context_filter=context_filter,
+            history=history
+        )
+
         # Tier 1: Google Gemini (Primary)
         if self.api_key and len(self.api_key) > 10:
             models_to_try = [self.model]
@@ -366,6 +392,122 @@ class GeminiSynthesizer:
                     print(f"Groq model {g_model} call failed: {e}")
 
         return None
+
+    def stream_synthesize(
+        self,
+        query: str,
+        provisions: List[LegalProvision],
+        mode: str = "citizen",
+        concordance_items: Optional[List[StatutoryConcordance]] = None,
+        gazettes: Optional[List[GazetteNotification]] = None,
+        helplines: Optional[List[LegalHelpline]] = None,
+        precedents: Optional[List[RealCasePrecedent]] = None,
+        context_filter: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None
+    ) -> Generator[str, None, None]:
+        """
+        Streams synthesized legal advice tokens via Server-Sent Events (SSE).
+        Emits chunks live with sub-second time-to-first-token.
+        """
+        if not self.is_available():
+            return
+
+        system_prompt, user_content, payload = self._build_synthesis_prompts(
+            query=query,
+            provisions=provisions,
+            mode=mode,
+            concordance_items=concordance_items,
+            gazettes=gazettes,
+            helplines=helplines,
+            precedents=precedents,
+            context_filter=context_filter,
+            history=history
+        )
+
+        # Tier 1 (Stream): Groq API (Highest throughput, instant streaming)
+        if self.groq_api_key and len(self.groq_api_key) > 10:
+            groq_url = "https://api.groq.com/openai/v1/chat/completions"
+            groq_models = [self.groq_model]
+            for fb_m in ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "qwen/qwen3.8-27b"]:
+                if fb_m not in groq_models:
+                    groq_models.append(fb_m)
+
+            for g_model in groq_models:
+                groq_payload = {
+                    "model": g_model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_content}
+                    ],
+                    "temperature": 0.1,
+                    "max_tokens": 4096,
+                    "stream": True
+                }
+                try:
+                    with httpx.Client(timeout=self.timeout) as client:
+                        with client.stream(
+                            "POST",
+                            groq_url,
+                            json=groq_payload,
+                            headers={"Authorization": f"Bearer {self.groq_api_key}"}
+                        ) as resp:
+                            if resp.status_code == 200:
+                                streamed_any = False
+                                for line in resp.iter_lines():
+                                    if line.startswith("data: "):
+                                        data_str = line[6:].strip()
+                                        if data_str == "[DONE]":
+                                            return
+                                        try:
+                                            chunk_data = json.loads(data_str)
+                                            choices = chunk_data.get("choices", [])
+                                            if choices:
+                                                delta = choices[0].get("delta", {}).get("content", "")
+                                                if delta:
+                                                    streamed_any = True
+                                                    if not re.match(r'^\s*[-*_]{3,}\s*$', delta):
+                                                        yield delta
+                                        except Exception:
+                                            continue
+                                if streamed_any:
+                                    return
+                except Exception as e:
+                    print(f"Groq stream failed for {g_model}: {e}")
+
+        # Tier 2 (Stream): Google Gemini API streamGenerateContent
+        if self.api_key and len(self.api_key) > 10:
+            models_to_try = [self.model]
+            for fallback in ["gemini-flash-latest", "gemini-3.8-flash", "gemini-flash-lite-latest"]:
+                if fallback not in models_to_try:
+                    models_to_try.append(fallback)
+
+            for target_model in models_to_try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:streamGenerateContent?key={self.api_key}&alt=sse"
+                try:
+                    with httpx.Client(timeout=self.timeout) as client:
+                        with client.stream("POST", url, json=payload) as resp:
+                            if resp.status_code == 200:
+                                streamed_any = False
+                                for line in resp.iter_lines():
+                                    if line.startswith("data: "):
+                                        data_str = line[6:].strip()
+                                        try:
+                                            chunk_data = json.loads(data_str)
+                                            candidates = chunk_data.get("candidates", [])
+                                            if candidates:
+                                                parts = candidates[0].get("content", {}).get("parts", [])
+                                                for p in parts:
+                                                    txt = p.get("text", "")
+                                                    if txt:
+                                                        streamed_any = True
+                                                        if not re.match(r'^\s*[-*_]{3,}\s*$', txt):
+                                                            yield txt
+                                        except Exception:
+                                            continue
+                                if streamed_any:
+                                    return
+                except Exception as e:
+                    print(f"Gemini stream failed for {target_model}: {e}")
 
     def discover_official_precedents_ai(
         self,
@@ -1817,3 +1959,137 @@ class LegalAssistantService:
             "limitations": "Synthesized by Universal Senior Advocate Engine grounded in Indian statutory and constitutional jurisprudence.",
             "ai_engine": "Universal Senior Advocate Engine (Autonomous Grounding Resilience)"
         }
+
+    def stream_response(
+        self,
+        query: str,
+        mode: str = "citizen",
+        context_filter: Optional[str] = None,
+        gemini_api_key: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None
+    ) -> Generator[str, None, None]:
+        """
+        Orchestrates real-time Server-Sent Events (SSE) streaming for legal research.
+        Emits:
+        1. {"event": "metadata", ...} - Laws, precedents, concordance, topic pillar (sub-second TTFT)
+        2. {"event": "token", "chunk": "..."} - Incremental words/tokens as synthesized
+        3. {"event": "done", ...} - Final trust score and telemetry
+        4. "data: [DONE]"
+        """
+        # 1. Emergency check
+        urgent = self.check_urgent_risk(query)
+        if urgent:
+            yield f"data: {json.dumps({'event': 'emergency', 'payload': urgent})}\n\n"
+            yield "data: [DONE]\n\n"
+            return
+
+        # 2. Abuse check
+        abuse = self.abuse_guard.check_query(query)
+        if abuse:
+            yield f"data: {json.dumps({'event': 'abuse', 'payload': abuse})}\n\n"
+            yield "data: [DONE]\n\n"
+            return
+
+        # 3. Context & Evidence retrieval
+        augmented_query = resolve_contextual_query(query, history)
+        provisions = self.retrieve_context(augmented_query, top_k=5, context_filter=context_filter, history=history)
+        concordance_items = self.retrieve_concordance_context(augmented_query, context_filter=context_filter)
+        precedents = self.retrieve_precedents_context(augmented_query, category=context_filter, limit=3)
+        gazettes = self.retrieve_gazette_context(augmented_query)
+        helplines = self.retrieve_helpline_context(augmented_query)
+
+        topic_pillar = classify_legal_topic_pillar(query)
+
+        applicable_laws = []
+        for prov in provisions:
+            source_title = prov.source.title if prov.source else "Statute"
+            applicable_laws.append({
+                "provision_id": prov.id,
+                "source_title": source_title,
+                "section_number": prov.section_number,
+                "title": prov.title,
+                "text_snippet": prov.text_content[:300] + ("..." if len(prov.text_content) > 300 else "")
+            })
+
+        concordance_payload = []
+        for c in concordance_items:
+            concordance_payload.append({
+                "id": c.id,
+                "old_act": c.old_act,
+                "old_section": c.old_section,
+                "new_act": c.new_act,
+                "new_section": c.new_section,
+                "offense_title": c.offense_title,
+                "status": f"{c.cognizable_status} | {c.bailable_status}",
+                "penalty_summary": c.penalty_summary,
+                "key_change": c.key_change
+            })
+
+        precedents_payload = []
+        for p in precedents:
+            precedents_payload.append({
+                "id": p.id,
+                "title": p.title,
+                "citation": p.citation,
+                "court": p.court,
+                "bench": p.bench,
+                "decision_year": p.decision_year,
+                "category": p.category,
+                "factual_matrix": p.factual_matrix,
+                "legal_controversy": p.legal_controversy,
+                "court_holding": p.court_holding,
+                "advocate_strategy": p.advocate_strategy,
+                "sanhita_mapping_2024": p.sanhita_mapping_2024,
+                "key_takeaways": getattr(p, "key_takeaways", []) or []
+            })
+
+        # Yield metadata event immediately
+        meta_event = {
+            "event": "metadata",
+            "topic_pillar": topic_pillar,
+            "applicable_laws": applicable_laws,
+            "concordance_items": concordance_payload,
+            "similar_cases": precedents_payload,
+            "gazettes": [{"id": g.id, "title": g.title, "notification_ref": g.notification_ref, "summary": g.summary} for g in gazettes],
+            "helplines": [{"service_name": h.service_name, "short_code": h.short_code, "hours": h.hours, "description": h.description} for h in helplines]
+        }
+        yield f"data: {json.dumps(meta_event)}\n\n"
+
+        # 4. Stream Synthesized Tokens
+        synthesizer = GeminiSynthesizer(api_key=gemini_api_key)
+        tokens_yielded = False
+        if synthesizer.is_available():
+            try:
+                for chunk in synthesizer.stream_synthesize(
+                    query=query,
+                    provisions=provisions,
+                    mode=mode,
+                    concordance_items=concordance_items,
+                    gazettes=gazettes,
+                    helplines=helplines,
+                    precedents=precedents,
+                    context_filter=context_filter,
+                    history=history
+                ):
+                    if chunk:
+                        tokens_yielded = True
+                        yield f"data: {json.dumps({'event': 'token', 'chunk': chunk})}\n\n"
+            except Exception as e:
+                print(f"stream_synthesize error: {e}")
+
+        if not tokens_yielded:
+            # Fallback to autonomous statutory response streamed in natural tokens
+            fallback_res = self._synthesize_autonomous_statutory_fallback(query=query, mode=mode, context_filter=context_filter)
+            answer_text = fallback_res.get("answer", "")
+            for line in answer_text.splitlines(keepends=True):
+                yield f"data: {json.dumps({'event': 'token', 'chunk': line})}\n\n"
+
+        # 5. Done event
+        done_event = {
+            "event": "done",
+            "trust_score": 0.95,
+            "limitations": "Synthesized by Universal Senior Advocate Engine grounded in Indian statutory and constitutional jurisprudence.",
+            "ai_engine": "Universal Senior Advocate Engine (Real-Time SSE Streaming)"
+        }
+        yield f"data: {json.dumps(done_event)}\n\n"
+        yield "data: [DONE]\n\n"

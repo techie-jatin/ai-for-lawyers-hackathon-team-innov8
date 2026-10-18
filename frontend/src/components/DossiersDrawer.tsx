@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import { clientStorage } from '../services/clientStorage';
 
 export interface ChamberDossier {
   id: number;
@@ -50,12 +51,12 @@ export function DossiersDrawer({
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data)) {
-            const localSaved: ChamberDossier[] = JSON.parse(localStorage.getItem('bharat_saved_dossiers') || '[]');
+            const localSaved = await clientStorage.loadDossiers(guestId);
             const combinedMap = new Map<string, ChamberDossier>();
             data.forEach(d => combinedMap.set(d.docket_number || String(d.id), d));
             localSaved.forEach(d => {
               const key = d.docket_number || String(d.id);
-              if (!combinedMap.has(key)) combinedMap.set(key, d);
+              if (!combinedMap.has(key)) combinedMap.set(key, d as ChamberDossier);
             });
             const merged = Array.from(combinedMap.values());
             setDossiers(merged);
@@ -66,8 +67,8 @@ export function DossiersDrawer({
       }
       throw new Error('Local fallback');
     } catch {
-      const localSaved: ChamberDossier[] = JSON.parse(localStorage.getItem('bharat_saved_dossiers') || '[]');
-      setDossiers(localSaved);
+      const localSaved = await clientStorage.loadDossiers(guestId);
+      setDossiers(localSaved as ChamberDossier[]);
       if (onDossierCountChange) onDossierCountChange(localSaved.length);
     } finally {
       setLoading(false);
@@ -89,11 +90,7 @@ export function DossiersDrawer({
     } finally {
       const updated = dossiers.filter(d => d.id !== id);
       setDossiers(updated);
-      try {
-        const localSaved: ChamberDossier[] = JSON.parse(localStorage.getItem('bharat_saved_dossiers') || '[]');
-        const updatedLocal = localSaved.filter(d => d.id !== id);
-        localStorage.setItem('bharat_saved_dossiers', JSON.stringify(updatedLocal));
-      } catch {}
+      await clientStorage.deleteDossier(id);
       if (onDossierCountChange) onDossierCountChange(updated.length);
     }
   };

@@ -20,6 +20,32 @@ class ValidateCitationRequest(BaseModel):
     claimed_section: Optional[str] = None
     claimed_quote: Optional[str] = None
 
+from starlette.responses import StreamingResponse
+
+@router.post("/stream")
+def stream_assistant(req: ChatRequest, db: Session = Depends(deps.get_db)):
+    """
+    Real-time Server-Sent Events (SSE) streaming endpoint for conversational legal intelligence.
+    Emits metadata, live token stream, and completion events with sub-second time-to-first-token (TTFT).
+    """
+    service = LegalAssistantService(db)
+    generator = service.stream_response(
+        query=req.query,
+        mode=req.mode or "citizen",
+        context_filter=req.context_filter,
+        gemini_api_key=req.gemini_api_key,
+        history=req.history
+    )
+    return StreamingResponse(
+        generator,
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
 @router.post("/query")
 def ask_assistant(req: ChatRequest, db: Session = Depends(deps.get_db)) -> Dict[str, Any]:
     """

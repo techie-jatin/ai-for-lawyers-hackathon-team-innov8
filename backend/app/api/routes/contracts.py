@@ -715,3 +715,37 @@ def audit_contract(req: AuditContractRequest) -> AuditContractResponse:
         risk_items=risk_items,
         ai_engine="Bharat Contract Intelligence Guardrail (Indian Contract Act 1872 & DPDP)"
     )
+
+
+# ==========================================
+# SENIOR ADVOCATE DYNAMIC BRAIN ENDPOINTS
+# (Zero Hardcoding - Real-Time Case Analysis)
+# ==========================================
+
+class BrainAnalyzeRequest(BaseModel):
+    facts: str = Field(..., min_length=5, max_length=15000)
+    anchor_date: Optional[str] = Field(None, max_length=20)
+
+class BrainPleadingRequest(BaseModel):
+    facts: str = Field(..., min_length=5, max_length=15000)
+    overrides: Optional[Dict[str, str]] = None
+
+class BrainCounterStrategyRequest(BaseModel):
+    facts: str = Field(..., min_length=5, max_length=15000)
+    overrides: Optional[Dict[str, str]] = None
+
+@router.post("/brain/analyze")
+def analyze_dispute_with_brain(req: BrainAnalyzeRequest):
+    from app.services.senior_advocate_brain import SeniorAdvocateBrain
+    return SeniorAdvocateBrain.generate_custom_dispute_timeline(req.facts, req.anchor_date)
+
+@router.post("/brain/pleading")
+def generate_pleading_with_brain(req: BrainPleadingRequest):
+    from app.services.senior_advocate_brain import SeniorAdvocateBrain
+    return SeniorAdvocateBrain.generate_custom_court_pleading(req.facts, req.overrides)
+
+@router.post("/brain/counter-strategy")
+def generate_counter_strategy_with_brain(req: BrainCounterStrategyRequest):
+    from app.services.senior_advocate_brain import SeniorAdvocateBrain
+    return SeniorAdvocateBrain.generate_custom_counter_strategy(req.facts, req.overrides)
+

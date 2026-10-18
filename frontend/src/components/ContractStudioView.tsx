@@ -977,27 +977,27 @@ FOR ${partyB.toUpperCase()}: ______________________`;
         <div className="max-w-[1240px] mx-auto space-y-5">
           {studioMode === 'counter_strategy' ? (
             /* ================= MODE 6: DEFENSIVE COUNTER-STRATEGY ================= */
-            <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <CounterStrategyStudio isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'timeline' ? (
             /* ================= MODE 5: INTERACTIVE DISPUTE TIMELINE ================= */
-            <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <DisputeTimelineVisualizer isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'bsa_cert' ? (
             /* ================= MODE 4: SECTION 63 BSA ELECTRONIC EVIDENCE CERTIFICATE ================= */
-            <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <BsaCertificateStudio isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'cleanroom' ? (
             /* ================= MODE 3: CLEAN-ROOM CLAUSE REWRITER & E-STAMPING ================= */
-            <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <CleanroomStampingStudio isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'pleadings' ? (
             /* ================= MODE 0: COURT PLEADINGS & NOTICES ================= */
-            <div className="min-h-[750px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+            <div className="h-[82vh] min-h-[680px] max-h-[920px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col">
               <CourtPleadingStudio isDark={isDark} apiBase={resolvedApiBase} />
             </div>
           ) : studioMode === 'generator' ? (

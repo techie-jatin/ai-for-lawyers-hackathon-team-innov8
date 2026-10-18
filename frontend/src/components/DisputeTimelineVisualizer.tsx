@@ -5,23 +5,51 @@ import {
   type CalculatedTimeline,
   type TimelineMilestone
 } from '../services/clientTimelineEngine';
+import {
+  generateCustomDisputeTimeline,
+  extractDisputeEntities
+} from '../services/clientSeniorAdvocateBrain';
 
 interface DisputeTimelineVisualizerProps {
   isDark: boolean;
   apiBase?: string;
   initialArchetype?: string;
   initialAnchorDate?: string;
+  initialFacts?: string;
   onClose?: () => void;
 }
+
+const SAMPLE_CASE_SNIPPETS = [
+  {
+    label: '🏠 Tenancy Deposit',
+    facts: 'I rented an apartment in Bengaluru on 1st March 2025. I vacated on 31st January 2026 after 30 days notice. The landlord Ramesh Rao has withheld my ₹85,000 security deposit citing false painting charges.'
+  },
+  {
+    label: '📜 Cheque Bounce',
+    facts: 'M/s Skyline Infra issued a cheque of ₹4,50,000 on 10-09-2026 which bounced with return memo dated 12-09-2026 for insufficient funds. They have refused to pay despite calls.'
+  },
+  {
+    label: '🛡️ Consumer Deficiency',
+    facts: 'I purchased an electronic appliance on Flipkart on 15-05-2025 for ₹38,000. It arrived defective, customer service closed tickets without resolution, and warranty refund was rejected on 25-05-2025.'
+  },
+  {
+    label: '🏢 Builder RERA Delay',
+    facts: 'I booked a flat with Apex Promoters in Noida for ₹65 Lakhs on 10-01-2023. Promised possession date was 31-12-2024. Project is halted and promoter refuses interest or refund.'
+  },
+  {
+    label: '⚖️ False FIR Quashing',
+    facts: 'Opposite party filed a false criminal complaint under Sections 318 & 351 BNS on 14-03-2026 at P.S. Connaught Place to extort money arising out of a purely civil contractual disagreement.'
+  }
+];
 
 export function DisputeTimelineVisualizer({
   isDark,
   apiBase,
   initialArchetype = 'cheque_bounce_138_ni',
   initialAnchorDate,
+  initialFacts,
   onClose
 }: DisputeTimelineVisualizerProps) {
-  // Today formatted as YYYY-MM-DD
   const todayStr = useMemo(() => {
     const d = new Date();
     const y = d.getFullYear();
@@ -30,47 +58,93 @@ export function DisputeTimelineVisualizer({
     return `${y}-${m}-${day}`;
   }, []);
 
+  // Mode: Custom Brain (real-world arbitrary case) vs Static Archetypes
+  const [activeMode, setActiveMode] = useState<'custom_brain' | 'archetype'>(
+    initialFacts ? 'custom_brain' : 'custom_brain'
+  );
+
+  const [customFacts, setCustomFacts] = useState<string>(
+    initialFacts || SAMPLE_CASE_SNIPPETS[0].facts
+  );
   const [selectedArchetypeKey, setSelectedArchetypeKey] = useState<string>(initialArchetype);
   const [anchorDate, setAnchorDate] = useState<string>(initialAnchorDate || todayStr);
   const [selectedMilestone, setSelectedMilestone] = useState<TimelineMilestone | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
-  const [timelineData, setTimelineData] = useState<CalculatedTimeline>(() =>
-    calculateClientTimeline(initialArchetype, initialAnchorDate || todayStr)
-  );
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
-  // Recalculate timeline on archetype or date changes
-  useEffect(() => {
-    const calculate = async () => {
-      if (apiBase) {
-        try {
-          const res = await fetch(`${apiBase}/api/contracts/timeline/calculate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              archetype_key: selectedArchetypeKey,
-              anchor_date: anchorDate
-            })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setTimelineData(data);
-            return;
-          }
-        } catch {
-          // Fall back gracefully to client engine
+  // Initial timeline calculation
+  const [timelineData, setTimelineData] = useState<CalculatedTimeline>(() => {
+    if (initialFacts) {
+      return generateCustomDisputeTimeline(initialFacts, initialAnchorDate || todayStr);
+    }
+    return generateCustomDisputeTimeline(SAMPLE_CASE_SNIPPETS[0].facts, initialAnchorDate || todayStr);
+  });
+
+  // Calculate timeline when mode, archetype, or custom facts change
+  const handleAnalyzeCustomDispute = async (factsToAnalyze?: string) => {
+    const text = factsToAnalyze || customFacts;
+    if (!text.trim()) return;
+
+    setIsAnalyzing(true);
+    if (apiBase) {
+      try {
+        const res = await fetch(`${apiBase}/api/contracts/brain/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            facts: text,
+            anchor_date: anchorDate
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTimelineData(data);
+          setIsAnalyzing(false);
+          return;
         }
+      } catch {
+        // Fall back gracefully to browser client engine
       }
-      const clientCalc = calculateClientTimeline(selectedArchetypeKey, anchorDate);
-      setTimelineData(clientCalc);
-    };
+    }
 
-    calculate();
-  }, [selectedArchetypeKey, anchorDate, apiBase]);
+    const clientRes = generateCustomDisputeTimeline(text, anchorDate);
+    setTimelineData(clientRes);
+    setIsAnalyzing(false);
+  };
 
-  // Update selected milestone when milestones change
+  // When switching to archetype mode or changing archetype
   useEffect(() => {
-    if (timelineData.milestones.length > 0) {
-      // Default to the first deadline or first active milestone
+    if (activeMode === 'archetype') {
+      const calculateArchetype = async () => {
+        if (apiBase) {
+          try {
+            const res = await fetch(`${apiBase}/api/contracts/timeline/calculate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                archetype_key: selectedArchetypeKey,
+                anchor_date: anchorDate
+              })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              setTimelineData(data);
+              return;
+            }
+          } catch {
+            // fallback
+          }
+        }
+        const clientCalc = calculateClientTimeline(selectedArchetypeKey, anchorDate);
+        setTimelineData(clientCalc);
+      };
+      calculateArchetype();
+    }
+  }, [activeMode, selectedArchetypeKey, anchorDate, apiBase]);
+
+  // Update selected milestone whenever timeline data updates
+  useEffect(() => {
+    if (timelineData.milestones && timelineData.milestones.length > 0) {
       const deadline = timelineData.milestones.find(m => m.is_deadline) || timelineData.milestones[0];
       setSelectedMilestone(deadline);
     }
@@ -87,15 +161,21 @@ export function DisputeTimelineVisualizer({
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
-    setAnchorDate(`${y}-${m}-${day}`);
+    const newDate = `${y}-${m}-${day}`;
+    setAnchorDate(newDate);
+
+    if (activeMode === 'custom_brain') {
+      handleAnalyzeCustomDispute(customFacts);
+    }
   };
 
   // Copy structured Synopsis & List of Dates for court filing
   const handleCopyCourtChronology = () => {
+    const matterTitle = timelineData.dispute_title || activeArchetype.title;
     const lines = [
       `SYNOPSIS & CHRONOLOGICAL LIST OF DATES & EVENTS`,
-      `MATTER: ${activeArchetype.title.toUpperCase()}`,
-      `STATUTORY FRAMEWORK: ${activeArchetype.statute_badge}`,
+      `MATTER: ${matterTitle.toUpperCase()}`,
+      `STATUTORY FRAMEWORK: ${timelineData.statute_badge}`,
       `ANCHOR DATE: ${timelineData.anchor_date}`,
       `LIMITATION STATUS: ${timelineData.limitation_summary.urgency_rating} (${timelineData.limitation_summary.remedy_status})`,
       ``,
@@ -136,12 +216,14 @@ export function DisputeTimelineVisualizer({
       return;
     }
 
+    const matterTitle = timelineData.dispute_title || activeArchetype.title;
+
     doc.open();
     doc.write(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Chronological List of Dates and Events - ${activeArchetype.title}</title>
+  <title>Chronological List of Dates and Events - ${matterTitle}</title>
   <style>
     @page { size: A4 portrait; margin: 20mm 15mm 20mm 20mm; }
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -162,7 +244,7 @@ export function DisputeTimelineVisualizer({
   <div class="header">
     <h2>Chronological List of Dates & Events</h2>
     <p>Admissibility & Limitation Chart under the Limitation Act, 1963</p>
-    <p>Matter: ${activeArchetype.title} • Statutory Base: ${activeArchetype.statute_badge}</p>
+    <p>Matter: ${matterTitle} • Statutory Base: ${timelineData.statute_badge}</p>
   </div>
 
   <p><strong>Primary Limitation Deadline:</strong> ${timelineData.limitation_summary.name} on ${timelineData.limitation_summary.date} (${timelineData.limitation_summary.days_remaining >= 0 ? `${timelineData.limitation_summary.days_remaining} days remaining` : `Expired ${Math.abs(timelineData.limitation_summary.days_remaining)} days ago`})</p>
@@ -195,7 +277,7 @@ export function DisputeTimelineVisualizer({
   </table>
 
   <div class="footer">
-    Generated via Bharat Legal Intelligence 2.0 • Senior Advocate Verification Engine
+    Generated via Bharat Legal Intelligence 2.0 • Senior Advocate Dynamic Case Engine
   </div>
 </body>
 </html>`);
@@ -224,12 +306,12 @@ export function DisputeTimelineVisualizer({
   };
 
   return (
-    <div className={`w-full rounded-2xl flex flex-col font-sans transition-colors ${
+    <div className={`w-full h-full flex flex-col overflow-hidden rounded-2xl font-sans transition-colors ${
       isDark ? 'bg-[#0b0d17] text-slate-100' : 'bg-slate-50 text-slate-900'
     }`}>
-      {/* 1. TOP HEADER & ARCHETYPE SELECTOR */}
-      <div className={`p-4 sm:p-5 border-b flex flex-col gap-4 ${
-        isDark ? 'bg-[#101322] border-slate-800' : 'bg-white border-slate-200'
+      {/* 1. TOP HEADER & MODE CONTROLS */}
+      <div className={`p-4 sm:p-5 border-b shrink-0 flex flex-col gap-3 ${
+        isDark ? 'bg-[#101322] border-slate-800' : 'bg-white border-slate-200 shadow-xs'
       }`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -239,16 +321,21 @@ export function DisputeTimelineVisualizer({
               <span className="material-symbols-outlined text-[22px]">event_repeat</span>
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-[17px] font-black tracking-tight">
-                  Interactive Dispute Timeline Visualizer
+                  Dispute Timeline & Limitation Visualizer
                 </h2>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/25">
                   Limitation Act 1963
                 </span>
+                {timelineData.dispute_title && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/25">
+                    Live Case Analysis
+                  </span>
+                )}
               </div>
               <p className={`text-[12px] mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                Algorithmic statutory milestones, limitation cutoffs & procedural remedy warnings.
+                Dynamically deconstructs any dispute into statutory milestones, calculates limitation cutoffs & procedural remedy warnings.
               </p>
             </div>
           </div>
@@ -302,46 +389,160 @@ export function DisputeTimelineVisualizer({
           </div>
         </div>
 
-        {/* Archetype Selector Horizontal Rail */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
-          {CLIENT_TIMELINE_ARCHETYPES.map((arch) => {
-            const isSelected = arch.key === selectedArchetypeKey;
-            return (
-              <button
-                key={arch.key}
-                type="button"
-                onClick={() => setSelectedArchetypeKey(arch.key)}
-                className={`px-3 py-2 rounded-xl border text-left shrink-0 transition-all cursor-pointer flex items-center gap-2.5 ${
-                  isSelected
-                    ? isDark
-                      ? 'bg-amber-500/15 border-amber-500 text-white shadow-sm'
-                      : 'bg-[#eff4ff] border-[#00288e] text-[#00288e] shadow-sm'
-                    : isDark
-                      ? 'bg-[#141829] border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                      : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
-                }`}
-              >
-                <span className={`material-symbols-outlined text-[18px] ${
-                  isSelected ? (isDark ? 'text-amber-400' : 'text-[#00288e]') : 'text-slate-400'
-                }`}>
-                  {arch.icon}
-                </span>
-                <div>
-                  <div className="text-[12px] font-bold truncate max-w-[200px]">
-                    {arch.title}
-                  </div>
-                  <div className="text-[10px] font-mono opacity-80 truncate max-w-[200px]">
-                    {arch.statute_badge}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+        {/* Mode Switcher Tabs */}
+        <div className="flex items-center gap-2 pt-1 border-t border-slate-200 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={() => setActiveMode('custom_brain')}
+            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              activeMode === 'custom_brain'
+                ? isDark
+                  ? 'bg-amber-500 text-black shadow-xs font-black'
+                  : 'bg-[#00288e] text-white shadow-xs'
+                : isDark
+                  ? 'text-slate-400 hover:text-white bg-[#141829]'
+                  : 'text-slate-600 hover:text-slate-900 bg-slate-100'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[16px]">psychology</span>
+            <span>🧠 Senior Advocate Dynamic Brain (Custom Dispute)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveMode('archetype')}
+            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              activeMode === 'archetype'
+                ? isDark
+                  ? 'bg-amber-500 text-black shadow-xs font-black'
+                  : 'bg-[#00288e] text-white shadow-xs'
+                : isDark
+                  ? 'text-slate-400 hover:text-white bg-[#141829]'
+                  : 'text-slate-600 hover:text-slate-900 bg-slate-100'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[16px]">auto_stories</span>
+            <span>📚 Statutory Procedural Guides (7 Archetypes)</span>
+          </button>
         </div>
+
+        {/* Archetype Selector Rail (Only in archetype mode) */}
+        {activeMode === 'archetype' && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin pt-1">
+            {CLIENT_TIMELINE_ARCHETYPES.map((arch) => {
+              const isSelected = arch.key === selectedArchetypeKey;
+              return (
+                <button
+                  key={arch.key}
+                  type="button"
+                  onClick={() => setSelectedArchetypeKey(arch.key)}
+                  className={`px-3 py-2 rounded-xl border text-left shrink-0 transition-all cursor-pointer flex items-center gap-2.5 ${
+                    isSelected
+                      ? isDark
+                        ? 'bg-amber-500/15 border-amber-500 text-white shadow-sm'
+                        : 'bg-[#eff4ff] border-[#00288e] text-[#00288e] shadow-sm'
+                      : isDark
+                        ? 'bg-[#141829] border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                        : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+                  }`}
+                >
+                  <span className={`material-symbols-outlined text-[18px] ${
+                    isSelected ? (isDark ? 'text-amber-400' : 'text-[#00288e]') : 'text-slate-400'
+                  }`}>
+                    {arch.icon}
+                  </span>
+                  <div>
+                    <div className="text-[12px] font-bold truncate max-w-[200px]">
+                      {arch.title}
+                    </div>
+                    <div className="text-[10px] font-mono opacity-80 truncate max-w-[200px]">
+                      {arch.statute_badge}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* 2. ANCHOR DATE CONTROLS & URGENCY STATUS BANNER */}
-      <div className="p-4 sm:p-5 space-y-4">
+      {/* 2. SCROLLABLE BODY AREA */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 scrollbar-thin">
+        
+        {/* ================= CUSTOM DISPUTE INTAKE DRAWER (Senior Advocate Brain) ================= */}
+        {activeMode === 'custom_brain' && (
+          <div className={`p-4 rounded-xl border space-y-3 ${
+            isDark ? 'bg-[#131626] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+          }`}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-500 text-[20px]">smart_toy</span>
+                <h3 className="text-[13px] font-black uppercase tracking-wider">
+                  Real-World Case Facts & Scenario Intake (Zero Hardcoding)
+                </h3>
+              </div>
+              <span className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                Paste raw narrative • Senior Advocate Brain extracts dates, parties & statutes
+              </span>
+            </div>
+
+            <textarea
+              rows={3}
+              value={customFacts}
+              onChange={(e) => setCustomFacts(e.target.value)}
+              placeholder="Describe your actual controversy: parties involved, transaction dates, breach/incident date, amounts, notices sent, etc."
+              className={`w-full text-[12.5px] p-3 rounded-xl border font-sans focus:outline-none transition-all ${
+                isDark
+                  ? 'bg-[#181c2f] border-slate-700 text-white focus:border-amber-500'
+                  : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-[#00288e]'
+              }`}
+            />
+
+            {/* Quick Scenario Fillers */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className={`text-[11px] font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  Quick Load:
+                </span>
+                {SAMPLE_CASE_SNIPPETS.map((snippet) => (
+                  <button
+                    key={snippet.label}
+                    type="button"
+                    onClick={() => {
+                      setCustomFacts(snippet.facts);
+                      handleAnalyzeCustomDispute(snippet.facts);
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer ${
+                      isDark
+                        ? 'bg-[#181c2f] hover:bg-[#232942] border-slate-700 text-slate-300'
+                        : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                    }`}
+                  >
+                    {snippet.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleAnalyzeCustomDispute()}
+                disabled={isAnalyzing}
+                className={`px-4 py-1.5 rounded-lg text-[12px] font-black flex items-center gap-2 transition-all cursor-pointer shadow-md ${
+                  isDark
+                    ? 'bg-amber-500 hover:bg-amber-400 text-black'
+                    : 'bg-[#00288e] hover:bg-blue-900 text-white'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {isAnalyzing ? 'sync' : 'bolt'}
+                </span>
+                <span>{isAnalyzing ? 'Analyzing Scenario...' : 'Calculate Custom Timeline'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================= ANCHOR DATE CONTROLS & URGENCY STATUS BANNER ================= */}
         <div className={`p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 ${
           isDark ? 'bg-[#131626] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
@@ -351,13 +552,20 @@ export function DisputeTimelineVisualizer({
               isDark ? 'text-amber-400' : 'text-[#00288e]'
             }`}>
               <span className="material-symbols-outlined text-[16px]">pin_drop</span>
-              <span>Trigger Event Anchor: {activeArchetype.anchor_label}</span>
+              <span>
+                Trigger Event Anchor: {timelineData.anchor_label || activeArchetype.anchor_label}
+              </span>
             </label>
             <div className="flex flex-wrap items-center gap-2">
               <input
                 type="date"
                 value={anchorDate}
-                onChange={(e) => setAnchorDate(e.target.value)}
+                onChange={(e) => {
+                  setAnchorDate(e.target.value);
+                  if (activeMode === 'custom_brain') {
+                    handleAnalyzeCustomDispute(customFacts);
+                  }
+                }}
                 className={`px-3 py-1.5 rounded-lg border text-[13px] font-mono font-bold focus:outline-none ${
                   isDark
                     ? 'bg-[#1a1e33] border-slate-700 text-white focus:border-amber-500'
@@ -393,7 +601,7 @@ export function DisputeTimelineVisualizer({
             getUrgencyBadgeClasses(timelineData.limitation_summary.urgency_rating)
           }`}>
             <span className="material-symbols-outlined text-[28px] animate-pulse">
-              {timelineData.limitation_summary.is_expired ? 'error' : 'timer'}
+              {timelineData.limitation_summary.days_remaining < 0 ? 'error' : 'timer'}
             </span>
             <div>
               <div className="flex items-center gap-2">
@@ -405,7 +613,7 @@ export function DisputeTimelineVisualizer({
                 </span>
               </div>
               <div className="text-[14px] font-black">
-                {timelineData.limitation_summary.is_expired
+                {timelineData.limitation_summary.days_remaining < 0
                   ? `Overdue by ${Math.abs(timelineData.limitation_summary.days_remaining)} Days`
                   : timelineData.limitation_summary.days_remaining === 0
                     ? 'Final Day Today!'
@@ -417,12 +625,12 @@ export function DisputeTimelineVisualizer({
 
         {/* Remedial Guidance Callout */}
         <div className={`p-3.5 rounded-xl border text-[12px] flex items-start gap-2.5 ${
-          timelineData.limitation_summary.is_expired
+          timelineData.limitation_summary.days_remaining < 0
             ? isDark ? 'bg-red-950/30 border-red-800/40 text-red-200' : 'bg-red-50 border-red-200 text-red-900'
             : isDark ? 'bg-blue-950/30 border-blue-800/40 text-blue-200' : 'bg-blue-50 border-blue-200 text-blue-900'
         }`}>
           <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5">
-            {timelineData.limitation_summary.is_expired ? 'warning' : 'gavel'}
+            {timelineData.limitation_summary.days_remaining < 0 ? 'warning' : 'gavel'}
           </span>
           <div className="flex-1 leading-relaxed">
             <span className="font-bold">Senior Advocate Remedial Notice: </span>
@@ -430,8 +638,8 @@ export function DisputeTimelineVisualizer({
           </div>
         </div>
 
-        {/* 3. DUAL-PANE TIMELINE WORKSPACE: RAIL + DETAIL CARD */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-2">
+        {/* ================= DUAL-PANE TIMELINE WORKSPACE ================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-1">
           {/* LEFT: INTERACTIVE MILESTONES RAIL (7 Cols) */}
           <div className="lg:col-span-7 space-y-3">
             <div className="flex items-center justify-between pb-1">
@@ -452,205 +660,185 @@ export function DisputeTimelineVisualizer({
                 isDark ? 'bg-slate-800' : 'bg-slate-300'
               }`} />
 
-              {timelineData.milestones.map((m) => {
-                const isSelected = selectedMilestone?.id === m.id;
-                const isPast = m.days_remaining < 0;
-                const isToday = m.days_remaining === 0;
-
+              {timelineData.milestones.map((milestone, idx) => {
+                const isSelected = selectedMilestone?.id === milestone.id;
                 return (
                   <div
-                    key={m.id}
-                    onClick={() => setSelectedMilestone(m)}
-                    className={`relative rounded-xl border p-3.5 transition-all cursor-pointer ${
+                    key={milestone.id || idx}
+                    onClick={() => setSelectedMilestone(milestone)}
+                    className={`relative p-3.5 rounded-xl border transition-all cursor-pointer ${
                       isSelected
                         ? isDark
-                          ? 'bg-[#181c2d] border-amber-500 shadow-md ring-1 ring-amber-500/50'
-                          : 'bg-[#f0f5ff] border-[#00288e] shadow-md ring-1 ring-[#00288e]/30'
+                          ? 'bg-amber-500/10 border-amber-500 shadow-md ring-1 ring-amber-500/30'
+                          : 'bg-[#eff4ff] border-[#00288e] shadow-md ring-1 ring-[#00288e]/30'
                         : isDark
-                          ? 'bg-[#111422] border-slate-800 hover:border-slate-700'
-                          : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
+                          ? 'bg-[#131626] border-slate-800 hover:border-slate-700 hover:bg-[#181c2f]'
+                          : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                     }`}
                   >
-                    {/* Node Dot / Pin */}
-                    <div className={`absolute -left-[27px] top-4 w-5 h-5 rounded-full flex items-center justify-center text-[11px] border ${
-                      m.is_deadline
-                        ? isPast
-                          ? 'bg-red-500 border-red-600 text-white'
-                          : 'bg-amber-500 border-amber-600 text-black font-bold animate-pulse'
-                        : isPast
-                          ? 'bg-emerald-600 border-emerald-700 text-white'
-                          : isToday
-                            ? 'bg-blue-600 border-blue-700 text-white ring-2 ring-blue-400'
-                            : isDark ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-slate-200 border-slate-300 text-slate-600'
+                    {/* Node Dot on Vertical Line */}
+                    <div className={`absolute -left-[27px] top-4 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      milestone.is_deadline
+                        ? 'bg-red-500 border-white text-white'
+                        : isSelected
+                          ? isDark ? 'bg-amber-400 border-black' : 'bg-[#00288e] border-white'
+                          : isDark ? 'bg-[#181c2d] border-slate-600' : 'bg-slate-100 border-slate-400'
                     }`}>
-                      {m.is_deadline ? (
-                        <span className="material-symbols-outlined text-[13px]">gavel</span>
-                      ) : isPast ? (
-                        <span className="material-symbols-outlined text-[13px]">check</span>
-                      ) : (
-                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      )}
+                      {milestone.is_deadline && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
 
-                    {/* Milestone Card Content */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded ${
-                            isPast
-                              ? isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-600'
-                              : isDark ? 'bg-blue-950/60 text-blue-300' : 'bg-blue-50 text-blue-800'
+                            milestone.is_deadline
+                              ? 'bg-red-500/15 text-red-500 border border-red-500/25'
+                              : isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'
                           }`}>
-                            {m.formatted_date}
+                            {milestone.formatted_date}
                           </span>
-                          <span className="text-[10.5px] font-mono text-slate-400">
-                            Day +{m.days_from_anchor}
+                          <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                            Day +{milestone.days_from_anchor}
                           </span>
-                          {m.is_deadline && (
-                            <span className="text-[9.5px] font-mono font-bold px-1.5 py-0.2 rounded bg-red-500/15 text-red-500 border border-red-500/25">
-                              STATUTORY DEADLINE
+                          {milestone.is_deadline && (
+                            <span className="text-[9px] font-mono font-black uppercase px-1.5 py-0.2 rounded bg-red-500 text-white">
+                              DEADLINE
                             </span>
                           )}
                         </div>
 
-                        <h4 className={`text-[13.5px] font-bold mt-1.5 ${
-                          isSelected
-                            ? isDark ? 'text-amber-400' : 'text-[#00288e]'
-                            : isDark ? 'text-white' : 'text-slate-900'
-                        }`}>
-                          {m.title}
+                        <h4 className="text-[13.5px] font-bold mt-1 tracking-tight">
+                          {milestone.title}
                         </h4>
 
-                        <div className={`text-[11px] font-mono mt-0.5 ${
-                          isDark ? 'text-slate-400' : 'text-slate-600'
+                        <p className={`text-[11px] font-mono mt-0.5 ${
+                          isDark ? 'text-amber-400/90' : 'text-[#00288e]'
                         }`}>
-                          {m.statutory_provision}
-                        </div>
+                          § {milestone.statutory_provision}
+                        </p>
                       </div>
 
-                      {/* Urgency Badge */}
-                      <span className={`text-[10px] font-mono font-bold px-2 py-1 rounded shrink-0 border ${
-                        m.days_remaining < 0
-                          ? isDark ? 'bg-slate-800/80 text-slate-400 border-slate-700' : 'bg-slate-100 text-slate-500 border-slate-200'
-                          : m.days_remaining <= 14
-                            ? 'bg-red-500/15 text-red-500 border-red-500/30'
-                            : m.days_remaining <= 30
-                              ? 'bg-amber-500/15 text-amber-500 border-amber-500/30'
-                              : isDark ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/40' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                      }`}>
-                        {m.days_remaining < 0
-                          ? `${Math.abs(m.days_remaining)}d ago`
-                          : m.days_remaining === 0
-                            ? 'Today'
-                            : `In ${m.days_remaining}d`}
-                      </span>
+                      <div className="text-right shrink-0">
+                        <span className={`text-[10.5px] font-mono font-bold px-2 py-0.5 rounded ${
+                          milestone.days_to_event < 0
+                            ? isDark ? 'text-slate-500 bg-slate-900' : 'text-slate-400 bg-slate-100'
+                            : milestone.days_to_event <= 15
+                              ? 'text-red-500 bg-red-500/10'
+                              : isDark ? 'text-emerald-400 bg-emerald-950/40' : 'text-emerald-700 bg-emerald-50'
+                        }`}>
+                          {milestone.days_to_event < 0
+                            ? `${Math.abs(milestone.days_to_event)}d ago`
+                            : milestone.days_to_event === 0
+                              ? 'Today'
+                              : `in ${milestone.days_to_event}d`}
+                        </span>
+                      </div>
                     </div>
+
+                    <p className={`text-[11.5px] mt-2 line-clamp-2 leading-relaxed ${
+                      isDark ? 'text-slate-300' : 'text-slate-600'
+                    }`}>
+                      {milestone.legal_consequence}
+                    </p>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* RIGHT: DEEP-DIVE MILESTONE LEGAL ANALYSIS DRAWER (5 Cols) */}
-          <div className="lg:col-span-5">
-            <div className={`p-4 sm:p-5 rounded-2xl border space-y-4 sticky top-4 ${
-              isDark ? 'bg-[#101322] border-slate-800 shadow-xl' : 'bg-white border-slate-200 shadow-md'
-            }`}>
-              {selectedMilestone ? (
-                <>
-                  <div className="border-b pb-3 border-slate-700/20">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10.5px] font-mono uppercase tracking-wider font-bold text-amber-500">
-                        Milestone Detail
-                      </span>
-                      <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded ${
-                        selectedMilestone.days_remaining < 0
-                          ? 'bg-slate-700/40 text-slate-400'
-                          : 'bg-emerald-500/15 text-emerald-500'
-                      }`}>
-                        {selectedMilestone.days_remaining < 0
-                          ? `Passed ${Math.abs(selectedMilestone.days_remaining)} days ago`
-                          : `Remaining: ${selectedMilestone.days_remaining} days`}
-                      </span>
-                    </div>
-                    <h3 className="text-[16px] font-black mt-1 leading-snug">
+          {/* RIGHT: SELECTED MILESTONE DETAILS & PRECEDENTS (5 Cols) */}
+          <div className="lg:col-span-5 space-y-4">
+            {selectedMilestone ? (
+              <div className={`p-4 sm:p-5 rounded-xl border sticky top-2 space-y-4 ${
+                isDark ? 'bg-[#131626] border-slate-800' : 'bg-white border-slate-200 shadow-md'
+              }`}>
+                <div className="flex items-start justify-between gap-3 border-b pb-3 border-slate-200 dark:border-slate-800">
+                  <div>
+                    <span className={`text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded ${
+                      selectedMilestone.is_deadline
+                        ? 'bg-red-500/15 text-red-500 border border-red-500/25'
+                        : isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-blue-50 text-blue-700'
+                    }`}>
+                      {selectedMilestone.phase.toUpperCase().replace('_', ' ')}
+                    </span>
+                    <h3 className="text-[15px] font-bold mt-1.5 leading-snug">
                       {selectedMilestone.title}
                     </h3>
-                    <div className="text-[12px] font-mono text-slate-400 mt-0.5">
-                      Target Date: {selectedMilestone.formatted_date} (Day +{selectedMilestone.days_from_anchor})
-                    </div>
                   </div>
-
-                  {/* Statutory Provision */}
-                  <div className="space-y-1">
-                    <span className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 ${
-                      isDark ? 'text-amber-400' : 'text-[#00288e]'
-                    }`}>
-                      <span className="material-symbols-outlined text-[14px]">menu_book</span>
-                      Statutory Provision
-                    </span>
-                    <div className={`p-2.5 rounded-lg border text-[12px] font-mono leading-relaxed ${
-                      isDark ? 'bg-[#15192c] border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
-                    }`}>
-                      {selectedMilestone.statutory_provision}
-                    </div>
+                  <div className="text-right shrink-0 font-mono text-[11px]">
+                    <div className="font-bold">{selectedMilestone.formatted_date}</div>
+                    <div className="text-slate-500 text-[10px]">Day +{selectedMilestone.days_from_anchor}</div>
                   </div>
-
-                  {/* Legal Consequence */}
-                  <div className="space-y-1">
-                    <span className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 ${
-                      isDark ? 'text-amber-400' : 'text-[#00288e]'
-                    }`}>
-                      <span className="material-symbols-outlined text-[14px]">warning</span>
-                      Procedural & Judicial Consequence
-                    </span>
-                    <p className={`text-[12px] leading-relaxed p-2.5 rounded-lg border ${
-                      isDark ? 'bg-[#15192c] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
-                    }`}>
-                      {selectedMilestone.legal_consequence}
-                    </p>
-                  </div>
-
-                  {/* Binding Supreme Court Precedent */}
-                  {selectedMilestone.precedent_citation && (
-                    <div className="space-y-1">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 ${
-                        isDark ? 'text-amber-400' : 'text-[#00288e]'
-                      }`}>
-                        <span className="material-symbols-outlined text-[14px]">gavel</span>
-                        Binding Supreme Court Benchmark
-                      </span>
-                      <div className={`p-2.5 rounded-lg border text-[12px] font-serif italic ${
-                        isDark ? 'bg-[#181c2f] border-slate-800 text-amber-200' : 'bg-amber-50/60 border-amber-200 text-amber-900'
-                      }`}>
-                        {selectedMilestone.precedent_citation}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Actionable Counsel Instruction */}
-                  <div className="space-y-1">
-                    <span className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 ${
-                      isDark ? 'text-emerald-400' : 'text-emerald-700'
-                    }`}>
-                      <span className="material-symbols-outlined text-[14px]">lightbulb</span>
-                      Senior Counsel Action Plan
-                    </span>
-                    <div className={`p-3 rounded-lg border text-[12px] leading-relaxed ${
-                      isDark ? 'bg-emerald-950/20 border-emerald-800/30 text-emerald-200' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                    }`}>
-                      {selectedMilestone.actionable_guidance}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-12 text-slate-400 text-[13px]">
-                  Select any milestone node on the timeline rail to view senior advocate procedural analysis.
                 </div>
-              )}
-            </div>
+
+                {/* Statutory Provision Box */}
+                <div className={`p-3 rounded-lg border text-[12px] space-y-1 ${
+                  isDark ? 'bg-[#181c2f] border-slate-800' : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className={`text-[10px] font-mono font-bold uppercase ${
+                    isDark ? 'text-amber-400' : 'text-[#00288e]'
+                  }`}>
+                    Governing Statutory Authority:
+                  </div>
+                  <div className="font-bold font-mono text-[12.5px]">
+                    {selectedMilestone.statutory_provision}
+                  </div>
+                </div>
+
+                {/* Legal Consequence */}
+                <div className="space-y-1">
+                  <div className={`text-[10px] font-bold uppercase tracking-wider ${
+                    isDark ? 'text-slate-400' : 'text-slate-500'
+                  }`}>
+                    Legal Consequence & Substantive Effect:
+                  </div>
+                  <p className={`text-[12px] leading-relaxed ${
+                    isDark ? 'text-slate-200' : 'text-slate-700'
+                  }`}>
+                    {selectedMilestone.legal_consequence}
+                  </p>
+                </div>
+
+                {/* Actionable Guidance */}
+                <div className="space-y-1">
+                  <div className={`text-[10px] font-bold uppercase tracking-wider ${
+                    isDark ? 'text-slate-400' : 'text-slate-500'
+                  }`}>
+                    Advocate Actionable Checklist:
+                  </div>
+                  <div className={`p-3 rounded-lg text-[11.5px] border leading-relaxed ${
+                    isDark ? 'bg-emerald-950/20 border-emerald-800/30 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                  }`}>
+                    {selectedMilestone.actionable_guidance}
+                  </div>
+                </div>
+
+                {/* Precedent Citation */}
+                {selectedMilestone.precedent_citation && (
+                  <div className="space-y-1 border-t pt-3 border-slate-200 dark:border-slate-800">
+                    <div className={`text-[10px] font-bold uppercase tracking-wider ${
+                      isDark ? 'text-slate-400' : 'text-slate-500'
+                    }`}>
+                      Landmark Judicial Precedent:
+                    </div>
+                    <div className={`p-2.5 rounded-lg text-[11.5px] italic border ${
+                      isDark ? 'bg-[#181c2f] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-800'
+                    }`}>
+                      ⚖️ {selectedMilestone.precedent_citation}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className={`p-6 rounded-xl border text-center ${
+                isDark ? 'bg-[#131626] border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-500'
+              }`}>
+                Select a milestone from the chronological rail to inspect statutory consequences and precedents.
+              </div>
+            )}
           </div>
         </div>
+
       </div>
     </div>
   );

@@ -609,6 +609,7 @@ export function ChatView({
   // Interactive Dispute Timeline Visualizer Modal State
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
   const [timelineArchetype, setTimelineArchetype] = useState<string>('cheque_bounce_138_ni');
+  const [timelineInitialFacts, setTimelineInitialFacts] = useState('');
 
   // Defensive Counter-Strategy Studio Modal State
   const [isCounterStrategyModalOpen, setIsCounterStrategyModalOpen] = useState(false);
@@ -2987,7 +2988,9 @@ export function ChatView({
                 <button
                   type="button"
                   onClick={() => {
-                    const latestUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text?.toLowerCase() || '';
+                    const rawUserText = messages.filter(m => m.role === 'user').slice(-1)[0]?.text || '';
+                    const latestUserText = rawUserText.toLowerCase();
+                    setTimelineInitialFacts(rawUserText);
                     if (latestUserText.includes('cheque') || latestUserText.includes('138') || latestUserText.includes('dishonor') || latestUserText.includes('dishonour') || latestUserText.includes('bounce')) {
                       setTimelineArchetype('cheque_bounce_138_ni');
                     } else if (latestUserText.includes('consumer') || latestUserText.includes('defect') || latestUserText.includes('cpa') || latestUserText.includes('service')) {
@@ -3676,6 +3679,7 @@ export function ChatView({
                 isDark={isDark}
                 apiBase={apiBase}
                 initialArchetype={timelineArchetype}
+                initialFacts={timelineInitialFacts}
                 onClose={() => setIsTimelineModalOpen(false)}
               />
             </div>
